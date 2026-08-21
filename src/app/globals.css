@@ -1,0 +1,375 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "Bainsley";
+  src: url("/fonts/bainsley-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Arm Hmk's Bebas Neue";
+  src: url("/fonts/bebas-neue-arm.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Comfort Bebas";
+  src: url("/fonts/bebas-neue-arm.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ofont Ru Bebas Neue";
+  src: url("/fonts/ofont-ru-bebas-neue.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ofont Ru Bebas Neue Light";
+  src: url("/fonts/ofont-ru-bebas-neue-light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mardoto Regular";
+  src: url("/fonts/mardoto-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mardoto";
+  src: url("/fonts/mardoto-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserratarm Light";
+  src: url("/fonts/montserratarm-light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserratarm";
+  src: url("/fonts/montserratarm-light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: #E7DFD9;
+  --foreground: #2C333E;
+  --card: #E7DFD9;
+  --card-foreground: #2C333E;
+  --popover: #E7DFD9;
+  --popover-foreground: #2C333E;
+  --primary: #2C333E;
+  --primary-foreground: #E7DFD9;
+  --secondary: #ACB9C0;
+  --secondary-foreground: #2C333E;
+  --muted: #ACB9C0;
+  --muted-foreground: #2C333E;
+  --accent: #203E4B;
+  --accent-foreground: #E7DFD9;
+  --destructive: #a60e0e;
+  --destructive-foreground: #ffffff;
+  --border: #ACB9C0;
+  --input: #ACB9C0;
+  --ring: #203E4B;
+  --radius: 7px;
+  --glass: rgba(231, 223, 217, 0.82);
+  --glass-border: rgba(44, 51, 62, 0.08);
+  --shadow-soft: 0 20px 60px rgba(44, 51, 62, 0.08);
+  --hero-overlay: linear-gradient(
+    120deg,
+    rgba(44, 51, 62, 0.72) 0%,
+    rgba(44, 51, 62, 0.28) 55%,
+    rgba(44, 51, 62, 0.12) 100%
+  );
+  --font-comfort-sans: "Bainsley", "Mardoto Regular", "Montserratarm Light", "Noto Sans Armenian", system-ui, sans-serif;
+  --font-comfort-display: "Arm Hmk's Bebas Neue", "Ofont Ru Bebas Neue", "Bainsley", sans-serif;
+}
+
+/* Force light tokens inside admin even when the site theme is dark */
+.admin-light {
+  color-scheme: light;
+  --background: #eef1f3;
+  --foreground: #2c333e;
+  --card: #ffffff;
+  --card-foreground: #2c333e;
+  --popover: #ffffff;
+  --popover-foreground: #2c333e;
+  --primary: #2c333e;
+  --primary-foreground: #eef1f3;
+  --secondary: #203e4b;
+  --secondary-foreground: #eef1f3;
+  --muted: #d7e0e4;
+  --muted-foreground: #5a6270;
+  --accent: #203e4b;
+  --accent-foreground: #eef1f3;
+  --destructive: #a60e0e;
+  --destructive-foreground: #ffffff;
+  --border: #c5d0d6;
+  --input: #c5d0d6;
+  --ring: #203e4b;
+  --glass: rgba(238, 241, 243, 0.92);
+  --glass-border: rgba(44, 51, 62, 0.08);
+  --shadow-soft: 0 20px 60px rgba(44, 51, 62, 0.08);
+}
+
+.dark {
+  --background: #2C333E;
+  --foreground: #E7DFD9;
+  --card: #203E4B;
+  --card-foreground: #E7DFD9;
+  --popover: #203E4B;
+  --popover-foreground: #E7DFD9;
+  --primary: #E7DFD9;
+  --primary-foreground: #2C333E;
+  --secondary: #ACB9C0;
+  --secondary-foreground: #2C333E;
+  --muted: #ACB9C0;
+  --muted-foreground: #ACB9C0;
+  --accent: #ACB9C0;
+  --accent-foreground: #2C333E;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #203E4B;
+  --input: #203E4B;
+  --ring: #ACB9C0;
+  --glass: rgba(44, 51, 62, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.35);
+  --hero-overlay: linear-gradient(
+    120deg,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.35) 55%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-comfort-ink: #2C333E;
+  --color-comfort-sand: #E7DFD9;
+  --color-comfort-gold: #203E4B;
+  --font-sans: var(--font-comfort-sans);
+  --font-display: var(--font-comfort-display);
+  --radius-sm: 7px;
+  --radius-md: 7px;
+  --radius-lg: 7px;
+  --radius-xl: 7px;
+  --radius-2xl: 7px;
+  --radius-3xl: 7px;
+  --radius-4xl: 7px;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-comfort-sans), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--foreground);
+}
+
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.display {
+  font-family: var(--font-comfort-display), var(--font-comfort-sans), sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.container-comfort {
+  width: min(100% - 2rem, 1280px);
+  margin-inline: auto;
+}
+
+.container-wide {
+  width: min(100% - 2rem, 1440px);
+  margin-inline: auto;
+}
+
+.noise {
+  position: relative;
+}
+
+.noise::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 25%,
+    color-mix(in srgb, var(--muted) 60%, white) 50%,
+    var(--muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Admin: lock document scroll; only panes scroll */
+html.admin-scroll-lock,
+html.admin-scroll-lock body {
+  overflow: hidden !important;
+  height: 100dvh !important;
+  overscroll-behavior: none;
+}
+
+.admin-pane-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 40%, transparent) transparent;
+}
+
+.admin-pane-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-pane-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-pane-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+}
+
+.admin-pane-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.catalog-cover {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 700ms ease-out;
+}
+
+.group:hover .catalog-cover {
+  transform: scale(1.04);
+}
+
+/* Placeholder plinth art is mostly empty wall — crop to the product. */
+.catalog-cover--plinth {
+  object-position: center 78%;
+  transform: scale(1.7);
+  transform-origin: center 78%;
+}
+
+.group:hover .catalog-cover--plinth {
+  transform: scale(1.78);
+}
