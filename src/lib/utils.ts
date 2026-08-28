@@ -5,16 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(
-  amount: number,
-  locale: string = "en",
-  currency: string = "AMD",
-) {
-  return new Intl.NumberFormat(locale === "am" ? "hy-AM" : locale, {
-    style: "currency",
-    currency,
+export function formatPrice(amount: number, locale: string = "en") {
+  const digits = Math.round(amount).toLocaleString("en-US", {
     maximumFractionDigits: 0,
-  }).format(amount);
+  });
+  return locale === "en" ? `AMD ${digits}` : `${digits} ֏`;
 }
 
 export function slugify(text: string) {

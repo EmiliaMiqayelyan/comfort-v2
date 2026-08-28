@@ -148,7 +148,19 @@
     "dimensions": "Չափեր",
     "screenshot": "Պահպանել նկար",
     "share": "Կիսվել",
-    "download": "Ներբեռնել նկարը"
+    "download": "Ներբեռնել նկարը",
+    "lightingOptions": {
+      "studio": "Ստուդիա",
+      "soft": "Փափուկ",
+      "dramatic": "Դրամատիկ",
+      "product": "Ապրանքային"
+    },
+    "environmentOptions": {
+      "apartment": "Բնակարան",
+      "city": "Քաղաք",
+      "warehouse": "Պահեստ",
+      "sunset": "Մայրամուտ"
+    }
   },
   "configurator": {
     "title": "Ապրանքի կոնֆիգուրատոր",
@@ -389,6 +401,7 @@
     "fileSize": "Ֆայլի չափ",
     "addImage": "Ավելացնել նկար",
     "addColor": "Ավելացնել գույն",
+    "modelUrlHint": "Միայն .glb կամ .gltf 3D մոդելներ։ Նկարներ այստեղ մի վերբեռնեք։",
     "addTexture": "Ավելացնել տեքստուրա",
     "addSpec": "Ավելացնել բնութագիր",
     "cancel": "Չեղարկել",

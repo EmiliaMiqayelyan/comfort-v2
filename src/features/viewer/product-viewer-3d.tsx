@@ -23,6 +23,7 @@ import {
   Sun,
 } from "lucide-react";
 import { Button } from "@/components/atoms/button";
+import { AppSelect } from "@/components/molecules/app-select";
 import { cn } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
 import { useViewerStore } from "@/stores";
@@ -210,6 +211,24 @@ export function ProductViewer3D({
     [depth, height],
   );
 
+  const lightingOptions = useMemo(
+    () =>
+      LIGHTING_OPTIONS.map((option) => ({
+        value: option,
+        label: t(`lightingOptions.${option}`),
+      })),
+    [t],
+  );
+
+  const environmentOptions = useMemo(
+    () =>
+      ENVIRONMENT_OPTIONS.map((option) => ({
+        value: option,
+        label: t(`environmentOptions.${option}`),
+      })),
+    [t],
+  );
+
   return (
     <div
       ref={containerRef}
@@ -303,50 +322,33 @@ export function ProductViewer3D({
 
           {/* Lighting + Environment */}
           <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className="min-w-0 space-y-1.5">
+            <div className="min-w-0 space-y-1.5">
               <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 <Sun className="size-3.5 shrink-0" aria-hidden />
                 {t("lighting")}
               </span>
-              <select
+              <AppSelect
                 value={lighting}
-                onChange={(e) =>
-                  set({
-                    lighting: e.target.value as (typeof LIGHTING_OPTIONS)[number],
-                  })
+                onValueChange={(value) =>
+                  set({ lighting: value as (typeof LIGHTING_OPTIONS)[number] })
                 }
-                className="h-9 w-full max-w-full rounded-xl border border-border bg-card/90 px-3 text-sm focus-ring"
-                aria-label={t("lighting")}
-              >
-                {LIGHTING_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="min-w-0 space-y-1.5">
+                placeholder={t("lighting")}
+                options={lightingOptions}
+              />
+            </div>
+            <div className="min-w-0 space-y-1.5">
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 {t("environment")}
               </span>
-              <select
+              <AppSelect
                 value={environment}
-                onChange={(e) =>
-                  set({
-                    environment:
-                      e.target.value as (typeof ENVIRONMENT_OPTIONS)[number],
-                  })
+                onValueChange={(value) =>
+                  set({ environment: value as (typeof ENVIRONMENT_OPTIONS)[number] })
                 }
-                className="h-9 w-full max-w-full rounded-xl border border-border bg-card/90 px-3 text-sm focus-ring"
-                aria-label={t("environment")}
-              >
-                {ENVIRONMENT_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
+                placeholder={t("environment")}
+                options={environmentOptions}
+              />
+            </div>
           </div>
 
           {/* Actions */}

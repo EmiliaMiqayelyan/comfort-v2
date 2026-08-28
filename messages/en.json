@@ -148,7 +148,19 @@
     "dimensions": "Dimensions",
     "screenshot": "Save screenshot",
     "share": "Share configuration",
-    "download": "Download image"
+    "download": "Download image",
+    "lightingOptions": {
+      "studio": "Studio",
+      "soft": "Soft",
+      "dramatic": "Dramatic",
+      "product": "Product"
+    },
+    "environmentOptions": {
+      "apartment": "Apartment",
+      "city": "City",
+      "warehouse": "Warehouse",
+      "sunset": "Sunset"
+    }
   },
   "configurator": {
     "title": "Product Configurator",
@@ -389,6 +401,7 @@
     "fileSize": "File size",
     "addImage": "Add image",
     "addColor": "Add color",
+    "modelUrlHint": "Only .glb or .gltf 3D models. Do not upload images here.",
     "addTexture": "Add texture",
     "addSpec": "Add specification",
     "cancel": "Cancel",

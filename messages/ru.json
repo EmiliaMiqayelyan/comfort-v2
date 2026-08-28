@@ -148,7 +148,19 @@
     "dimensions": "Размеры",
     "screenshot": "Скриншот",
     "share": "Поделиться",
-    "download": "Скачать изображение"
+    "download": "Скачать изображение",
+    "lightingOptions": {
+      "studio": "Студия",
+      "soft": "Мягкое",
+      "dramatic": "Драматичное",
+      "product": "Продуктовое"
+    },
+    "environmentOptions": {
+      "apartment": "Квартира",
+      "city": "Город",
+      "warehouse": "Склад",
+      "sunset": "Закат"
+    }
   },
   "configurator": {
     "title": "Конфигуратор",
@@ -389,6 +401,7 @@
     "fileSize": "Размер файла",
     "addImage": "Добавить изображение",
     "addColor": "Добавить цвет",
+    "modelUrlHint": "Только 3D модели .glb или .gltf. Не загружайте сюда изображения.",
     "addTexture": "Добавить текстуру",
     "addSpec": "Добавить характеристику",
     "cancel": "Отмена",
