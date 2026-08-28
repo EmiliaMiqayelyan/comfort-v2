@@ -5,6 +5,7 @@ import type {
   ContactMessage,
   ContactSettings,
   DownloadFile,
+  HeroSettings,
   Product,
   ProductCategory,
   Project,
@@ -113,6 +114,7 @@ export const catalogApi = {
     apiGet<DownloadFile[]>(`/downloads${publicOnly ? "?public=true" : ""}`),
   download: (id: string) => apiGet<DownloadFile>(`/downloads/${id}`),
   contactSettings: () => apiGet<ContactSettings>("/settings/contact"),
+  heroSettings: () => apiGet<HeroSettings>("/settings/hero"),
 };
 
 export const adminApi = {
@@ -166,6 +168,8 @@ export const adminApi = {
   contactMessages: () => apiFetch<ContactMessage[]>("/contact"),
   updateContactSettings: (payload: ContactSettings) =>
     apiFetch<ContactSettings>("/settings/contact", { method: "PUT", body: JSON.stringify(payload) }),
+  updateHeroSettings: (payload: HeroSettings) =>
+    apiFetch<HeroSettings>("/settings/hero", { method: "PUT", body: JSON.stringify(payload) }),
 };
 
 export async function uploadFile(file: File) {

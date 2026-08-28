@@ -26,7 +26,7 @@ export function slugify(text: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export const FALLBACK_MEDIA = "/products/plinth.png";
+export const FALLBACK_MEDIA = "/products/plinth.jpg";
 
 /**
  * Normalize API media fields that may arrive as a real array, a JSON string,
@@ -71,14 +71,42 @@ export function jsonArray<T>(value: unknown): T[] {
   return [];
 }
 
+/** Resolve admin-uploaded `/uploads/...` paths for browser + next/image. */
+export function resolveUploadSrc(src: string) {
+  if (!src.startsWith("/uploads/")) return src;
+  // Same-origin `/uploads` is proxied to the API by `src/app/uploads/[...path]/route.ts`.
+  return src;
+}
+
 /** Safe src for next/image — empty or invalid values crash URL parsing. */
 export function mediaSrc(value: string | null | undefined, fallback = FALLBACK_MEDIA) {
   if (typeof value !== "string") return fallback;
-  const src = value.trim();
+  let src = value.trim();
   if (!src || src === "null" || src === "undefined") return fallback;
+
+  // Absolute API upload URLs → same-origin path via Next `/uploads` proxy.
+  try {
+    const asUrl = new URL(src);
+    if (
+      (asUrl.protocol === "http:" || asUrl.protocol === "https:") &&
+      asUrl.pathname.startsWith("/uploads/")
+    ) {
+      src = asUrl.pathname;
+    }
+  } catch {
+    /* not an absolute URL */
+  }
+
+  if (src.startsWith("uploads/")) src = `/${src}`;
+
+  // Legacy stub asset is nearly blank — use the real photo instead.
+  if (src === "/products/plinth.png" || src.endsWith("/products/plinth.png")) {
+    return fallback;
+  }
+
+  if (src.startsWith("/uploads/")) return resolveUploadSrc(src);
   if (src.startsWith("/") || src.startsWith("data:") || src.startsWith("blob:")) return src;
   try {
-    // Absolute http(s) URLs must parse.
     const url = new URL(src);
     if (url.protocol === "http:" || url.protocol === "https:") return src;
   } catch {

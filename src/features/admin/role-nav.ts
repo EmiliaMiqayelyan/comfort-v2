@@ -8,6 +8,7 @@ import {
   Award,
   Download,
   Mail,
+  ImageIcon,
 } from "lucide-react";
 import type { Role } from "@/types";
 
@@ -25,6 +26,12 @@ export const adminNavItems: AdminNavItem[] = [
     labelKey: "dashboard",
     icon: LayoutDashboard,
     roles: ["admin", "manager", "editor", "translator", "dealer"],
+  },
+  {
+    href: "/admin/homepage",
+    labelKey: "homepage",
+    icon: ImageIcon,
+    roles: ["admin", "manager", "editor"],
   },
   {
     href: "/admin/products",

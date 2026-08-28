@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { adminFieldClass } from "@/features/admin/form-ui";
 import { uploadFile } from "@/lib/api";
+import { mediaSrc } from "@/lib/utils";
 
 export function FileUploadField({
   value,
@@ -72,7 +73,7 @@ export function FileUploadField({
         <div className="relative h-24 w-36 overflow-hidden rounded-xl border border-border bg-muted">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={value}
+            src={mediaSrc(value)}
             alt=""
             className="h-full w-full object-cover"
             onError={(event) => {

@@ -18,12 +18,14 @@ import {
   emptyLocalized,
   asLocalized,
   slugify,
+  useRequiredFieldMessage,
 } from "@/features/admin/form-ui";
 import { FileUploadField } from "@/features/admin/file-upload";
 import { AdminSelect } from "@/features/admin/admin-select";
 import { CategoryAttachFields } from "@/features/admin/category-attach";
 import { useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
 import type {
   Collection,
@@ -160,8 +162,15 @@ export function ProductForm({ product }: { product?: Product }) {
   const [slugLocked, setSlugLocked] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    nameEn?: string;
+    slug?: string;
+    sku?: string;
+    categoryId?: string;
+  }>({});
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
+  const requiredMsg = useRequiredFieldMessage();
 
   useEffect(() => {
     Promise.all([adminApi.categories(), adminApi.collections()])
@@ -169,7 +178,7 @@ export function ProductForm({ product }: { product?: Product }) {
         setCategories(nextCategories);
         setCollections(nextCollections);
       })
-      .catch((err) => {
+      .catch(() => {
         setError(t("apiUnavailable"));
       });
   }, [t]);
@@ -177,10 +186,14 @@ export function ProductForm({ product }: { product?: Product }) {
 
   const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    if (key === "slug" || key === "sku" || key === "categoryId") {
+      setFieldErrors((prev) => ({ ...prev, [key]: undefined }));
+    }
   };
 
   const handleNameChange = (name: LocalizedString) => {
     const next = asLocalized(name);
+    setFieldErrors((prev) => ({ ...prev, nameEn: undefined }));
     setForm((prev) => ({
       ...prev,
       name: next,
@@ -195,13 +208,19 @@ export function ProductForm({ product }: { product?: Product }) {
     const name = asLocalized(form.name);
     const slug = (form.slug ?? "").trim();
     const sku = (form.sku ?? "").trim();
+    const nextErrors: typeof fieldErrors = {};
+    if (!name.en.trim()) nextErrors.nameEn = requiredMsg;
+    if (!slug) nextErrors.slug = requiredMsg;
+    if (!sku) nextErrors.sku = requiredMsg;
+    if (!form.categoryId) nextErrors.categoryId = requiredMsg;
 
-    if (!name.en.trim() || !slug || !sku || !form.categoryId) {
-      setError(t("requiredFields"));
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
       return;
     }
 
     setSaving(true);
+    setFieldErrors({});
     const imageList = asArray<string>(form.images);
     const payload: Partial<Product> = {
       ...form,
@@ -235,7 +254,7 @@ export function ProductForm({ product }: { product?: Product }) {
       }
       await queryClient.invalidateQueries({ queryKey: ["products"] });
       router.replace("/admin/products");
-    } catch (err) {
+    } catch {
       setError(t("saveError"));
     } finally {
       setSaving(false);
@@ -250,26 +269,26 @@ export function ProductForm({ product }: { product?: Product }) {
           description={t("productsDesc")}
         />
 
-        <form onSubmit={handleSubmit} className="space-y-6 pb-16">
+        <form onSubmit={handleSubmit} className="space-y-6 pb-16" noValidate>
           <Section title={t("identity")}>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <Field label={tp("sku")}>
+              <Field label={tp("sku")} required error={fieldErrors.sku}>
                 <Input
                   value={form.sku}
                   onChange={(e) => update("sku", e.target.value)}
-                  className={adminFieldClass}
-                  required
+                  className={cn(adminFieldClass, fieldErrors.sku && "border-red-500")}
+                  aria-invalid={Boolean(fieldErrors.sku)}
                 />
               </Field>
-              <Field label="Slug">
+              <Field label="Slug" required error={fieldErrors.slug}>
                 <Input
                   value={form.slug}
                   onChange={(e) => {
                     setSlugLocked(true);
                     update("slug", slugify(e.target.value));
                   }}
-                  className={adminFieldClass}
-                  required
+                  className={cn(adminFieldClass, fieldErrors.slug && "border-red-500")}
+                  aria-invalid={Boolean(fieldErrors.slug)}
                 />
               </Field>
               <Field label={tp("availability")}>
@@ -308,7 +327,13 @@ export function ProductForm({ product }: { product?: Product }) {
           </Section>
 
           <Section title={t("name")}>
-            <LocalizedInputs label={t("name")} value={form.name} onChange={handleNameChange} />
+            <LocalizedInputs
+              label={t("name")}
+              value={form.name}
+              onChange={handleNameChange}
+              requiredLocales={["en"]}
+              errors={{ en: fieldErrors.nameEn }}
+            />
           </Section>
 
           <Section title={t("description")}>
@@ -325,6 +350,7 @@ export function ProductForm({ product }: { product?: Product }) {
               <CategoryAttachFields
                 categories={categories}
                 value={form.categoryId}
+                error={fieldErrors.categoryId}
                 onChange={(categoryId) => update("categoryId", categoryId)}
               />
               <Field label={t("collections")}>

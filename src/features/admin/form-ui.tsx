@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -43,14 +44,22 @@ export function Section({
 export function Field({
   label,
   children,
+  error,
+  required,
 }: {
   label: string;
   children: React.ReactNode;
+  error?: string | null;
+  required?: boolean;
 }) {
   return (
     <div className="space-y-2">
-      <Label className="text-foreground/80">{label}</Label>
+      <Label className="text-foreground/80">
+        {label}
+        {required ? <span className="ml-0.5 text-red-600">*</span> : null}
+      </Label>
       {children}
+      {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>
   );
 }
@@ -60,22 +69,32 @@ export function LocalizedInputs({
   value,
   onChange,
   multiline,
+  errors,
+  requiredLocales = [],
 }: {
   label: string;
   value: LocalizedString;
   onChange: (value: LocalizedString) => void;
   multiline?: boolean;
+  errors?: Partial<Record<"en" | "ru" | "am", string | null | undefined>>;
+  requiredLocales?: Array<"en" | "ru" | "am">;
 }) {
   const Control = multiline ? Textarea : Input;
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {(["en", "ru", "am"] as const).map((locale) => (
-        <Field key={locale} label={`${label} (${locale.toUpperCase()})`}>
+        <Field
+          key={locale}
+          label={`${label} (${locale.toUpperCase()})`}
+          required={requiredLocales.includes(locale)}
+          error={errors?.[locale]}
+        >
           <Control
             value={value?.[locale] ?? ""}
             onChange={(e) => onChange({ ...asLocalized(value), [locale]: e.target.value })}
-            className={adminFieldClass}
+            className={cn(adminFieldClass, errors?.[locale] && "border-red-500 focus-visible:ring-red-500/30")}
             rows={multiline ? 4 : undefined}
+            aria-invalid={Boolean(errors?.[locale])}
           />
         </Field>
       ))}
@@ -115,17 +134,7 @@ export function FormActions({
   );
 }
 
-export function SelectField({
-  className,
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      className={cn(
-        "flex h-11 w-full rounded-xl border border-border bg-white px-4 text-sm text-foreground outline-none",
-        className,
-      )}
-      {...props}
-    />
-  );
+export function useRequiredFieldMessage() {
+  const t = useTranslations("admin");
+  return t.has("fieldRequired") ? t("fieldRequired") : t("requiredFields");
 }

@@ -11,10 +11,12 @@ export function CategoryAttachFields({
   categories,
   value,
   onChange,
+  error,
 }: {
   categories: ProductCategory[];
   value: string;
   onChange: (id: string) => void;
+  error?: string | null;
 }) {
   const t = useTranslations("admin");
   const locale = useLocale();
@@ -25,7 +27,7 @@ export function CategoryAttachFields({
 
   return (
     <div className="space-y-4">
-      <Field label={t("parentCategory")}>
+      <Field label={t("parentCategory")} required error={error}>
         <AdminSelect
           value={parentId}
           onValueChange={(next) => onChange(next)}

@@ -44,3 +44,13 @@ export function usePosts() {
     staleTime: 30_000,
   });
 }
+
+export function useHeroSettings() {
+  return useQuery({
+    queryKey: ["hero-settings"],
+    queryFn: async () => (await catalogApi.heroSettings()) ?? null,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+  });
+}

@@ -32,10 +32,10 @@ export function SiteFooter() {
           </p>
           {settings && (
             <div className="mt-6 space-y-2 text-sm text-comfort-sand/80">
-              {settings.phones.filter(Boolean).map((phone) => (
+              {(settings.phones ?? []).filter(Boolean).map((phone) => (
                 <p key={phone}>{phone}</p>
               ))}
-              {settings.emails.filter(Boolean).map((email) => (
+              {(settings.emails ?? []).filter(Boolean).map((email) => (
                 <p key={email}>{email}</p>
               ))}
               <p>{getLocalized(settings.address, locale)}</p>

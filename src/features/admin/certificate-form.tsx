@@ -14,6 +14,7 @@ import {
   Section,
   adminFieldClass,
   asLocalized,
+  useRequiredFieldMessage,
 } from "@/features/admin/form-ui";
 import { FileUploadField } from "@/features/admin/file-upload";
 import { adminApi } from "@/lib/api";
@@ -30,21 +31,29 @@ export function CertificateForm({ certificate }: { certificate?: Certificate }) 
   const [image, setImage] = useState(certificate?.image ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ titleEn?: string; fileUrl?: string }>({});
+  const requiredMsg = useRequiredFieldMessage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const nextTitle = asLocalized(title);
-    if (!nextTitle.en.trim() || !(fileUrl ?? "").trim()) {
-      setError(t("requiredFields"));
+    const nextFileUrl = (fileUrl ?? "").trim();
+    const nextErrors: { titleEn?: string; fileUrl?: string } = {};
+    if (!nextTitle.en.trim()) nextErrors.titleEn = requiredMsg;
+    if (!nextFileUrl) nextErrors.fileUrl = requiredMsg;
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      setError(null);
       return;
     }
     setSaving(true);
     setError(null);
+    setFieldErrors({});
     const payload = {
       title: nextTitle,
       issuer,
       year: Number(year) || undefined,
-      fileUrl,
+      fileUrl: nextFileUrl,
       image: image || undefined,
     };
     try {
@@ -62,12 +71,17 @@ export function CertificateForm({ certificate }: { certificate?: Certificate }) 
     <AuthGate>
       <AdminShell>
         <PageHeader title={isEdit ? t("editCertificate") : t("createCertificate")} />
-        <form onSubmit={handleSubmit} className="space-y-6 pb-16">
+        <form onSubmit={handleSubmit} className="space-y-6 pb-16" noValidate>
           <Section title={t("name")}>
             <LocalizedInputs
               label={t("name")}
               value={title}
-              onChange={(value) => setTitle(asLocalized(value))}
+              requiredLocales={["en"]}
+              errors={{ en: fieldErrors.titleEn }}
+              onChange={(value) => {
+                setTitle(asLocalized(value));
+                if (fieldErrors.titleEn) setFieldErrors((prev) => ({ ...prev, titleEn: undefined }));
+              }}
             />
             <div className="grid gap-4 md:grid-cols-2">
               <Field label={t("issuer")}>
@@ -79,8 +93,16 @@ export function CertificateForm({ certificate }: { certificate?: Certificate }) 
             </div>
           </Section>
           <Section title={t("files")}>
-            <Field label={t("certificateFile")}>
-              <FileUploadField value={fileUrl} onChange={setFileUrl} accept=".pdf,image/*" label={t("upload")} />
+            <Field label={t("certificateFile")} required error={fieldErrors.fileUrl}>
+              <FileUploadField
+                value={fileUrl}
+                onChange={(next) => {
+                  setFileUrl(next);
+                  if (fieldErrors.fileUrl) setFieldErrors((prev) => ({ ...prev, fileUrl: undefined }));
+                }}
+                accept=".pdf,image/*"
+                label={t("upload")}
+              />
             </Field>
             <Field label={t("images")}>
               <FileUploadField value={image} onChange={setImage} accept="image/*" label={t("upload")} />

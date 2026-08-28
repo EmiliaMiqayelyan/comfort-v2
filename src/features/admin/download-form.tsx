@@ -14,10 +14,12 @@ import {
   Section,
   adminFieldClass,
   asLocalized,
+  useRequiredFieldMessage,
 } from "@/features/admin/form-ui";
 import { AdminSelect } from "@/features/admin/admin-select";
 import { FileUploadField } from "@/features/admin/file-upload";
 import { adminApi } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { DownloadCategory, DownloadFile, LocalizedString } from "@/types";
 
 const CATEGORIES: DownloadCategory[] = [
@@ -30,6 +32,12 @@ const CATEGORIES: DownloadCategory[] = [
   "guides",
   "other",
 ];
+
+type FieldErrors = {
+  titleEn?: string;
+  filename?: string;
+  url?: string;
+};
 
 export function DownloadForm({ file }: { file?: DownloadFile }) {
   const t = useTranslations("admin");
@@ -44,21 +52,35 @@ export function DownloadForm({ file }: { file?: DownloadFile }) {
   const [downloadable, setDownloadable] = useState(file?.downloadable ?? true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const requiredMsg = useRequiredFieldMessage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const nextTitle = asLocalized(title);
-    if (!nextTitle.en.trim() || !(filename ?? "").trim() || !(url ?? "").trim()) {
-      setError(t("requiredFields"));
+    const nextFilename = (filename ?? "").trim();
+    const nextUrl = (url ?? "").trim();
+    const nextErrors: FieldErrors = {};
+
+    if (!nextTitle.en.trim()) nextErrors.titleEn = requiredMsg;
+    if (!nextFilename) nextErrors.filename = requiredMsg;
+    if (!nextUrl) nextErrors.url = requiredMsg;
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      setError(null);
       return;
     }
+
     setSaving(true);
     setError(null);
+    setFieldErrors({});
     const payload = {
       title: nextTitle,
-      filename,
+      filename: nextFilename,
       category,
-      url,
+      url: nextUrl,
       size,
       downloadable,
     };
@@ -77,16 +99,29 @@ export function DownloadForm({ file }: { file?: DownloadFile }) {
     <AuthGate>
       <AdminShell>
         <PageHeader title={isEdit ? t("editDownload") : t("createDownload")} />
-        <form onSubmit={handleSubmit} className="space-y-6 pb-16">
+        <form onSubmit={handleSubmit} className="space-y-6 pb-16" noValidate>
           <Section title={t("name")}>
             <LocalizedInputs
               label={t("name")}
               value={title}
-              onChange={(value) => setTitle(asLocalized(value))}
+              requiredLocales={["en"]}
+              errors={{ en: fieldErrors.titleEn }}
+              onChange={(value) => {
+                setTitle(asLocalized(value));
+                if (fieldErrors.titleEn) setFieldErrors((prev) => ({ ...prev, titleEn: undefined }));
+              }}
             />
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t("filename")}>
-                <Input value={filename} onChange={(e) => setFilename(e.target.value)} className={adminFieldClass} />
+              <Field label={t("filename")} required error={fieldErrors.filename}>
+                <Input
+                  value={filename}
+                  onChange={(e) => {
+                    setFilename(e.target.value);
+                    if (fieldErrors.filename) setFieldErrors((prev) => ({ ...prev, filename: undefined }));
+                  }}
+                  className={cn(adminFieldClass, fieldErrors.filename && "border-red-500")}
+                  aria-invalid={Boolean(fieldErrors.filename)}
+                />
               </Field>
               <Field label={td("categories")}>
                 <AdminSelect
@@ -99,15 +134,18 @@ export function DownloadForm({ file }: { file?: DownloadFile }) {
             </div>
           </Section>
           <Section title={t("files")}>
-            <FileUploadField
-              value={url}
-              label={t("upload")}
-              onChange={(next, meta) => {
-                setUrl(next);
-                if (meta?.name && !filename) setFilename(meta.name);
-                if (meta?.size) setSize(`${Math.max(1, Math.round(meta.size / 1024))} KB`);
-              }}
-            />
+            <Field label={t("upload")} required error={fieldErrors.url}>
+              <FileUploadField
+                value={url}
+                label={t("upload")}
+                onChange={(next, meta) => {
+                  setUrl(next);
+                  if (fieldErrors.url) setFieldErrors((prev) => ({ ...prev, url: undefined }));
+                  if (meta?.name && !filename) setFilename(meta.name);
+                  if (meta?.size) setSize(`${Math.max(1, Math.round(meta.size / 1024))} KB`);
+                }}
+              />
+            </Field>
             <label className="mt-4 flex items-center gap-3 text-sm text-foreground/80">
               <input
                 type="checkbox"

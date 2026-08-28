@@ -75,6 +75,13 @@ export interface ContactSettings {
   showrooms: ContactShowroom[];
 }
 
+export interface HeroSettings {
+  /** Ordered hero slider images (local `/uploads/...` or absolute URLs). */
+  images: string[];
+  /** @deprecated Prefer `images[0]` — kept for older payloads. */
+  image?: string;
+}
+
 export interface ContactMessage {
   id: string;
   name: string;

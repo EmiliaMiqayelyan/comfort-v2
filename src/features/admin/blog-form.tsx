@@ -15,8 +15,10 @@ import {
   adminFieldClass,
   asLocalized,
   slugify,
+  useRequiredFieldMessage,
 } from "@/features/admin/form-ui";
 import { adminApi } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { BlogPost, LocalizedString } from "@/types";
 
 export function BlogForm({ post }: { post?: BlogPost }) {
@@ -37,17 +39,24 @@ export function BlogForm({ post }: { post?: BlogPost }) {
   const [slugLocked, setSlugLocked] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ titleEn?: string; slug?: string }>({});
+  const requiredMsg = useRequiredFieldMessage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const nextTitle = asLocalized(title);
     const nextSlug = (slug ?? "").trim();
-    if (!nextTitle.en.trim() || !nextSlug) {
-      setError(t("requiredFields"));
+    const nextErrors: { titleEn?: string; slug?: string } = {};
+    if (!nextTitle.en.trim()) nextErrors.titleEn = requiredMsg;
+    if (!nextSlug) nextErrors.slug = requiredMsg;
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      setError(null);
       return;
     }
     setSaving(true);
     setError(null);
+    setFieldErrors({});
     const payload = {
       title: nextTitle,
       excerpt: asLocalized(excerpt),
@@ -79,26 +88,31 @@ export function BlogForm({ post }: { post?: BlogPost }) {
     <AuthGate>
       <AdminShell>
         <PageHeader title={isEdit ? t("editPost") : t("createPost")} />
-        <form onSubmit={handleSubmit} className="space-y-6 pb-16">
+        <form onSubmit={handleSubmit} className="space-y-6 pb-16" noValidate>
           <Section title={t("name")}>
             <LocalizedInputs
               label={t("name")}
               value={title}
+              requiredLocales={["en"]}
+              errors={{ en: fieldErrors.titleEn }}
               onChange={(value) => {
                 const next = asLocalized(value);
                 setTitle(next);
+                if (fieldErrors.titleEn) setFieldErrors((prev) => ({ ...prev, titleEn: undefined }));
                 if (!slugLocked) setSlug(slugify(next.en));
               }}
             />
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <Field label="Slug">
+              <Field label="Slug" required error={fieldErrors.slug}>
                 <Input
                   value={slug}
                   onChange={(e) => {
                     setSlugLocked(true);
                     setSlug(slugify(e.target.value));
+                    if (fieldErrors.slug) setFieldErrors((prev) => ({ ...prev, slug: undefined }));
                   }}
-                  className={adminFieldClass}
+                  className={cn(adminFieldClass, fieldErrors.slug && "border-red-500")}
+                  aria-invalid={Boolean(fieldErrors.slug)}
                 />
               </Field>
               <Field label={t("categories")}>

@@ -31,8 +31,8 @@ export function CategoriesSection() {
           </Link>
         </Reveal>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {parents.map((category, i) => (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          {parents.slice(0, 4).map((category, i) => (
             <Reveal key={category.id} delay={i * 0.08}>
               <CatalogCard
                 href={`/products/${category.slug}`}

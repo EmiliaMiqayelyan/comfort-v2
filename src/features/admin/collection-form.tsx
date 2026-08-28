@@ -15,10 +15,12 @@ import {
   adminFieldClass,
   asLocalized,
   slugify,
+  useRequiredFieldMessage,
 } from "@/features/admin/form-ui";
 import { AdminSelect } from "@/features/admin/admin-select";
 import { FileUploadField } from "@/features/admin/file-upload";
 import { adminApi } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { Collection, LocalizedString } from "@/types";
 
 export function CollectionForm({ collection }: { collection?: Collection }) {
@@ -35,17 +37,24 @@ export function CollectionForm({ collection }: { collection?: Collection }) {
   const [slugLocked, setSlugLocked] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ nameEn?: string; slug?: string }>({});
+  const requiredMsg = useRequiredFieldMessage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const nextName = asLocalized(name);
     const nextSlug = (slug ?? "").trim();
-    if (!nextName.en.trim() || !nextSlug) {
-      setError(t("requiredFields"));
+    const nextErrors: { nameEn?: string; slug?: string } = {};
+    if (!nextName.en.trim()) nextErrors.nameEn = requiredMsg;
+    if (!nextSlug) nextErrors.slug = requiredMsg;
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      setError(null);
       return;
     }
     setSaving(true);
     setError(null);
+    setFieldErrors({});
     const payload = {
       name: nextName,
       description: asLocalized(description),
@@ -68,27 +77,31 @@ export function CollectionForm({ collection }: { collection?: Collection }) {
     <AuthGate>
       <AdminShell>
         <PageHeader title={isEdit ? t("editCollection") : t("createCollection")} />
-        <form onSubmit={handleSubmit} className="space-y-6 pb-16">
+        <form onSubmit={handleSubmit} className="space-y-6 pb-16" noValidate>
           <Section title={t("name")}>
             <LocalizedInputs
               label={t("name")}
               value={name}
+              requiredLocales={["en"]}
+              errors={{ en: fieldErrors.nameEn }}
               onChange={(value) => {
                 const next = asLocalized(value);
                 setName(next);
+                if (fieldErrors.nameEn) setFieldErrors((prev) => ({ ...prev, nameEn: undefined }));
                 if (!slugLocked) setSlug(slugify(next.en));
               }}
             />
             <div className="grid gap-4 md:grid-cols-3">
-              <Field label="Slug">
+              <Field label="Slug" required error={fieldErrors.slug}>
                 <Input
                   value={slug}
                   onChange={(e) => {
                     setSlugLocked(true);
                     setSlug(slugify(e.target.value));
+                    if (fieldErrors.slug) setFieldErrors((prev) => ({ ...prev, slug: undefined }));
                   }}
-                  className={adminFieldClass}
-                  required
+                  className={cn(adminFieldClass, fieldErrors.slug && "border-red-500")}
+                  aria-invalid={Boolean(fieldErrors.slug)}
                 />
               </Field>
               <Field label="Style">

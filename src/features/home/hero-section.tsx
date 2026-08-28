@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
@@ -8,8 +8,14 @@ import { Award, Download, Leaf, Ruler, Shield, ArrowUpRight } from "lucide-react
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/atoms/button";
 import { Reveal } from "@/components/molecules/reveal";
-import { heroSlides } from "@/data/catalog";
-import { cn } from "@/lib/utils";
+import { useHeroSettings } from "@/hooks/use-catalog";
+import { cn, mediaSrc } from "@/lib/utils";
+
+const DEFAULT_HERO_IMAGES = [
+  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2400&q=80",
+  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2400&q=80",
+  "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=2400&q=80",
+];
 
 const trustItems = [
   { key: "quality" as const, icon: Award },
@@ -18,48 +24,66 @@ const trustItems = [
   { key: "eco" as const, icon: Leaf },
 ];
 
+function resolveHeroImages(settings: { images?: string[]; image?: string } | null | undefined) {
+  const fromArray = (settings?.images ?? [])
+    .map((item) => mediaSrc(item, ""))
+    .filter(Boolean);
+  if (fromArray.length > 0) return fromArray;
+  if (settings?.image) {
+    const single = mediaSrc(settings.image, "");
+    if (single) return [single];
+  }
+  return DEFAULT_HERO_IMAGES;
+}
+
 export function HeroSection() {
   const t = useTranslations("hero");
   const tTrust = useTranslations("trust");
+  const { data: settings } = useHeroSettings();
+  const slides = useMemo(() => resolveHeroImages(settings), [settings]);
   const [active, setActive] = useState(0);
 
   useEffect(() => {
+    setActive(0);
+  }, [slides.join("|")]);
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
-      setActive((prev) => (prev + 1) % heroSlides.length);
+      setActive((prev) => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
-  const slideCount = heroSlides.length;
+  const slideCount = slides.length;
   const current = String(active + 1).padStart(2, "0");
   const total = String(slideCount).padStart(2, "0");
 
   return (
     <section className="relative min-h-[100svh] overflow-hidden">
-      {/* Background carousel */}
       <div className="absolute inset-0">
         <AnimatePresence mode="sync">
-          {heroSlides.map(
-            (slide, i) =>
-              i === active && (
-                <motion.div
-                  key={slide.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute inset-0"
-                >
-                  <Image
-                    src={slide.image}
-                    alt=""
-                    fill
-                    priority={i === 0}
-                    className="object-cover"
-                    sizes="100vw"
-                  />
-                </motion.div>
-              ),
+          {slides.map((slide, i) =>
+            i === active ? (
+              <motion.div
+                key={`${slide}-${i}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={slide}
+                  alt=""
+                  fill
+                  priority={i === 0}
+                  unoptimized={slide.startsWith("http") || slide.includes("/uploads/")}
+                  className="object-cover object-center"
+                  sizes="100vw"
+                />
+              </motion.div>
+            ) : null,
           )}
         </AnimatePresence>
         <div
@@ -69,7 +93,6 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 flex min-h-[100svh] flex-col justify-end pb-8 pt-28 md:pb-12">
         <div className="container-wide px-4 md:px-8">
           <div className="max-w-3xl">
@@ -113,40 +136,33 @@ export function HeroSection() {
             </Reveal>
           </div>
 
-          {/* Slide indicator */}
-          <Reveal delay={0.4} className="mt-12 flex items-center gap-4">
-            <span className="font-mono text-sm tracking-widest text-white">
-              {current}
-            </span>
-            <div className="flex h-px flex-1 max-w-[120px] items-center gap-1">
-              {heroSlides.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`${t("slide")} ${i + 1}`}
-                  onClick={() => setActive(i)}
-                  className={cn(
-                    "h-px flex-1 transition-all duration-500",
-                    i === active ? "bg-white" : "bg-white/30",
-                  )}
-                />
-              ))}
-            </div>
-            <span className="font-mono text-sm tracking-widest text-white/50">
-              {total}
-            </span>
-          </Reveal>
+          {slideCount > 1 ? (
+            <Reveal delay={0.4} className="mt-12 flex items-center gap-4">
+              <span className="font-mono text-sm tracking-widest text-white">{current}</span>
+              <div className="flex h-px max-w-[120px] flex-1 items-center gap-1">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={`${t("slide")} ${i + 1}`}
+                    onClick={() => setActive(i)}
+                    className={cn(
+                      "h-px flex-1 transition-all duration-500",
+                      i === active ? "bg-white" : "bg-white/30",
+                    )}
+                  />
+                ))}
+              </div>
+              <span className="font-mono text-sm tracking-widest text-white/50">{total}</span>
+            </Reveal>
+          ) : null}
         </div>
 
-        {/* Trust bar */}
         <Reveal delay={0.5} className="mt-10 md:mt-16">
           <div className="border-t border-white/15 bg-black/45 backdrop-blur-md">
             <div className="container-wide grid grid-cols-2 gap-6 px-4 py-6 md:grid-cols-4 md:px-8 md:py-8">
               {trustItems.map(({ key, icon: Icon }) => (
-                <div
-                  key={key}
-                  className="flex items-center gap-3 text-white"
-                >
+                <div key={key} className="flex items-center gap-3 text-white">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/35 bg-white/10">
                     <Icon className="h-4 w-4 text-white" strokeWidth={1.75} />
                   </span>

@@ -25,7 +25,7 @@ export function ContactDetails() {
           {t("showrooms")}
         </h2>
         <ul className="space-y-6">
-          {settings.showrooms.map((room) => (
+          {(settings.showrooms ?? []).map((room) => (
             <li key={room.id} className="rounded-3xl border border-border bg-card p-6 shadow-soft">
               <h3 className="font-medium text-foreground">{room.name}</h3>
               <p className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
@@ -56,13 +56,13 @@ export function ContactDetails() {
           <Clock className="h-4 w-4 shrink-0" />
           {getLocalized(settings.hours, locale)}
         </p>
-        {settings.phones.filter(Boolean).map((phone) => (
+        {(settings.phones ?? []).filter(Boolean).map((phone) => (
           <p key={phone} className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
             <Phone className="h-4 w-4 shrink-0" />
             {phone}
           </p>
         ))}
-        {settings.emails.filter(Boolean).map((email) => (
+        {(settings.emails ?? []).filter(Boolean).map((email) => (
           <p key={email} className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
             <Mail className="h-4 w-4 shrink-0" />
             {email}
@@ -71,7 +71,7 @@ export function ContactDetails() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        {settings.socials.filter((item) => item.href).map((item) => (
+        {(settings.socials ?? []).filter((item) => item.href).map((item) => (
           <a
             key={item.id}
             href={item.href}

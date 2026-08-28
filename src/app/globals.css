@@ -362,14 +362,3 @@ html.admin-scroll-lock body {
 .group:hover .catalog-cover {
   transform: scale(1.04);
 }
-
-/* Placeholder plinth art is mostly empty wall — crop to the product. */
-.catalog-cover--plinth {
-  object-position: center 78%;
-  transform: scale(1.7);
-  transform-origin: center 78%;
-}
-
-.group:hover .catalog-cover--plinth {
-  transform: scale(1.78);
-}

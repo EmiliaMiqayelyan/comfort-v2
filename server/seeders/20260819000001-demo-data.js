@@ -2,7 +2,7 @@
 const bcrypt = require('bcryptjs');
 
 const L = (en, ru, am) => JSON.stringify({ en, ru, am });
-const productImage = '/products/plinth.png';
+const productImage = '/products/plinth.jpg';
 const productGallery = JSON.stringify([
   productImage,
   'https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?auto=format&fit=crop&w=1600&q=80',
