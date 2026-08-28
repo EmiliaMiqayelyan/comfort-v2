@@ -20,4 +20,8 @@ export class AppError extends Error {
   static forbidden(message = 'Forbidden') {
     return new AppError(message, 403, 'FORBIDDEN');
   }
+
+  static conflict(message = 'Conflict') {
+    return new AppError(message, 409, 'CONFLICT');
+  }
 }

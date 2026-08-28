@@ -360,6 +360,7 @@ export function ProductConfigurator({ className }: { className?: string }) {
         <div className="space-y-6">
           <ProductViewer3D
             modelUrl={selectedProduct?.modelUrl}
+            colors={selectedProduct?.colors}
             color={selectedColor?.hex}
             height={selectedProduct?.height}
             depth={selectedProduct?.depth}

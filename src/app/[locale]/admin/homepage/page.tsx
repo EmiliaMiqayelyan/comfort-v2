@@ -16,20 +16,9 @@ import type { HeroSettings } from "@/types";
 const DEFAULT_HERO_IMAGE =
   "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2400&q=80";
 
-const LEGACY_DEFAULT_HERO_IMAGES = [
-  DEFAULT_HERO_IMAGE,
-  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2400&q=80",
-  "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=2400&q=80",
-];
-
 function normalizeImages(settings: HeroSettings | null | undefined): string[] {
   const fromArray = (settings?.images ?? []).map((item) => item.trim()).filter(Boolean);
-  if (fromArray.length > 0) {
-    const isLegacyDefault =
-      fromArray.length === LEGACY_DEFAULT_HERO_IMAGES.length &&
-      fromArray.every((item, index) => item === LEGACY_DEFAULT_HERO_IMAGES[index]);
-    return isLegacyDefault ? [DEFAULT_HERO_IMAGE] : fromArray;
-  }
+  if (fromArray.length > 0) return fromArray;
   if (settings?.image?.trim()) return [settings.image.trim()];
   return [""];
 }

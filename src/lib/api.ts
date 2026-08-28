@@ -76,14 +76,17 @@ export async function apiFetch<T>(
     error?: string;
   };
   if (!response.ok) {
+    const serverMessage = data.error || data.message;
     const message =
-      response.status === 401 || response.status === 403
-        ? "Unauthorized"
-        : response.status === 404
-          ? "Not found"
-          : response.status >= 500
-            ? "Service unavailable"
-            : "Request failed";
+      typeof serverMessage === "string" && serverMessage.trim()
+        ? serverMessage
+        : response.status === 401 || response.status === 403
+          ? "Unauthorized"
+          : response.status === 404
+            ? "Not found"
+            : response.status >= 500
+              ? "Service unavailable"
+              : "Request failed";
     throw new ApiError(message, response.status);
   }
   return data as T;

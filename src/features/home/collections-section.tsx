@@ -12,7 +12,9 @@ import { mediaSrc } from "@/lib/utils";
 export function CollectionsSection() {
   const t = useTranslations("collections");
   const locale = useLocale();
-  const { data: collections = [] } = useCollections();
+  const { data: collections = [], isLoading } = useCollections();
+
+  if (isLoading || collections.length === 0) return null;
 
   return (
     <section className="bg-secondary/50 py-20 md:py-28">

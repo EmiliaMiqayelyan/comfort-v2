@@ -35,7 +35,7 @@ export function CatalogCard({
     <Link
       href={href}
       className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-[12px] bg-[#f3f3f1] shadow-[0_1px_0_rgba(17,24,39,0.04)] transition-transform duration-300 hover:-translate-y-0.5",
+        "group flex h-full flex-col overflow-hidden rounded-[5px] bg-[#f3f3f1] shadow-[0_1px_0_rgba(17,24,39,0.04)] transition-transform duration-300 hover:-translate-y-0.5",
         className,
       )}
     >

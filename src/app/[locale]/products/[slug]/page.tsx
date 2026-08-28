@@ -102,16 +102,15 @@ export default async function ProductOrCategoryPage({
   return (
     <section className="bg-background py-16 md:py-24">
       <div className="container-wide px-4 md:px-8">
-        <Link
-          href="/products"
-          className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {tc("back")}
-        </Link>
-
         {product ? (
           <>
+            <Link
+              href="/products"
+              className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {tc("back")}
+            </Link>
             <ProductJsonLd
               name={getLocalized(product.name, locale)}
               description={getLocalized(product.description, locale)}

@@ -11,11 +11,8 @@ import { Reveal } from "@/components/molecules/reveal";
 import { useHeroSettings } from "@/hooks/use-catalog";
 import { cn, mediaSrc } from "@/lib/utils";
 
-const DEFAULT_HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2400&q=80",
-  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2400&q=80",
-  "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=2400&q=80",
-];
+const DEFAULT_HERO_IMAGE =
+  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2400&q=80";
 
 const trustItems = [
   { key: "quality" as const, icon: Award },
@@ -33,7 +30,7 @@ function resolveHeroImages(settings: { images?: string[]; image?: string } | nul
     const single = mediaSrc(settings.image, "");
     if (single) return [single];
   }
-  return DEFAULT_HERO_IMAGES;
+  return [DEFAULT_HERO_IMAGE];
 }
 
 export function HeroSection() {
@@ -60,7 +57,7 @@ export function HeroSection() {
   const total = String(slideCount).padStart(2, "0");
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden">
+    <section className="relative flex min-h-[100svh] flex-col overflow-hidden">
       <div className="absolute inset-0">
         <AnimatePresence mode="sync">
           {slides.map((slide, i) =>
@@ -93,8 +90,8 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
       </div>
 
-      <div className="relative z-10 flex min-h-[100svh] flex-col justify-end pb-8 pt-28 md:pb-12">
-        <div className="container-wide px-4 md:px-8">
+      <div className="relative z-10 flex flex-1 flex-col justify-end pt-28">
+        <div className="container-wide px-4 pb-8 md:px-8 md:pb-10">
           <div className="max-w-3xl">
             <Reveal delay={0.1}>
               <h1 className="display text-balance text-4xl leading-[1.05] text-white sm:text-5xl md:text-6xl lg:text-7xl">
@@ -157,24 +154,24 @@ export function HeroSection() {
             </Reveal>
           ) : null}
         </div>
-
-        <Reveal delay={0.5} className="mt-10 md:mt-16">
-          <div className="border-t border-white/15 bg-black/45 backdrop-blur-md">
-            <div className="container-wide grid grid-cols-2 gap-6 px-4 py-6 md:grid-cols-4 md:px-8 md:py-8">
-              {trustItems.map(({ key, icon: Icon }) => (
-                <div key={key} className="flex items-center gap-3 text-white">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/35 bg-white/10">
-                    <Icon className="h-4 w-4 text-white" strokeWidth={1.75} />
-                  </span>
-                  <span className="text-xs leading-snug tracking-wide sm:text-sm">
-                    {tTrust(key)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Reveal>
       </div>
+
+      <Reveal delay={0.5} className="relative z-10 shrink-0">
+        <div className="border-t border-white/15 bg-black/45 backdrop-blur-md">
+          <div className="container-wide grid grid-cols-2 gap-6 px-4 py-6 md:grid-cols-4 md:px-8 md:py-8">
+            {trustItems.map(({ key, icon: Icon }) => (
+              <div key={key} className="flex items-center gap-3 text-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/35 bg-white/10">
+                  <Icon className="h-4 w-4 text-white" strokeWidth={1.75} />
+                </span>
+                <span className="text-xs leading-snug tracking-wide sm:text-sm">
+                  {tTrust(key)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Reveal>
     </section>
   );
 }

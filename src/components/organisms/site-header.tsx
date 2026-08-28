@@ -1,15 +1,15 @@
 "use client";
 
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Menu, Moon, Search, Sun, X, ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, usePathname } from "@/i18n/routing";
-import { locales, localeNames, type AppLocale } from "@/i18n/config";
 import { Button } from "@/components/atoms/button";
 import { BrandLogo } from "@/components/atoms/brand-logo";
+import { LocaleSelect } from "@/components/molecules/locale-select";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores";
 
@@ -39,7 +39,6 @@ const mobileExtra = [
 
 export function SiteHeader() {
   const t = useTranslations("nav");
-  const locale = useLocale() as AppLocale;
   const pathname = usePathname();
   const isHome = pathname === "/";
   const { theme, setTheme } = useTheme();
@@ -109,25 +108,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-1 md:flex">
-            {locales.map((l) => (
-              <Link
-                key={l}
-                href={pathname}
-                locale={l}
-                className={cn(
-                  "rounded-full px-2.5 py-1 text-sm font-medium transition",
-                  locale === l
-                    ? "bg-accent text-accent-foreground"
-                    : solid
-                      ? "text-muted-foreground hover:text-foreground"
-                      : "text-white/70 hover:text-white",
-                )}
-                aria-current={locale === l ? "true" : undefined}
-              >
-                {localeNames[l]}
-              </Link>
-            ))}
+          <div className="hidden md:block">
+            <LocaleSelect inverted={!solid} />
           </div>
 
           {mounted && (
@@ -213,21 +195,11 @@ export function SiteHeader() {
                 {t("oldSite")}
                 <ArrowUpRight className="h-4 w-4" />
               </a>
-              <div className="flex gap-2 pt-2">
-                {locales.map((l) => (
-                  <Link
-                    key={l}
-                    href={pathname}
-                    locale={l}
-                    className={cn(
-                      "rounded-full px-3 py-1 text-sm",
-                      locale === l ? "bg-accent text-accent-foreground" : "bg-muted",
-                    )}
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    {localeNames[l]}
-                  </Link>
-                ))}
+              <div className="pt-2">
+                <LocaleSelect
+                  className="w-full justify-between rounded-xl px-3"
+                  onChange={() => setMobileNavOpen(false)}
+                />
               </div>
             </div>
           </motion.div>

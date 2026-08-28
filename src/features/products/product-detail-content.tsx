@@ -17,7 +17,7 @@ import { ProductCardGrid } from "@/components/molecules/product-card";
 import { cn, formatPrice, mediaList, mediaSrc, jsonArray } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
 import { useCategories, useCollections, useProducts } from "@/hooks/use-catalog";
-import type { Product, ProductDownload, ProductSpec } from "@/types";
+import type { Product, ProductColor, ProductDownload, ProductSpec } from "@/types";
 
 const availabilityKeys = {
   in_stock: "inStock",
@@ -32,6 +32,7 @@ export function ProductDetailContent({ product }: { product: Product }) {
   const images = mediaList(product.images);
   const specs = jsonArray<ProductSpec>(product.specs);
   const downloads = jsonArray<ProductDownload>(product.downloads);
+  const productColors = jsonArray<ProductColor>(product.colors);
   const activeSrc = mediaSrc(images[activeImage] ?? images[0]);
 
   const { data: categories = [] } = useCategories();
@@ -105,6 +106,8 @@ export function ProductDetailContent({ product }: { product: Product }) {
               </p>
               <ProductViewer3D
                 modelUrl={product.modelUrl}
+                colors={productColors}
+                color={productColors[0]?.hex}
                 height={product.height}
                 depth={product.depth}
               />

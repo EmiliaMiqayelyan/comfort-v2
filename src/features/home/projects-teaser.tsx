@@ -12,8 +12,10 @@ import { cn } from "@/lib/utils";
 export function ProjectsTeaser() {
   const t = useTranslations("projects");
   const locale = useLocale();
-  const { data: projects = [] } = useProjects();
+  const { data: projects = [], isLoading } = useProjects();
   const featured = projects.slice(0, 3);
+
+  if (isLoading || featured.length === 0) return null;
 
   return (
     <section className="bg-background py-20 md:py-28">

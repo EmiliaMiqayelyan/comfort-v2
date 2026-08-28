@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Camera,
   Download,
@@ -24,10 +24,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { cn } from "@/lib/utils";
+import { getLocalized } from "@/data/catalog";
 import { useViewerStore } from "@/stores";
-import { DEFAULT_PRODUCT_MODEL_URL } from "@/lib/product-model";
+import { resolveProductModelUrl } from "@/lib/product-model";
+import type { ProductColor } from "@/types";
 
-const COLOR_SWATCHES = [
+const FALLBACK_COLOR_SWATCHES = [
   "#2C333E",
   "#203E4B",
   "#ACB9C0",
@@ -46,6 +48,7 @@ const LIGHTING_OPTIONS = ["studio", "soft", "dramatic", "product"] as const;
 export interface ProductViewer3DProps {
   modelUrl?: string;
   color?: string;
+  colors?: ProductColor[];
   height?: number;
   depth?: number;
   className?: string;
@@ -83,11 +86,13 @@ const ViewerCanvas = dynamic(
 export function ProductViewer3D({
   modelUrl,
   color: colorProp,
+  colors,
   height = 80,
   depth = 16,
   className,
 }: ProductViewer3DProps) {
   const t = useTranslations("viewer");
+  const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -105,9 +110,29 @@ export function ProductViewer3D({
 
   const activeColor = colorProp ?? storeColor;
 
+  const palette = useMemo(() => {
+    const fromProduct = (colors ?? [])
+      .filter((item) => item.hex?.trim())
+      .map((item) => ({
+        hex: item.hex.trim(),
+        label: getLocalized(item.name, locale) || item.hex.trim(),
+      }));
+    if (fromProduct.length > 0) return fromProduct;
+    return FALLBACK_COLOR_SWATCHES.map((hex) => ({ hex, label: hex }));
+  }, [colors, locale]);
+
   useEffect(() => {
     if (colorProp) set({ color: colorProp });
   }, [colorProp, set]);
+
+  useEffect(() => {
+    if (colorProp) return;
+    const hexes = palette.map((item) => item.hex.toLowerCase());
+    if (hexes.length === 0) return;
+    if (!hexes.includes(activeColor.toLowerCase())) {
+      set({ color: palette[0].hex });
+    }
+  }, [activeColor, colorProp, palette, set]);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -200,7 +225,7 @@ export function ProductViewer3D({
       <div className="absolute inset-0">
         <Suspense fallback={<ViewerSkeleton className="h-full w-full" />}>
           <ViewerCanvas
-            modelUrl={modelUrl || DEFAULT_PRODUCT_MODEL_URL}
+            modelUrl={resolveProductModelUrl(modelUrl) ?? undefined}
             color={activeColor}
             scale={scale}
             autoRotate={autoRotate}
@@ -256,20 +281,21 @@ export function ProductViewer3D({
               role="group"
               aria-label={t("color")}
             >
-              {COLOR_SWATCHES.map((hex) => (
+              {palette.map((item) => (
                 <button
-                  key={hex}
+                  key={item.hex}
                   type="button"
-                  aria-label={hex}
-                  aria-pressed={activeColor.toLowerCase() === hex.toLowerCase()}
-                  onClick={() => set({ color: hex })}
+                  aria-label={item.label}
+                  aria-pressed={activeColor.toLowerCase() === item.hex.toLowerCase()}
+                  title={item.label}
+                  onClick={() => set({ color: item.hex })}
                   className={cn(
                     "h-8 w-8 shrink-0 rounded-full border-2 transition-transform hover:scale-105 focus-ring",
-                    activeColor.toLowerCase() === hex.toLowerCase()
+                    activeColor.toLowerCase() === item.hex.toLowerCase()
                       ? "border-accent ring-2 ring-accent/40"
                       : "border-border/80",
                   )}
-                  style={{ backgroundColor: hex }}
+                  style={{ backgroundColor: item.hex }}
                 />
               ))}
             </div>

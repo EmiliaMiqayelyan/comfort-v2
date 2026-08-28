@@ -37,7 +37,7 @@
     "eco": "Eco friendly"
   },
   "categories": {
-    "title": "Our products",
+    "title": "Assortment",
     "viewAll": "View all products",
     "baseboards": "Baseboards",
     "baseboardsDesc": "Precision profiles that frame floors with quiet elegance.",
@@ -365,6 +365,7 @@
     "createProduct": "Create product",
     "editProduct": "Edit product",
     "createCategory": "Create category",
+    "createSubcategory": "Add subcategory",
     "editCategory": "Edit category",
     "createCollection": "Create collection",
     "editCollection": "Edit collection",
@@ -393,6 +394,7 @@
     "cancel": "Cancel",
     "saving": "Saving…",
     "saveError": "Could not save.",
+    "slugTaken": "This slug is already in use.",
     "requiredFields": "Fill the required fields.",
     "fieldRequired": "This field is required.",
     "confirmDelete": "Delete this item?",
@@ -404,7 +406,7 @@
     "topLevelCategory": "Top-level category",
     "selectSubcategory": "Subcategory",
     "thisCategory": "Use parent category",
-    "categoryHint": "Choose a parent category, then a subcategory.",
+    "categoryHint": "Choose a category — the label shows the full path (parent → sub → sub-sub…).",
     "contactInbox": "Contact",
     "contactInboxDesc": "Requests and contact details",
     "contactRequests": "Requests",

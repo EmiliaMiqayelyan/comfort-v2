@@ -17,15 +17,21 @@ import {
   slugify,
   useRequiredFieldMessage,
 } from "@/features/admin/form-ui";
-import { adminApi, catalogApi } from "@/lib/api";
+import { adminApi, catalogApi, ApiError } from "@/lib/api";
 import { FileUploadField } from "@/features/admin/file-upload";
 import { AdminSelect } from "@/features/admin/admin-select";
 import { getLocalized } from "@/data/catalog";
-import { parentCategories } from "@/lib/category-tree";
+import { categorySelectOptions, descendantCategoryIds } from "@/lib/category-tree";
 import { cn } from "@/lib/utils";
 import type { LocalizedString, ProductCategory } from "@/types";
 
-export function CategoryForm({ category }: { category?: ProductCategory }) {
+export function CategoryForm({
+  category,
+  defaultParentId,
+}: {
+  category?: ProductCategory;
+  defaultParentId?: string;
+}) {
   const t = useTranslations("admin");
   const locale = useLocale();
   const router = useRouter();
@@ -36,20 +42,31 @@ export function CategoryForm({ category }: { category?: ProductCategory }) {
   );
   const [slug, setSlug] = useState(category?.slug ?? "");
   const [image, setImage] = useState(category?.image ?? "/products/plinth.jpg");
-  const [parentId, setParentId] = useState(category?.parentId ?? "");
-  const [parents, setParents] = useState<ProductCategory[]>([]);
+  const [parentId, setParentId] = useState(category?.parentId ?? defaultParentId ?? "");
+  const [allCategories, setAllCategories] = useState<ProductCategory[]>([]);
   const [slugLocked, setSlugLocked] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ nameEn?: string; slug?: string }>({});
 
   useEffect(() => {
-    catalogApi.categories().then((items) => {
-      setParents(parentCategories(items ?? []).filter((item) => item.id !== category?.id));
-    });
+    catalogApi.categories().then((items) => setAllCategories(items ?? []));
   }, [category?.id]);
 
+  const parentOptions = categorySelectOptions(
+    allCategories,
+    (item) => getLocalized(item.name, locale),
+    category
+      ? {
+          excludeIds: [category.id, ...descendantCategoryIds(category.id, allCategories)],
+        }
+      : undefined,
+  );
+
   const requiredMsg = useRequiredFieldMessage();
+  const slugTakenMsg = t.has("slugTaken")
+    ? t("slugTaken")
+    : "Այս slug-ը արդեն օգտագործված է։";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,8 +94,15 @@ export function CategoryForm({ category }: { category?: ProductCategory }) {
       if (isEdit && category) await adminApi.updateCategory(category.id, payload);
       else await adminApi.createCategory(payload);
       router.replace("/admin/categories");
-    } catch {
-      setError(t("saveError"));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setFieldErrors({ slug: slugTakenMsg });
+        setError(null);
+      } else if (err instanceof ApiError && err.message) {
+        setError(err.message);
+      } else {
+        setError(t("saveError"));
+      }
     } finally {
       setSaving(false);
     }
@@ -122,10 +146,7 @@ export function CategoryForm({ category }: { category?: ProductCategory }) {
                   placeholder={t("parentCategory")}
                   options={[
                     { value: "__none__", label: t("topLevelCategory") },
-                    ...parents.map((item) => ({
-                      value: item.id,
-                      label: getLocalized(item.name, locale),
-                    })),
+                    ...parentOptions,
                   ]}
                 />
               </Field>

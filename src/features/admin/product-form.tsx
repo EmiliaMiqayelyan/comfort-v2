@@ -505,17 +505,35 @@ export function ProductForm({ product }: { product?: Product }) {
                     }}
                   />
                   <div className="flex items-end gap-3">
-                    <Field label="HEX">
-                      <Input
-                        value={color.hex}
-                        onChange={(e) => {
-                          const colors = [...form.colors];
-                          colors[index] = { ...color, hex: e.target.value };
-                          update("colors", colors);
-                        }}
-                        className={adminFieldClass}
-                      />
-                    </Field>
+                    <div
+                      className="h-10 w-10 shrink-0 rounded-[5px] border border-border shadow-inner"
+                      style={{ backgroundColor: color.hex || "#ffffff" }}
+                      aria-hidden
+                    />
+                    <div className="min-w-0 flex-1">
+                      <Field label="HEX">
+                        <Input
+                          value={color.hex}
+                          onChange={(e) => {
+                            const colors = [...form.colors];
+                            colors[index] = { ...color, hex: e.target.value };
+                            update("colors", colors);
+                          }}
+                          className={adminFieldClass}
+                        />
+                      </Field>
+                    </div>
+                    <input
+                      type="color"
+                      value={color.hex || "#ffffff"}
+                      onChange={(e) => {
+                        const colors = [...form.colors];
+                        colors[index] = { ...color, hex: e.target.value };
+                        update("colors", colors);
+                      }}
+                      className="h-10 w-10 shrink-0 cursor-pointer rounded-[5px] border border-border bg-transparent p-1"
+                      aria-label="HEX"
+                    />
                     <Button
                       type="button"
                       variant="ghost"

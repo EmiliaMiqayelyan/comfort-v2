@@ -1,6 +1,13 @@
 "use client";
 
-import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  Component,
+  Suspense,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   Center,
@@ -13,7 +20,7 @@ import {
   useGLTF,
 } from "@react-three/drei";
 import { Box3, Color, Mesh, Vector3, type Group, type Material } from "three";
-import { DEFAULT_PRODUCT_MODEL_URL } from "@/lib/product-model";
+import { resolveProductModelUrl } from "@/lib/product-model";
 
 type LightingPreset = "studio" | "soft" | "dramatic" | "product";
 type EnvironmentPreset = "apartment" | "city" | "warehouse" | "sunset";
@@ -43,7 +50,7 @@ const LIGHTING_PRESETS: Record<
 };
 
 export function ViewerCanvas({
-  modelUrl = DEFAULT_PRODUCT_MODEL_URL,
+  modelUrl,
   color,
   scale,
   autoRotate,
@@ -55,7 +62,7 @@ export function ViewerCanvas({
   heightMm,
   depthMm,
 }: ViewerCanvasProps) {
-  const url = modelUrl.trim() || DEFAULT_PRODUCT_MODEL_URL;
+  const resolvedModelUrl = resolveProductModelUrl(modelUrl);
 
   return (
     <Canvas
@@ -85,19 +92,45 @@ export function ViewerCanvas({
         blur={2.4}
         far={1.2}
       />
-      <Suspense fallback={null}>
-        <GltfProduct
-          url={url}
-          color={color}
-          scale={scale}
-          autoRotate={autoRotate}
-          exploded={exploded}
-          wireframe={wireframe}
-          showDimensions={showDimensions}
-          heightMm={heightMm}
-          depthMm={depthMm}
-        />
-      </Suspense>
+      <ModelErrorBoundary
+        fallback={
+          <FallbackProduct
+            color={color}
+            scale={scale}
+            autoRotate={autoRotate}
+            wireframe={wireframe}
+            showDimensions={showDimensions}
+            heightMm={heightMm}
+            depthMm={depthMm}
+          />
+        }
+      >
+        <Suspense fallback={null}>
+          {resolvedModelUrl ? (
+            <GltfProduct
+              url={resolvedModelUrl}
+              color={color}
+              scale={scale}
+              autoRotate={autoRotate}
+              exploded={exploded}
+              wireframe={wireframe}
+              showDimensions={showDimensions}
+              heightMm={heightMm}
+              depthMm={depthMm}
+            />
+          ) : (
+            <FallbackProduct
+              color={color}
+              scale={scale}
+              autoRotate={autoRotate}
+              wireframe={wireframe}
+              showDimensions={showDimensions}
+              heightMm={heightMm}
+              depthMm={depthMm}
+            />
+          )}
+        </Suspense>
+      </ModelErrorBoundary>
       <OrbitControls
         enablePan
         enableZoom
@@ -106,6 +139,63 @@ export function ViewerCanvas({
         maxPolarAngle={Math.PI / 2.05}
       />
     </Canvas>
+  );
+}
+
+class ModelErrorBoundary extends Component<
+  { fallback: ReactNode; children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+function FallbackProduct({
+  color,
+  scale,
+  autoRotate,
+  wireframe,
+  showDimensions,
+  heightMm,
+  depthMm,
+}: {
+  color: string;
+  scale: { h: number; d: number };
+  autoRotate: boolean;
+  wireframe: boolean;
+  showDimensions: boolean;
+  heightMm: number;
+  depthMm: number;
+}) {
+  const groupRef = useRef<Group>(null);
+  const h = 0.38 * scale.h;
+  const d = 0.08 * scale.d;
+  const w = 0.42;
+
+  useFrame((_, delta) => {
+    if (autoRotate && groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.45;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <mesh castShadow receiveShadow position={[0, h / 2, 0]}>
+        <boxGeometry args={[w, h, d]} />
+        <meshStandardMaterial color={color} wireframe={wireframe} />
+      </mesh>
+      {showDimensions && (
+        <DimensionOverlay heightMm={heightMm} depthMm={depthMm} h={h} d={d} w={w} />
+      )}
+    </group>
   );
 }
 
@@ -214,7 +304,6 @@ function applyViewerMaterial(
   if (!mat.userData.baseColor) {
     mat.userData.baseColor = colored.color.clone();
   }
-  // Always apply chosen viewer color (palette-driven) to the model materials.
   colored.color.set(color);
 }
 
@@ -285,5 +374,3 @@ function DimensionOverlay({
     </group>
   );
 }
-
-useGLTF.preload(DEFAULT_PRODUCT_MODEL_URL);

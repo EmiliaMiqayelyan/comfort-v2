@@ -37,7 +37,7 @@
     "eco": "Էկո մաքուր"
   },
   "categories": {
-    "title": "Մեր արտադրանքը",
+    "title": "Տեսականի",
     "viewAll": "Բոլոր ապրանքները",
     "baseboards": "Սալիկներ",
     "baseboardsDesc": "Ճշգրիտ պրոֆիլներ, որոնք նրբորեն շրջանակում են հատակը։",
@@ -365,6 +365,7 @@
     "createProduct": "Ստեղծել ապրանք",
     "editProduct": "Խմբագրել ապրանքը",
     "createCategory": "Ստեղծել կատեգորիա",
+    "createSubcategory": "Ստեղծել ենթակատեգորիա",
     "editCategory": "Խմբագրել կատեգորիան",
     "createCollection": "Ստեղծել հավաքածու",
     "editCollection": "Խմբագրել հավաքածուն",
@@ -393,6 +394,7 @@
     "cancel": "Չեղարկել",
     "saving": "Պահպանում…",
     "saveError": "Չհաջողվեց պահպանել։",
+    "slugTaken": "Այս slug-ը արդեն օգտագործված է։",
     "requiredFields": "Լրացրեք պարտադիր դաշտերը։",
     "fieldRequired": "Այս դաշտը պարտադիր է։",
     "confirmDelete": "Ջնջե՞լ այս տարրը։",
@@ -404,7 +406,7 @@
     "topLevelCategory": "Հիմնական կատեգորիա",
     "selectSubcategory": "Ենթակատեգորիա",
     "thisCategory": "Օգտագործել մայր կատեգորիան",
-    "categoryHint": "Ընտրեք մայր կատեգորիա, ապա ենթակատեգորիա։",
+    "categoryHint": "Ընտրեք կատեգորիան՝ անվանումը ցույց է տալիս ամբողջ ճանապարհը (մայր → ենթա → ենթաէնթա…)։",
     "contactInbox": "Կապ",
     "contactInboxDesc": "Հայտեր և կոնտակտային տվյալներ",
     "contactRequests": "Հայտեր",

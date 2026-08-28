@@ -12,8 +12,10 @@ import { parentCategories } from "@/lib/category-tree";
 export function CategoriesSection() {
   const t = useTranslations("categories");
   const locale = useLocale();
-  const { data: categories = [] } = useCategories();
+  const { data: categories = [], isLoading } = useCategories();
   const parents = parentCategories(categories);
+
+  if (isLoading || parents.length === 0) return null;
 
   return (
     <section className="bg-background py-20 md:py-28">

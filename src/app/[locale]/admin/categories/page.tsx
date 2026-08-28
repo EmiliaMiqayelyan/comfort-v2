@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { AuthGate } from "@/features/admin/auth-gate";
 import { AdminShell } from "@/features/admin/admin-shell";
 import { PageHeader } from "@/features/admin/page-header";
-import { DataTable } from "@/features/admin/data-table";
+import { CategoryTreeTable } from "@/features/admin/category-tree-table";
 import { useAdminDelete } from "@/features/admin/confirm-dialog";
 import { useRouter } from "@/i18n/routing";
 import { adminApi, catalogApi } from "@/lib/api";
@@ -41,30 +41,25 @@ export default function AdminCategoriesPage() {
             {error}
           </div>
         )}
-        <DataTable
-          data={items}
+        <CategoryTreeTable
+          items={items}
+          localeName={(item) => getLocalized(item.name, locale)}
+          structureHeader={t("name")}
+          slugHeader="Slug"
+          productsHeader={t("products")}
+          rootLabel={t("topLevelCategory")}
+          subLabel={t("selectSubcategory")}
+          childOfLabel={(parent) => `${t("parentCategory")}: ${parent}`}
+          createSubLabel={`${t("create")} ${t("selectSubcategory").toLowerCase()}`}
           editLabel={t("edit")}
           deleteLabel={t("delete")}
           emptyLabel={t("noResults")}
           onEdit={(row) => router.push(`/admin/categories/${row.id}`)}
+          onCreateSub={(row) => router.push(`/admin/categories/new?parentId=${row.id}`)}
           onDelete={async (row) => {
             const ok = await deleteWithConfirm(() => adminApi.deleteCategory(row.id));
             if (ok) setItems((prev) => prev.filter((item) => item.id !== row.id));
           }}
-          columns={[
-            { key: "name", header: t("name"), render: (row) => getLocalized(row.name, locale) },
-            {
-              key: "parentId",
-              header: t("parentCategory"),
-              render: (row) => {
-                if (!row.parentId) return t("topLevelCategory");
-                const parent = items.find((item) => item.id === row.parentId);
-                return parent ? getLocalized(parent.name, locale) : "—";
-              },
-            },
-            { key: "slug", header: "Slug" },
-            { key: "productCount", header: t("products") },
-          ]}
         />
         {dialog}
       </AdminShell>

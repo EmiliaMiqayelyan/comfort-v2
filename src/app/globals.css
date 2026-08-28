@@ -94,7 +94,7 @@
   --border: #ACB9C0;
   --input: #ACB9C0;
   --ring: #203E4B;
-  --radius: 7px;
+  --radius: 5px;
   --glass: rgba(231, 223, 217, 0.82);
   --glass-border: rgba(44, 51, 62, 0.08);
   --shadow-soft: 0 20px 60px rgba(44, 51, 62, 0.08);
@@ -191,13 +191,13 @@
   --color-comfort-gold: #203E4B;
   --font-sans: var(--font-comfort-sans);
   --font-display: var(--font-comfort-display);
-  --radius-sm: 7px;
-  --radius-md: 7px;
-  --radius-lg: 7px;
-  --radius-xl: 7px;
-  --radius-2xl: 7px;
-  --radius-3xl: 7px;
-  --radius-4xl: 7px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-lg: 5px;
+  --radius-xl: 5px;
+  --radius-2xl: 5px;
+  --radius-3xl: 5px;
+  --radius-4xl: 5px;
 }
 
 * {
