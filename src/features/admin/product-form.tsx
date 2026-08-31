@@ -34,6 +34,7 @@ import type {
   ProductCategory,
   ProductColor,
   ProductDownload,
+  ProductGalleryVariant,
   ProductSpec,
   ProductTexture,
 } from "@/types";
@@ -46,6 +47,12 @@ const emptyColor = (): ProductColor => ({
   id: uid("color"),
   name: emptyLocalized(),
   hex: "#F7F7F4",
+});
+
+const emptyGalleryVariant = (): ProductGalleryVariant => ({
+  id: uid("gv"),
+  name: emptyLocalized(),
+  imageUrl: "",
 });
 
 const emptyTexture = (): ProductTexture => ({
@@ -101,6 +108,20 @@ function toForm(product?: Product): Omit<Product, "id"> {
     name: asLocalized(color.name),
     hex: color.hex || "#F7F7F4",
   }));
+  const storedGallery = asArray<ProductGalleryVariant>(product?.galleryVariants);
+  const legacyGallery = asArray<ProductColor & { imageUrl?: string }>(product?.colors)
+    .filter((color) => color.imageUrl?.trim())
+    .map((color) => ({
+      id: color.id || uid("gv"),
+      name: asLocalized(color.name),
+      imageUrl: color.imageUrl!.trim(),
+    }));
+  const galleryVariants = (storedGallery.length ? storedGallery : legacyGallery).map((variant) => ({
+    ...variant,
+    id: variant.id || uid("gv"),
+    name: asLocalized(variant.name),
+    imageUrl: variant.imageUrl ?? "",
+  }));
   const textures = asArray<ProductTexture>(product?.textures).map((texture) => ({
     ...texture,
     id: texture.id || uid("texture"),
@@ -141,6 +162,7 @@ function toForm(product?: Product): Omit<Product, "id"> {
     material: product?.material ?? "HD polymer",
     finish: product?.finish ?? "Matte",
     colors: colors.length ? colors : [emptyColor()],
+    galleryVariants,
     textures: textures.length ? textures : [emptyTexture()],
     specs: specs.length ? specs : [emptySpec()],
     downloads,
@@ -233,8 +255,18 @@ export function ProductForm({ product }: { product?: Product }) {
       modelUrl: form.modelUrl?.trim() || undefined,
       videoUrl: form.videoUrl?.trim() || undefined,
       colors: asArray<ProductColor>(form.colors)
-        .map((color) => ({ ...color, name: asLocalized(color.name) }))
+        .map((color) => ({
+          ...color,
+          name: asLocalized(color.name),
+        }))
         .filter((color) => color.name.en.trim() || color.hex),
+      galleryVariants: asArray<ProductGalleryVariant>(form.galleryVariants)
+        .map((variant) => ({
+          ...variant,
+          name: asLocalized(variant.name),
+          imageUrl: variant.imageUrl?.trim() || "",
+        }))
+        .filter((variant) => variant.imageUrl),
       textures: asArray<ProductTexture>(form.textures)
         .map((texture) => ({ ...texture, name: asLocalized(texture.name) }))
         .filter((texture) => texture.name.en.trim()),
@@ -264,10 +296,7 @@ export function ProductForm({ product }: { product?: Product }) {
   return (
     <AuthGate>
       <AdminShell>
-        <PageHeader
-          title={isEdit ? t("editProduct") : t("createProduct")}
-          description={t("productsDesc")}
-        />
+        <PageHeader title={isEdit ? t("editProduct") : t("createProduct")} />
 
         <form onSubmit={handleSubmit} className="space-y-6 pb-16" noValidate>
           <Section title={t("identity")}>
@@ -471,6 +500,73 @@ export function ProductForm({ product }: { product?: Product }) {
                 {t("addImage")}
               </Button>
             </div>
+
+            <div className="mt-6 space-y-4">
+              <div className="space-y-6">
+                {asArray<ProductGalleryVariant>(form.galleryVariants).map((variant, index) => (
+                  <div key={variant.id} className="space-y-3 rounded-xl border border-border p-4">
+                    <LocalizedInputs
+                      label={t("name")}
+                      value={variant.name}
+                      onChange={(name) => {
+                        const galleryVariants = [...asArray<ProductGalleryVariant>(form.galleryVariants)];
+                        galleryVariants[index] = { ...variant, name };
+                        update("galleryVariants", galleryVariants);
+                      }}
+                    />
+                    <div className="flex items-end gap-3">
+                      <div className="min-w-0 flex-1">
+                        <Field label={label("galleryVariantImage", "Նկար")}>
+                          <FileUploadField
+                            value={variant.imageUrl ?? ""}
+                            accept="image/*"
+                            label={t("upload")}
+                            onChange={(imageUrl) => {
+                              const galleryVariants = [...asArray<ProductGalleryVariant>(form.galleryVariants)];
+                              galleryVariants[index] = { ...variant, imageUrl };
+                              update("galleryVariants", galleryVariants);
+                            }}
+                          />
+                        </Field>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="text-muted-foreground hover:text-red-600"
+                        onClick={() =>
+                          update(
+                            "galleryVariants",
+                            asArray<ProductGalleryVariant>(form.galleryVariants).filter(
+                              (_, i) => i !== index,
+                            ),
+                          )
+                        }
+                      >
+                        <Trash2 />
+                        {t("delete")}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-xl border-border text-foreground"
+                  onClick={() =>
+                    update("galleryVariants", [
+                      ...asArray<ProductGalleryVariant>(form.galleryVariants),
+                      emptyGalleryVariant(),
+                    ])
+                  }
+                >
+                  <Plus />
+                  {label("addGalleryVariant", "Ավելացնել տարբերակ")}
+                </Button>
+              </div>
+            </div>
+          </Section>
+
+          <Section title={tp("viewer3d")}>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="3D model">
                 <FileUploadField
@@ -490,9 +586,9 @@ export function ProductForm({ product }: { product?: Product }) {
                 />
               </Field>
             </div>
-          </Section>
 
-          <Section title={t("colors")}>
+            <div className="mt-8 space-y-4 border-t border-border pt-6">
+              <h3 className="text-sm font-semibold text-foreground">{t("colors")}</h3>
             <div className="space-y-6">
               {form.colors.map((color, index) => (
                 <div key={color.id} className="space-y-3 rounded-xl border border-border p-4">
@@ -561,6 +657,7 @@ export function ProductForm({ product }: { product?: Product }) {
                 <Plus />
                 {t("addColor")}
               </Button>
+            </div>
             </div>
           </Section>
 

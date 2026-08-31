@@ -20,6 +20,17 @@ export default function AdminCategoriesPage() {
   const [items, setItems] = useState<ProductCategory[]>([]);
   const { deleteWithConfirm, dialog, error } = useAdminDelete();
 
+  const expandAllLabel = t.has("expandAllCategories")
+    ? t("expandAllCategories")
+    : "Բացել բոլորը";
+  const collapseAllLabel = t.has("collapseAllCategories")
+    ? t("collapseAllCategories")
+    : "Փակել բոլորը";
+  const hiddenChildrenLabel = (count: number) =>
+    t.has("hiddenSubcategories")
+      ? t("hiddenSubcategories", { count })
+      : `${count} տեսակ`;
+
   const load = useCallback(async () => {
     setItems((await catalogApi.categories()) ?? []);
   }, []);
@@ -50,7 +61,10 @@ export default function AdminCategoriesPage() {
           rootLabel={t("topLevelCategory")}
           subLabel={t("selectSubcategory")}
           childOfLabel={(parent) => `${t("parentCategory")}: ${parent}`}
-          createSubLabel={`${t("create")} ${t("selectSubcategory").toLowerCase()}`}
+          createSubLabel={t.has("createSubcategory") ? t("createSubcategory") : "Ստեղծել ենթակատեգորիա"}
+          expandAllLabel={expandAllLabel}
+          collapseAllLabel={collapseAllLabel}
+          hiddenChildrenLabel={hiddenChildrenLabel}
           editLabel={t("edit")}
           deleteLabel={t("delete")}
           emptyLabel={t("noResults")}

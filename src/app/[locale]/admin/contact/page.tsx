@@ -54,7 +54,7 @@ export default function AdminContactPage() {
             {messages.map((message) => (
               <article
                 key={message.id}
-                className="rounded-2xl border border-border bg-white p-4 text-sm text-foreground"
+                className="rounded-2xl border border-border bg-card p-4 text-sm text-foreground"
               >
                 <p className="font-medium text-foreground">
                   {message.name} · {message.email}

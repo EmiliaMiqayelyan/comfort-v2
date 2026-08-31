@@ -13,7 +13,7 @@ export function StatCard({ title, value, icon: Icon, trend, className }: StatCar
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border bg-white p-5 shadow-sm transition-colors hover:border-accent/30",
+        "rounded-2xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-accent/30",
         className,
       )}
     >

@@ -8,6 +8,7 @@ import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
 import { Lock } from "lucide-react";
+import { ThemeToggle } from "@/components/molecules/theme-toggle";
 
 export default function AdminLoginPage() {
   const t = useTranslations("admin");
@@ -40,7 +41,10 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-4 py-8">
+    <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-4 py-8">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle className="rounded-lg" />
+      </div>
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
@@ -51,7 +55,7 @@ export default function AdminLoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-border bg-white p-8 shadow-soft"
+          className="rounded-2xl border border-border bg-card p-8 shadow-soft"
         >
           <div className="space-y-5">
             <div className="space-y-2">
@@ -65,7 +69,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@comfort.am"
                 required
-                className="rounded-xl border-border bg-white text-foreground placeholder:text-muted-foreground"
+                className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
             <div className="space-y-2">
@@ -79,7 +83,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="rounded-xl border-border bg-white text-foreground placeholder:text-muted-foreground"
+                className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
 

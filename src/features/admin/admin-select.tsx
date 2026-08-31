@@ -22,7 +22,7 @@ export function AdminSelect({
       <Select.Trigger
         className={cn(
           "flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-border",
-          "bg-white px-4 text-sm text-foreground outline-none transition",
+          "bg-card px-4 text-sm text-foreground outline-none transition",
           "focus-visible:ring-2 focus-visible:ring-accent/30",
           "data-[placeholder]:text-muted-foreground",
           className,
@@ -36,7 +36,7 @@ export function AdminSelect({
       <Select.Portal>
         <Select.Content
           className={cn(
-            "z-[100] overflow-hidden rounded-xl border border-border bg-white shadow-2xl",
+            "z-[100] overflow-hidden rounded-xl border border-border bg-card shadow-2xl",
             "w-[var(--radix-select-trigger-width)] min-w-[12rem]",
           )}
           position="popper"

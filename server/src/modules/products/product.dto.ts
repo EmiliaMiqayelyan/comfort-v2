@@ -18,6 +18,7 @@ export const createProductDto = z.object({
   material: z.string().nullable().optional(),
   finish: z.string().nullable().optional(),
   colors: z.array(z.unknown()).optional(),
+  galleryVariants: z.array(z.unknown()).optional(),
   textures: z.array(z.unknown()).optional(),
   specs: z.array(z.unknown()).optional(),
   downloads: z.array(z.unknown()).optional(),

@@ -108,8 +108,8 @@
   --font-comfort-display: "Arm Hmk's Bebas Neue", "Ofont Ru Bebas Neue", "Bainsley", sans-serif;
 }
 
-/* Force light tokens inside admin even when the site theme is dark */
-.admin-light {
+/* Force light admin tokens by default; dark overrides below */
+.admin-theme {
   color-scheme: light;
   --background: #eef1f3;
   --foreground: #2c333e;
@@ -133,6 +133,37 @@
   --glass: rgba(238, 241, 243, 0.92);
   --glass-border: rgba(44, 51, 62, 0.08);
   --shadow-soft: 0 20px 60px rgba(44, 51, 62, 0.08);
+}
+
+.dark .admin-theme {
+  color-scheme: dark;
+  --background: #141a21;
+  --foreground: #e7dfd9;
+  --card: #1c242d;
+  --card-foreground: #e7dfd9;
+  --popover: #1c242d;
+  --popover-foreground: #e7dfd9;
+  --primary: #e7dfd9;
+  --primary-foreground: #141a21;
+  --secondary: #203e4b;
+  --secondary-foreground: #e7dfd9;
+  --muted: #27313c;
+  --muted-foreground: #acb9c0;
+  --accent: #acb9c0;
+  --accent-foreground: #141a21;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #2f3a47;
+  --input: #2f3a47;
+  --ring: #acb9c0;
+  --glass: rgba(20, 26, 33, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* Legacy alias */
+.admin-light {
+  color-scheme: light;
 }
 
 .dark {

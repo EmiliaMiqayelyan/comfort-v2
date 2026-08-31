@@ -84,17 +84,14 @@ export default function AdminHomepagePage() {
   return (
     <AuthGate>
       <AdminShell>
-        <PageHeader
-          title={t("homepage")}
-          description={t.has("heroImageDesc") ? t("heroImageDesc") : t("homepageDesc")}
-        />
+        <PageHeader title={t("homepage")} />
 
         <Section title={t.has("heroImage") ? t("heroImage") : t("homepage")}>
           <div className="space-y-5">
             {images.map((image, index) => (
               <div
                 key={`hero-slide-${index}`}
-                className="rounded-2xl border border-border bg-[#fafafa] p-4"
+                className="rounded-2xl border border-border bg-muted/40 p-4"
               >
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <p className="text-sm font-medium text-foreground">
@@ -140,12 +137,14 @@ export default function AdminHomepagePage() {
               type="button"
               onClick={save}
               disabled={saving}
-              className="rounded-xl bg-[#203E4B] text-white hover:bg-[#203E4B]/90"
+              className="rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/90"
             >
               {saving ? t("saving") : t("save")}
             </Button>
-            {saved ? <p className="text-sm text-emerald-700">{t("saved")}</p> : null}
-            {error ? <p className="text-sm text-red-600">{error}</p> : null}
+            {saved ? (
+              <p className="text-sm text-emerald-700 dark:text-emerald-400">{t("saved")}</p>
+            ) : null}
+            {error ? <p className="text-sm text-red-600 dark:text-red-400">{error}</p> : null}
           </div>
         </Section>
       </AdminShell>

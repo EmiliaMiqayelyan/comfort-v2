@@ -4,7 +4,7 @@
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="admin-light flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-background text-foreground">
+    <div className="admin-theme flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-background text-foreground">
       {children}
     </div>
   );

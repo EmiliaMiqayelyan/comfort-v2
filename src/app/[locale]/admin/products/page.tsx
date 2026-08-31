@@ -58,7 +58,6 @@ export default function AdminProductsPage() {
       <AdminShell>
         <PageHeader
           title={t("products")}
-          description={t("productsDesc")}
           createLabel={t("create")}
           createHref="/admin/products/new"
         />

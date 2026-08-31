@@ -13,7 +13,7 @@ import type { LocalizedString } from "@/types";
 export { asLocalized, emptyLocalized };
 
 export const adminFieldClass =
-  "rounded-xl border-border bg-white text-foreground placeholder:text-muted-foreground";
+  "rounded-xl border-border bg-card text-foreground placeholder:text-muted-foreground";
 
 export function slugify(value: string) {
   return value
@@ -32,7 +32,7 @@ export function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-sm md:p-6">
+    <section className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-sm md:p-6">
       <h2 className="text-sm font-medium uppercase tracking-[0.16em] text-muted-foreground">
         {title}
       </h2>

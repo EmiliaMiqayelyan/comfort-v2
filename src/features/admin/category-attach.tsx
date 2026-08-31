@@ -34,7 +34,6 @@ export function CategoryAttachFields({
           options={options}
         />
       </Field>
-      <p className="text-xs text-foreground0">{t("categoryHint")}</p>
     </div>
   );
 }

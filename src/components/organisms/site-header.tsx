@@ -2,14 +2,14 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
-import { Menu, Moon, Search, Sun, X, ArrowUpRight } from "lucide-react";
+import { Menu, Search, X, ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, usePathname } from "@/i18n/routing";
 import { Button } from "@/components/atoms/button";
 import { BrandLogo } from "@/components/atoms/brand-logo";
 import { LocaleSelect } from "@/components/molecules/locale-select";
+import { ThemeToggle } from "@/components/molecules/theme-toggle";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores";
 
@@ -41,13 +41,10 @@ export function SiteHeader() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const { theme, setTheme } = useTheme();
   const { mobileNavOpen, setMobileNavOpen } = useUiStore();
   const [scrolled, setScrolled] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const onScroll = () => setScrolled(window.scrollY > 24 || !isHome);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -112,17 +109,7 @@ export function SiteHeader() {
             <LocaleSelect inverted={!solid} />
           </div>
 
-          {mounted && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Toggle theme"
-              className={cn(!solid && "text-white hover:bg-white/10")}
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              {theme === "dark" ? <Sun /> : <Moon />}
-            </Button>
-          )}
+          <ThemeToggle inverted={!solid} />
 
           <Button
             variant="ghost"
@@ -195,6 +182,9 @@ export function SiteHeader() {
                 {t("oldSite")}
                 <ArrowUpRight className="h-4 w-4" />
               </a>
+              <div className="flex items-center gap-2 pt-2">
+                <ThemeToggle />
+              </div>
               <div className="pt-2">
                 <LocaleSelect
                   className="w-full justify-between rounded-xl px-3"

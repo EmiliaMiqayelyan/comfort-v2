@@ -73,6 +73,52 @@ export function resolveUploadSrc(src: string) {
   return src;
 }
 
+/** Base URL for uploaded assets (`/uploads/...`). */
+export function uploadsBaseUrl() {
+  if (typeof window !== "undefined") {
+    const publicApi = process.env.NEXT_PUBLIC_API_URL || "/api";
+    if (publicApi.startsWith("http")) {
+      return publicApi.replace(/\/api\/?$/, "");
+    }
+    return window.location.origin;
+  }
+  return (process.env.API_URL || "http://127.0.0.1:4000/api").replace(/\/api\/?$/, "");
+}
+
+/** Full browser URL for an uploaded asset path. */
+export function uploadAssetSrc(path: string) {
+  const normalized = mediaSrc(path, "");
+  if (!normalized) return "";
+  if (
+    normalized.startsWith("http") ||
+    normalized.startsWith("data:") ||
+    normalized.startsWith("blob:")
+  ) {
+    return normalized;
+  }
+  if (normalized.startsWith("/uploads/")) {
+    return `${uploadsBaseUrl()}${normalized}`;
+  }
+  if (normalized.startsWith("/")) {
+    return typeof window !== "undefined"
+      ? `${window.location.origin}${normalized}`
+      : normalized;
+  }
+  return normalized;
+}
+
+export function isImageMedia(value: string | null | undefined): boolean {
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  const base = trimmed.split("?")[0];
+  if (/\.(png|jpe?g|webp|gif|svg|avif|bmp)$/i.test(base)) return true;
+  if (trimmed.startsWith("/uploads/") || base.includes("/uploads/")) return true;
+  if (trimmed.startsWith("/products/")) return true;
+  if (trimmed.startsWith("data:image/") || trimmed.startsWith("blob:")) return true;
+  return /^https?:\/\//i.test(trimmed);
+}
+
 /** Safe src for next/image — empty or invalid values crash URL parsing. */
 export function mediaSrc(value: string | null | undefined, fallback = FALLBACK_MEDIA) {
   if (typeof value !== "string") return fallback;

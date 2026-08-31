@@ -135,12 +135,20 @@ export interface Product {
   material: string;
   finish: string;
   colors: ProductColor[];
+  /** Color variants for the product gallery image (separate from 3D viewer colors). */
+  galleryVariants?: ProductGalleryVariant[];
   textures: ProductTexture[];
   specs: ProductSpec[];
   downloads: ProductDownload[];
   price: number;
   featured?: boolean;
   availability: "in_stock" | "limited" | "preorder";
+}
+
+export interface ProductGalleryVariant {
+  id: string;
+  name: LocalizedString;
+  imageUrl: string;
 }
 
 export interface ProductColor {

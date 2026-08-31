@@ -19,6 +19,7 @@ export interface ProductAttributes {
   material: string | null;
   finish: string | null;
   colors: unknown[];
+  galleryVariants: unknown[];
   textures: unknown[];
   specs: unknown[];
   downloads: unknown[];
@@ -47,6 +48,7 @@ export class Product extends Model<ProductAttributes> implements ProductAttribut
   declare material: string | null;
   declare finish: string | null;
   declare colors: unknown[];
+  declare galleryVariants: unknown[];
   declare textures: unknown[];
   declare specs: unknown[];
   declare downloads: unknown[];
@@ -76,6 +78,7 @@ Product.init(
     material: { type: DataTypes.STRING(160), allowNull: true },
     finish: { type: DataTypes.STRING(160), allowNull: true },
     colors: { type: DataTypes.JSON, defaultValue: [] },
+    galleryVariants: { type: DataTypes.JSON, defaultValue: [] },
     textures: { type: DataTypes.JSON, defaultValue: [] },
     specs: { type: DataTypes.JSON, defaultValue: [] },
     downloads: { type: DataTypes.JSON, defaultValue: [] },

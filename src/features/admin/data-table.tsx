@@ -33,14 +33,14 @@ export function DataTable<T extends { id: string }>({
 }: DataTableProps<T>) {
   if (data.length === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-white px-6 py-16 text-center text-sm text-muted-foreground shadow-sm">
+      <div className="rounded-2xl border border-border bg-card px-6 py-16 text-center text-sm text-muted-foreground shadow-sm">
         {emptyLabel}
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
@@ -85,7 +85,7 @@ export function DataTable<T extends { id: string }>({
                           variant="ghost"
                           size="sm"
                           onClick={() => onDelete(row)}
-                          className="rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-600"
+                          className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           {deleteLabel}
@@ -110,8 +110,8 @@ export function StatusBadge({ status }: { status: string }) {
       className={cn(
         "border-0 capitalize",
         isPublished
-          ? "bg-emerald-500/15 text-emerald-700"
-          : "bg-amber-500/15 text-amber-700",
+          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+          : "bg-amber-500/15 text-amber-700 dark:text-amber-400",
       )}
     >
       {status}
@@ -121,11 +121,11 @@ export function StatusBadge({ status }: { status: string }) {
 
 export function RoleBadge({ role }: { role: string }) {
   const colors: Record<string, string> = {
-    admin: "bg-[#203E4B]/15 text-[#203E4B]",
-    manager: "bg-blue-500/15 text-blue-700",
-    editor: "bg-violet-500/15 text-violet-700",
-    translator: "bg-cyan-500/15 text-cyan-700",
-    dealer: "bg-orange-500/15 text-orange-700",
+    admin: "bg-secondary/15 text-secondary dark:bg-accent/15 dark:text-accent",
+    manager: "bg-blue-500/15 text-blue-700 dark:text-blue-400",
+    editor: "bg-violet-500/15 text-violet-700 dark:text-violet-400",
+    translator: "bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
+    dealer: "bg-orange-500/15 text-orange-700 dark:text-orange-400",
   };
   return (
     <Badge className={cn("border-0 capitalize", colors[role] ?? "bg-muted text-muted-foreground")}>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/routing";
 import { Input } from "@/components/atoms/input";
 import { AuthGate } from "@/features/admin/auth-gate";
@@ -35,13 +36,17 @@ export function CategoryForm({
   const t = useTranslations("admin");
   const locale = useLocale();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const isEdit = Boolean(category);
   const [name, setName] = useState<LocalizedString>(() => asLocalized(category?.name));
   const [description, setDescription] = useState<LocalizedString>(() =>
     asLocalized(category?.description),
   );
   const [slug, setSlug] = useState(category?.slug ?? "");
-  const [image, setImage] = useState(category?.image ?? "/products/plinth.jpg");
+  const [image, setImage] = useState(() => {
+    const raw = category?.image?.trim() ?? "";
+    return raw === "/products/plinth.jpg" || raw === "/products/plinth.png" ? "" : raw;
+  });
   const [parentId, setParentId] = useState(category?.parentId ?? defaultParentId ?? "");
   const [allCategories, setAllCategories] = useState<ProductCategory[]>([]);
   const [slugLocked, setSlugLocked] = useState(isEdit);
@@ -87,12 +92,13 @@ export function CategoryForm({
       name: nextName,
       description: asLocalized(description),
       slug: nextSlug,
-      image,
+      image: image.trim() || null,
       parentId: parentId || null,
     };
     try {
-      if (isEdit && category) await adminApi.updateCategory(category.id, payload);
-      else await adminApi.createCategory(payload);
+      if (isEdit && category) await adminApi.updateCategory(category.id, payload as Partial<ProductCategory>);
+      else await adminApi.createCategory(payload as Partial<ProductCategory>);
+      await queryClient.invalidateQueries({ queryKey: ["categories"] });
       router.replace("/admin/categories");
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
