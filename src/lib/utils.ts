@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { getApiOrigin } from "@/lib/api-base-url";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -82,7 +83,7 @@ export function uploadsBaseUrl() {
     }
     return window.location.origin;
   }
-  return (process.env.API_URL || "http://127.0.0.1:4000/api").replace(/\/api\/?$/, "");
+  return getApiOrigin();
 }
 
 /** Full browser URL for an uploaded asset path. */

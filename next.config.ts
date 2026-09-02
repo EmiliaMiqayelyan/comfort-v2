@@ -3,6 +3,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+const apiOrigin = (
+  process.env.API_URL || `http://127.0.0.1:${process.env.API_PORT || "4871"}/api`
+).replace(/\/api\/?$/, "");
+
 const nextConfig: NextConfig = {
   images: {
     formats: ["image/webp"],
@@ -23,10 +27,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },
   async rewrites() {
-    const apiOrigin = (process.env.API_URL || "http://127.0.0.1:4000/api").replace(
-      /\/api\/?$/,
-      "",
-    );
     return [{ source: "/uploads/:path*", destination: `${apiOrigin}/uploads/:path*` }];
   },
   headers: async () => [
