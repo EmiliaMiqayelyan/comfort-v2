@@ -49,12 +49,12 @@ if [[ "${SKIP_MIGRATE:-0}" != "1" ]]; then
 fi
 
 echo "==> Restarting PM2 processes..."
-if pm2 describe comfort-web >/dev/null 2>&1; then
-  pm2 reload ecosystem.config.cjs --update-env
-else
-  pm2 start ecosystem.config.cjs
-fi
+# Remove legacy + current app names to avoid port conflicts from stale npm/next processes.
+for app in comfort comfort-web comfort-api; do
+  pm2 delete "$app" 2>/dev/null || true
+done
 
+pm2 start ecosystem.config.cjs
 pm2 save
 
 echo "==> Redeploy complete."

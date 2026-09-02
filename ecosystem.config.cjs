@@ -4,13 +4,15 @@ module.exports = {
     {
       name: "comfort-web",
       cwd: __dirname,
-      script: "npm",
+      script: "node_modules/next/dist/bin/next",
       args: "start",
+      interpreter: "node",
       instances: 1,
       exec_mode: "fork",
+      kill_timeout: 10000,
       env: {
         NODE_ENV: "production",
-        PORT: 3000,
+        // PORT comes from .env on the server (e.g. 3847 behind nginx)
       },
     },
     {
@@ -19,9 +21,10 @@ module.exports = {
       script: "dist/main.js",
       instances: 1,
       exec_mode: "fork",
+      kill_timeout: 10000,
       env: {
         NODE_ENV: "production",
-        PORT: 4000,
+        // PORT comes from server/.env on the server
       },
     },
   ],
