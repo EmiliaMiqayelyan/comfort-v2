@@ -38,22 +38,24 @@ function buildDescriptionPreview(text: string) {
 export function ProductDetailContent({ product }: { product: Product }) {
   const t = useTranslations("product");
   const locale = useLocale();
-  const [activeImage, setActiveImage] = useState(0);
   const galleryVariants = jsonArray<ProductGalleryVariant>(product.galleryVariants);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
+    () => galleryVariants[0]?.id ?? null,
+  );
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
-  const images = mediaList(product.images);
   const specs = jsonArray<ProductSpec>(product.specs);
   const downloads = jsonArray<ProductDownload>(product.downloads);
   const productColors = jsonArray<ProductColor>(product.colors);
   const viewerColors = productColors.filter((color) => color.hex?.trim());
-  const selectedVariant = galleryVariants.find((variant) => variant.id === selectedVariantId);
+  const selectedVariant =
+    galleryVariants.find((variant) => variant.id === selectedVariantId) ?? galleryVariants[0];
   const activeSrc = useMemo(() => {
-    if (selectedVariant?.imageUrl?.trim()) {
-      return mediaSrc(selectedVariant.imageUrl);
+    if (selectedVariant?.imageUrl?.trim() || selectedVariant?.thumbUrl?.trim()) {
+      return mediaSrc(selectedVariant.imageUrl?.trim() || selectedVariant.thumbUrl);
     }
-    return mediaSrc(images[activeImage] ?? images[0]);
-  }, [selectedVariant, activeImage, images]);
+    const fallback = mediaList(product.images)[0];
+    return mediaSrc(fallback);
+  }, [selectedVariant, product.images]);
   const isUpload = activeSrc.includes("/uploads/");
   const isRemote = /^https?:\/\//i.test(activeSrc);
   const variantsLabel = t.has("variants")
@@ -85,6 +87,10 @@ export function ProductDetailContent({ product }: { product: Product }) {
 
   useEffect(() => {
     setDescriptionExpanded(false);
+    const firstId = jsonArray<ProductGalleryVariant>(product.galleryVariants)[0]?.id ?? null;
+    setSelectedVariantId(firstId);
+    // Reset selection when navigating to another product
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id]);
 
   const { data: categories = [] } = useCategories();
@@ -181,57 +187,20 @@ export function ProductDetailContent({ product }: { product: Product }) {
                 {formatPrice(product.price, locale)}
               </p>
 
-              {(images.length > 0 || galleryVariants.length > 0) && (
+              {galleryVariants.length > 0 && (
                 <div className="mt-10 border-t border-border pt-8">
                   <p className="mb-3 text-sm font-medium text-foreground">{variantsLabel}</p>
                   <div className="flex flex-wrap gap-2">
-                    {images.map((img, i) => {
-                      const thumb = mediaSrc(img);
-                      const isSelected = !selectedVariantId && activeImage === i;
-                      return (
-                        <button
-                          key={`main-${img}-${i}`}
-                          type="button"
-                          title={getLocalized(product.name, locale)}
-                          onClick={() => {
-                            setSelectedVariantId(null);
-                            setActiveImage(i);
-                          }}
-                          className={cn(
-                            "relative h-14 w-14 shrink-0 overflow-hidden rounded-[5px] border-2 bg-[#ecece8] transition",
-                            isSelected
-                              ? "border-foreground shadow-sm"
-                              : "border-border opacity-80 hover:border-foreground/40 hover:opacity-100",
-                          )}
-                          aria-pressed={isSelected}
-                          aria-label={getLocalized(product.name, locale)}
-                        >
-                          <Image
-                            src={thumb}
-                            alt=""
-                            fill
-                            unoptimized={
-                              thumb.includes("/uploads/") || thumb.startsWith("http")
-                            }
-                            className="object-cover"
-                            sizes="56px"
-                          />
-                        </button>
-                      );
-                    })}
                     {galleryVariants.map((variant) => {
-                      const label = getLocalized(variant.name, locale);
-                      const thumb = mediaSrc(variant.imageUrl);
-                      const isSelected = selectedVariantId === variant.id;
+                      const label = getLocalized(variant.name, locale) || getLocalized(product.name, locale);
+                      const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
+                      const isSelected = selectedVariant?.id === variant.id;
                       return (
                         <button
                           key={variant.id}
                           type="button"
                           title={label}
-                          onClick={() => {
-                            setSelectedVariantId(variant.id);
-                            setActiveImage(0);
-                          }}
+                          onClick={() => setSelectedVariantId(variant.id)}
                           className={cn(
                             "relative h-14 w-14 shrink-0 overflow-hidden rounded-[5px] border-2 bg-[#ecece8] transition",
                             isSelected

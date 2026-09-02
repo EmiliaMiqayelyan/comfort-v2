@@ -52,6 +52,7 @@ const emptyColor = (): ProductColor => ({
 const emptyGalleryVariant = (): ProductGalleryVariant => ({
   id: uid("gv"),
   name: emptyLocalized(),
+  thumbUrl: "",
   imageUrl: "",
 });
 
@@ -109,19 +110,42 @@ function toForm(product?: Product): Omit<Product, "id"> {
     hex: color.hex || "#F7F7F4",
   }));
   const storedGallery = asArray<ProductGalleryVariant>(product?.galleryVariants);
-  const legacyGallery = asArray<ProductColor & { imageUrl?: string }>(product?.colors)
+  const legacyFromColors = asArray<ProductColor & { imageUrl?: string }>(product?.colors)
     .filter((color) => color.imageUrl?.trim())
     .map((color) => ({
       id: color.id || uid("gv"),
       name: asLocalized(color.name),
+      thumbUrl: color.imageUrl!.trim(),
       imageUrl: color.imageUrl!.trim(),
     }));
-  const galleryVariants = (storedGallery.length ? storedGallery : legacyGallery).map((variant) => ({
-    ...variant,
-    id: variant.id || uid("gv"),
-    name: asLocalized(variant.name),
-    imageUrl: variant.imageUrl ?? "",
-  }));
+  const legacyFromImages = images
+    .map((url) => url.trim())
+    .filter(Boolean)
+    .map((url) => ({
+      id: uid("gv"),
+      name: emptyLocalized(),
+      thumbUrl: url,
+      imageUrl: url,
+    }));
+  const seedGallery =
+    storedGallery.length > 0
+      ? storedGallery
+      : legacyFromColors.length > 0
+        ? legacyFromColors
+        : legacyFromImages;
+  const galleryVariants = (
+    seedGallery.length > 0 ? seedGallery : [emptyGalleryVariant()]
+  ).map((variant) => {
+    const imageUrl = variant.imageUrl ?? "";
+    const thumbUrl = variant.thumbUrl?.trim() || imageUrl;
+    return {
+      ...variant,
+      id: variant.id || uid("gv"),
+      name: asLocalized(variant.name),
+      thumbUrl,
+      imageUrl,
+    };
+  });
   const textures = asArray<ProductTexture>(product?.textures).map((texture) => ({
     ...texture,
     id: texture.id || uid("texture"),
@@ -152,7 +176,7 @@ function toForm(product?: Product): Omit<Product, "id"> {
     description: asLocalized(product?.description),
     categoryId: product?.categoryId ?? "",
     collectionId: product?.collectionId ?? "",
-    images: images.length ? images : [""],
+    images: galleryVariants.map((variant) => variant.imageUrl).filter(Boolean),
     modelUrl: product?.modelUrl ?? "",
     videoUrl: product?.videoUrl ?? "",
     height: product?.height ?? 80,
@@ -243,7 +267,18 @@ export function ProductForm({ product }: { product?: Product }) {
 
     setSaving(true);
     setFieldErrors({});
-    const imageList = asArray<string>(form.images);
+    const galleryVariants = asArray<ProductGalleryVariant>(form.galleryVariants)
+      .map((variant) => {
+        const imageUrl = variant.imageUrl?.trim() || "";
+        const thumbUrl = variant.thumbUrl?.trim() || "";
+        return {
+          ...variant,
+          name: asLocalized(variant.name),
+          thumbUrl,
+          imageUrl,
+        };
+      })
+      .filter((variant) => variant.imageUrl && variant.thumbUrl);
     const payload: Partial<Product> = {
       ...form,
       name,
@@ -251,7 +286,7 @@ export function ProductForm({ product }: { product?: Product }) {
       slug,
       sku,
       collectionId: form.collectionId || "",
-      images: imageList.map((url) => url.trim()).filter(Boolean),
+      images: galleryVariants.map((variant) => variant.imageUrl),
       modelUrl: form.modelUrl?.trim() || undefined,
       videoUrl: form.videoUrl?.trim() || undefined,
       colors: asArray<ProductColor>(form.colors)
@@ -260,13 +295,7 @@ export function ProductForm({ product }: { product?: Product }) {
           name: asLocalized(color.name),
         }))
         .filter((color) => color.name.en.trim() || color.hex),
-      galleryVariants: asArray<ProductGalleryVariant>(form.galleryVariants)
-        .map((variant) => ({
-          ...variant,
-          name: asLocalized(variant.name),
-          imageUrl: variant.imageUrl?.trim() || "",
-        }))
-        .filter((variant) => variant.imageUrl),
+      galleryVariants,
       textures: asArray<ProductTexture>(form.textures)
         .map((texture) => ({ ...texture, name: asLocalized(texture.name) }))
         .filter((texture) => texture.name.en.trim()),
@@ -459,110 +488,74 @@ export function ProductForm({ product }: { product?: Product }) {
           </Section>
 
           <Section title={t("images")}>
-            <div className="space-y-3">
-              {asArray<string>(form.images, [""]).map((url, index) => (
-                <div key={index} className="flex gap-3">
-                  <div className="min-w-0 flex-1">
-                    <FileUploadField
-                      value={url}
-                      accept="image/*"
-                      label={t("upload")}
-                      onChange={(next) => {
-                        const images = [...asArray<string>(form.images, [""])];
-                        images[index] = next;
-                        update("images", images);
-                      }}
-                    />
+            <div className="space-y-4">
+              {asArray<ProductGalleryVariant>(form.galleryVariants).map((variant, index) => (
+                <div key={variant.id} className="space-y-3 rounded-xl border border-border p-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field label={label("galleryVariantImage", "Մեծ նկար")} required>
+                      <FileUploadField
+                        value={variant.imageUrl ?? ""}
+                        accept="image/*"
+                        label={t("upload")}
+                        onChange={(imageUrl) => {
+                          const galleryVariants = [
+                            ...asArray<ProductGalleryVariant>(form.galleryVariants),
+                          ];
+                          galleryVariants[index] = { ...variant, imageUrl };
+                          update("galleryVariants", galleryVariants);
+                        }}
+                      />
+                    </Field>
+                    <Field label={label("galleryVariantThumb", "Փոքր նկար")} required>
+                      <FileUploadField
+                        value={variant.thumbUrl ?? ""}
+                        accept="image/*"
+                        label={t("upload")}
+                        onChange={(thumbUrl) => {
+                          const galleryVariants = [
+                            ...asArray<ProductGalleryVariant>(form.galleryVariants),
+                          ];
+                          galleryVariants[index] = { ...variant, thumbUrl };
+                          update("galleryVariants", galleryVariants);
+                        }}
+                      />
+                    </Field>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    className="mt-1 text-muted-foreground hover:text-red-600"
-                    onClick={() =>
-                      update(
-                        "images",
-                        asArray<string>(form.images).filter((_, i) => i !== index),
-                      )
-                    }
-                  >
-                    <Trash2 />
-                  </Button>
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="text-muted-foreground hover:text-red-600"
+                      disabled={asArray<ProductGalleryVariant>(form.galleryVariants).length <= 1}
+                      onClick={() =>
+                        update(
+                          "galleryVariants",
+                          asArray<ProductGalleryVariant>(form.galleryVariants).filter(
+                            (_, i) => i !== index,
+                          ),
+                        )
+                      }
+                    >
+                      <Trash2 />
+                      {t("delete")}
+                    </Button>
+                  </div>
                 </div>
               ))}
               <Button
                 type="button"
                 variant="outline"
                 className="rounded-xl border-border text-foreground"
-                onClick={() => update("images", [...asArray<string>(form.images, [""]), ""])}
+                onClick={() =>
+                  update("galleryVariants", [
+                    ...asArray<ProductGalleryVariant>(form.galleryVariants),
+                    emptyGalleryVariant(),
+                  ])
+                }
               >
                 <Plus />
                 {t("addImage")}
               </Button>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              <div className="space-y-6">
-                {asArray<ProductGalleryVariant>(form.galleryVariants).map((variant, index) => (
-                  <div key={variant.id} className="space-y-3 rounded-xl border border-border p-4">
-                    <LocalizedInputs
-                      label={t("name")}
-                      value={variant.name}
-                      onChange={(name) => {
-                        const galleryVariants = [...asArray<ProductGalleryVariant>(form.galleryVariants)];
-                        galleryVariants[index] = { ...variant, name };
-                        update("galleryVariants", galleryVariants);
-                      }}
-                    />
-                    <div className="flex items-end gap-3">
-                      <div className="min-w-0 flex-1">
-                        <Field label={label("galleryVariantImage", "Նկար")}>
-                          <FileUploadField
-                            value={variant.imageUrl ?? ""}
-                            accept="image/*"
-                            label={t("upload")}
-                            onChange={(imageUrl) => {
-                              const galleryVariants = [...asArray<ProductGalleryVariant>(form.galleryVariants)];
-                              galleryVariants[index] = { ...variant, imageUrl };
-                              update("galleryVariants", galleryVariants);
-                            }}
-                          />
-                        </Field>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="text-muted-foreground hover:text-red-600"
-                        onClick={() =>
-                          update(
-                            "galleryVariants",
-                            asArray<ProductGalleryVariant>(form.galleryVariants).filter(
-                              (_, i) => i !== index,
-                            ),
-                          )
-                        }
-                      >
-                        <Trash2 />
-                        {t("delete")}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-xl border-border text-foreground"
-                  onClick={() =>
-                    update("galleryVariants", [
-                      ...asArray<ProductGalleryVariant>(form.galleryVariants),
-                      emptyGalleryVariant(),
-                    ])
-                  }
-                >
-                  <Plus />
-                  {label("addGalleryVariant", "Ավելացնել տարբերակ")}
-                </Button>
-              </div>
             </div>
           </Section>
 

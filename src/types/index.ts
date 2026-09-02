@@ -148,6 +148,9 @@ export interface Product {
 export interface ProductGalleryVariant {
   id: string;
   name: LocalizedString;
+  /** Small swatch shown in the variants strip. */
+  thumbUrl: string;
+  /** Large image shown in the main gallery when the swatch is selected. */
   imageUrl: string;
 }
 
