@@ -21,8 +21,21 @@ if [[ "${SKIP_PULL:-0}" != "1" ]]; then
 fi
 
 echo "==> Installing dependencies..."
-npm ci
-npm ci --prefix server
+install_deps() {
+  local dir="${1:-.}"
+  local prefix_args=()
+  if [[ "$dir" != "." ]]; then
+    prefix_args=(--prefix "$dir")
+  fi
+
+  if ! npm ci "${prefix_args[@]}"; then
+    echo "==> npm ci failed in ${dir}, falling back to npm install..."
+    npm install "${prefix_args[@]}"
+  fi
+}
+
+install_deps .
+install_deps server
 
 echo "==> Building frontend..."
 npm run build
