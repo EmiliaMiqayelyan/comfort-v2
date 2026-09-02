@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getApiOrigin } from "@/lib/api-base-url";
 
-const API_BASE =
-  process.env.API_URL?.replace(/\/api\/?$/, "") || "http://127.0.0.1:4000";
+const API_BASE = getApiOrigin();
 
 async function proxy(
   request: NextRequest,

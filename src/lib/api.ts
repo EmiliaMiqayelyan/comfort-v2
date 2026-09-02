@@ -11,13 +11,7 @@ import type {
   Project,
   Role,
 } from "@/types";
-import { useAuthStore } from "@/stores";
-
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window === "undefined"
-    ? process.env.API_URL || "http://127.0.0.1:4000/api"
-    : "/api");
+import { getApiBaseUrl } from "@/lib/api-base-url";
 
 export type AuthUser = {
   id: string;
@@ -38,8 +32,6 @@ export class ApiError extends Error {
 
 function getToken() {
   if (typeof window === "undefined") return null;
-  const token = useAuthStore.getState().token;
-  if (token) return token;
   try {
     const raw = localStorage.getItem("comfort-auth");
     if (!raw) return null;
@@ -63,7 +55,7 @@ export async function apiFetch<T>(
   const token = getToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
     headers,
     cache: init.cache ?? "no-store",

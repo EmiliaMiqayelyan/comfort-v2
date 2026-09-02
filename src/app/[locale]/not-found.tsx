@@ -1,11 +1,9 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/atoms/button";
 
-export default function NotFound() {
-  const t = useTranslations("common");
+export default async function NotFound() {
+  const t = await getTranslations("common");
 
   return (
     <section className="flex min-h-[70vh] items-center justify-center bg-background px-4 py-24">
