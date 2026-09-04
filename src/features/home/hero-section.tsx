@@ -87,19 +87,30 @@ export function HeroSection() {
           className="absolute inset-0"
           style={{ background: "var(--hero-overlay)" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/30" />
       </div>
 
       <div className="relative z-10 flex flex-1 flex-col justify-end pt-24 md:pt-28">
         <div className="container-wide px-4 pb-6 md:px-8 md:pb-10">
           <div className="max-w-3xl">
             <Reveal delay={0.1}>
-              <h1 className="display text-balance text-[2.35rem] leading-[1.1] text-white sm:text-4xl md:text-6xl lg:text-7xl">
-                {t("title")}
+              <h1 className="display text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.45)]">
+                <span className="flex flex-col gap-1.5 text-[2.15rem] leading-none tracking-[0.06em] sm:hidden">
+                  {t("title")
+                    .split(/\.\s*/)
+                    .map((part) => part.trim())
+                    .filter(Boolean)
+                    .map((part) => (
+                      <span key={part}>{part}.</span>
+                    ))}
+                </span>
+                <span className="hidden text-balance text-4xl leading-[1.12] tracking-[0.04em] sm:inline md:text-6xl lg:text-7xl">
+                  {t("title")}
+                </span>
               </h1>
             </Reveal>
             <Reveal delay={0.2}>
-              <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/90 sm:mt-5 md:text-xl">
+              <p className="mt-5 max-w-[20rem] text-base leading-[1.55] text-white/85 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)] sm:mt-5 sm:max-w-xl sm:text-lg md:text-xl">
                 {t("subtitle")}
               </p>
             </Reveal>
@@ -176,12 +187,12 @@ export function HeroSection() {
         </div>
       </div>
 
-      <Reveal delay={0.5} className="relative z-10 hidden shrink-0 md:block">
+      <Reveal delay={0.5} className="relative z-10 shrink-0">
         <div className="border-t border-white/15 bg-black/45 backdrop-blur-md">
-          <div className="container-wide grid grid-cols-2 gap-6 px-4 py-6 md:grid-cols-4 md:px-8 md:py-8">
+          <div className="container-wide grid grid-cols-2 gap-4 px-4 py-5 md:grid-cols-4 md:gap-6 md:px-8 md:py-8">
             {trustItems.map(({ key, icon: Icon }) => (
               <div key={key} className="flex items-center gap-3 text-white">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/35 bg-white/10">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/35 bg-white/10 md:h-10 md:w-10">
                   <Icon className="h-4 w-4 text-white" strokeWidth={1.75} />
                 </span>
                 <span className="text-xs leading-snug tracking-wide sm:text-sm">
