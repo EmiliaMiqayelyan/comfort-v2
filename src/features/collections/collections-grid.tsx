@@ -41,7 +41,7 @@ export function CollectionsGrid() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("search")}
-          className="h-12 w-full max-w-md rounded-full border border-border bg-card px-5 text-sm outline-none transition focus:border-foreground/30 md:w-auto"
+          className="catalog-panel h-12 w-full max-w-md rounded-full border px-5 text-sm outline-none transition focus:border-foreground/30 md:w-auto"
         />
         <div className="flex flex-wrap gap-2">
           {STYLES.map((style) => (
@@ -73,7 +73,7 @@ export function CollectionsGrid() {
           <Reveal key={collection.id} delay={i * 0.06}>
             <Link
               href={`/collections/${collection.slug}`}
-              className="group relative flex flex-col overflow-hidden rounded-3xl bg-card shadow-soft transition hover:shadow-[0_24px_64px_rgba(17,24,39,0.12)]"
+              className="catalog-panel catalog-shadow group relative flex flex-col overflow-hidden rounded-3xl border transition hover:-translate-y-0.5"
             >
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#ecece8]">
                 <Image

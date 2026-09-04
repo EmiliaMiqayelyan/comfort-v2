@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApiOrigin } from "@/lib/api-base-url";
 
-const API_BASE = getApiOrigin();
-
 async function proxy(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await context.params;
-  const target = `${API_BASE}/uploads/${path.map(encodeURIComponent).join("/")}`;
+  const target = `${getApiOrigin()}/uploads/${path.map(encodeURIComponent).join("/")}`;
 
   try {
     const response = await fetch(target, {

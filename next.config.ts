@@ -4,7 +4,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const apiOrigin = (
-  process.env.API_URL || `http://127.0.0.1:${process.env.API_PORT || "4871"}/api`
+  process.env.API_URL || `http://127.0.0.1:${process.env.API_PORT || "4000"}/api`
 ).replace(/\/api\/?$/, "");
 
 const nextConfig: NextConfig = {

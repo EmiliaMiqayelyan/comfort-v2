@@ -39,7 +39,7 @@ export default async function CollectionsPage({
   const t = await getTranslations({ locale, namespace: "collections" });
 
   return (
-    <section className="bg-background py-20 md:py-28">
+    <section className="catalog-surface min-h-screen py-20 md:py-28">
       <div className="container-wide px-4 md:px-8">
         <Reveal className="mb-16 max-w-3xl">
           <h1 className="display text-4xl text-foreground md:text-5xl lg:text-6xl">

@@ -1,4 +1,4 @@
-const DEFAULT_API_PORT = "4871";
+const DEFAULT_API_PORT = "4000";
 const DEFAULT_WEB_PORT = "3847";
 
 /** Normalize env API URL to always end with `/api`. */
@@ -10,7 +10,7 @@ function normalizeApiUrl(url: string) {
 /**
  * Resolve the API base URL at call time (not module init).
  * Browser: same-origin `/api` proxy.
- * Server: direct Express URL, with production-safe fallbacks.
+ * Server: direct Express URL (`API_URL`, or `http://127.0.0.1:${API_PORT||4000}/api`).
  */
 export function getApiBaseUrl(): string {
   if (typeof window !== "undefined") {

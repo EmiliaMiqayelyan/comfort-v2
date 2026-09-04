@@ -6,6 +6,7 @@ import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
 import { getLocalized } from "@/data/catalog";
 import { loadPosts } from "@/lib/catalog-source";
+import { jsonArray } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -79,7 +80,7 @@ export default async function BlogPage({
                 <div className="flex flex-1 flex-col p-8">
                   <div className="mb-4 flex flex-wrap gap-2">
                     <Badge className="capitalize">{post.category}</Badge>
-                    {post.tags.slice(0, 2).map((tag) => (
+                    {jsonArray<string>(post.tags).slice(0, 2).map((tag) => (
                       <Badge key={tag}>{tag}</Badge>
                     ))}
                   </div>

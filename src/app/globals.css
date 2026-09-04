@@ -169,26 +169,26 @@
 .dark {
   --background: #2C333E;
   --foreground: #E7DFD9;
-  --card: #203E4B;
+  --card: #39424D;
   --card-foreground: #E7DFD9;
-  --popover: #203E4B;
+  --popover: #39424D;
   --popover-foreground: #E7DFD9;
   --primary: #E7DFD9;
   --primary-foreground: #2C333E;
   --secondary: #ACB9C0;
   --secondary-foreground: #2C333E;
-  --muted: #ACB9C0;
-  --muted-foreground: #ACB9C0;
+  --muted: #4A5360;
+  --muted-foreground: #D0D7DC;
   --accent: #ACB9C0;
   --accent-foreground: #2C333E;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #203E4B;
-  --input: #203E4B;
+  --border: #545E6A;
+  --input: #545E6A;
   --ring: #ACB9C0;
   --glass: rgba(44, 51, 62, 0.7);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.35);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.22);
   --hero-overlay: linear-gradient(
     120deg,
     rgba(0, 0, 0, 0.78) 0%,
@@ -261,6 +261,32 @@ body {
 
 .shadow-soft {
   box-shadow: var(--shadow-soft);
+}
+
+.catalog-surface {
+  background-color: #ffffff;
+}
+
+.dark .catalog-surface {
+  background-color: var(--background);
+}
+
+.catalog-panel {
+  background-color: #ffffff;
+  border-color: var(--border);
+}
+
+.dark .catalog-panel {
+  background-color: var(--card);
+  border-color: rgba(231, 223, 217, 0.22);
+}
+
+.catalog-shadow {
+  box-shadow: 0 4px 14px rgba(44, 51, 62, 0.08);
+}
+
+.dark .catalog-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 .text-balance {

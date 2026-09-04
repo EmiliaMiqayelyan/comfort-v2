@@ -100,13 +100,7 @@ export default async function ProductOrCategoryPage({
   const tc = await getTranslations({ locale, namespace: "common" });
 
   return (
-    <section
-      className={
-        product
-          ? "bg-background py-16 md:py-24"
-          : "bg-background pt-28 pb-16 md:pt-36 md:pb-24"
-      }
-    >
+    <section className="catalog-surface min-h-screen pt-28 pb-16 md:pt-36 md:pb-24">
       <div className="container-wide px-4 md:px-8">
         {product ? (
           <>

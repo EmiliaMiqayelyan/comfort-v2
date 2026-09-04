@@ -6,6 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Separator } from "@/components/atoms/separator";
 import { BrandLogo } from "@/components/atoms/brand-logo";
+import { SocialIcon } from "@/components/atoms/social-icon";
 import { catalogApi } from "@/lib/api";
 import { getLocalized } from "@/data/catalog";
 import type { ContactSettings } from "@/types";
@@ -48,8 +49,9 @@ export function SiteFooter() {
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-comfort-sand/85 transition hover:border-comfort-sand/50 hover:text-comfort-sand"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-xs text-comfort-sand/85 transition hover:border-comfort-sand/50 hover:text-comfort-sand"
               >
+                <SocialIcon id={item.id} label={item.label} href={item.href} />
                 {item.label}
               </a>
             ))}

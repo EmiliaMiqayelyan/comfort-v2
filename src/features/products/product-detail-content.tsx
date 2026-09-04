@@ -108,43 +108,70 @@ export function ProductDetailContent({ product }: { product: Product }) {
 
   return (
     <>
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-        <div className="space-y-6">
+      <div className="grid gap-10 lg:grid-cols-2 lg:grid-rows-[auto_auto] lg:gap-x-16 lg:gap-y-6">
+        <div>
           <Reveal>
-            <div className="overflow-hidden rounded-[5px] border border-border bg-card shadow-soft">
-              <div className="relative aspect-[4/3] bg-[#ecece8]">
-                <Image
-                  key={activeSrc}
-                  src={activeSrc}
-                  alt={getLocalized(product.name, locale)}
-                  fill
-                  quality={95}
-                  unoptimized={isRemote || isUpload}
-                  className="object-cover object-center"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority
-                />
+            <div className="space-y-3">
+              <div className="catalog-panel catalog-shadow overflow-hidden rounded-[5px] border">
+                <div className="relative aspect-[4/3] bg-[#ecece8]">
+                  <Image
+                    key={activeSrc}
+                    src={activeSrc}
+                    alt={getLocalized(product.name, locale)}
+                    fill
+                    quality={95}
+                    unoptimized={isRemote || isUpload}
+                    className="object-cover object-center"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    priority
+                  />
+                </div>
               </div>
-            </div>
-          </Reveal>
 
-          <Reveal delay={0.15}>
-            <div>
-              <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">
-                {t("viewer3d")}
-              </p>
-              <ProductViewer3D
-                key={product.id}
-                modelUrl={product.modelUrl}
-                colors={viewerColors}
-                height={product.height}
-                depth={product.depth}
-              />
+              {galleryVariants.length > 0 && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">{variantsLabel}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {galleryVariants.map((variant) => {
+                      const label = getLocalized(variant.name, locale) || getLocalized(product.name, locale);
+                      const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
+                      const isSelected = selectedVariant?.id === variant.id;
+                      return (
+                        <button
+                          key={variant.id}
+                          type="button"
+                          title={label}
+                          onClick={() => setSelectedVariantId(variant.id)}
+                          className={cn(
+                            "relative h-16 w-16 shrink-0 overflow-hidden rounded-[5px] border-2 bg-[#ecece8] transition",
+                            isSelected
+                              ? "border-foreground shadow-sm"
+                              : "border-border opacity-80 hover:border-foreground/40 hover:opacity-100",
+                          )}
+                          aria-pressed={isSelected}
+                          aria-label={label}
+                        >
+                          <Image
+                            src={thumb}
+                            alt={label}
+                            fill
+                            unoptimized={
+                              thumb.includes("/uploads/") || thumb.startsWith("http")
+                            }
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </Reveal>
         </div>
 
-        <div className="space-y-10">
+        <div className="space-y-10 lg:col-start-2 lg:row-span-2">
           <Reveal>
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
@@ -186,46 +213,6 @@ export function ProductDetailContent({ product }: { product: Product }) {
               <p className="display text-2xl text-foreground">
                 {formatPrice(product.price, locale)}
               </p>
-
-              {galleryVariants.length > 0 && (
-                <div className="mt-10 border-t border-border pt-8">
-                  <p className="mb-3 text-sm font-medium text-foreground">{variantsLabel}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {galleryVariants.map((variant) => {
-                      const label = getLocalized(variant.name, locale) || getLocalized(product.name, locale);
-                      const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
-                      const isSelected = selectedVariant?.id === variant.id;
-                      return (
-                        <button
-                          key={variant.id}
-                          type="button"
-                          title={label}
-                          onClick={() => setSelectedVariantId(variant.id)}
-                          className={cn(
-                            "relative h-14 w-14 shrink-0 overflow-hidden rounded-[5px] border-2 bg-[#ecece8] transition",
-                            isSelected
-                              ? "border-foreground shadow-sm"
-                              : "border-border opacity-80 hover:border-foreground/40 hover:opacity-100",
-                          )}
-                          aria-pressed={isSelected}
-                          aria-label={label}
-                        >
-                          <Image
-                            src={thumb}
-                            alt={label}
-                            fill
-                            unoptimized={
-                              thumb.includes("/uploads/") || thumb.startsWith("http")
-                            }
-                            className="object-cover"
-                            sizes="56px"
-                          />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
           </Reveal>
 
@@ -234,7 +221,7 @@ export function ProductDetailContent({ product }: { product: Product }) {
               <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
                 {t("specs")}
               </h2>
-              <dl className="divide-y divide-border rounded-[5px] border border-border bg-card">
+              <dl className="catalog-panel divide-y divide-border rounded-[5px] border">
                 {specs.map((spec) => (
                   <div
                     key={spec.key}
@@ -273,7 +260,7 @@ export function ProductDetailContent({ product }: { product: Product }) {
                       <a
                         href={file.url}
                         download
-                        className="group flex items-center gap-4 rounded-[5px] border border-border bg-card px-5 py-4 transition hover:border-foreground/20 hover:shadow-soft"
+                        className="catalog-panel catalog-shadow group flex items-center gap-4 rounded-[5px] border px-5 py-4 transition hover:border-foreground/30"
                       >
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
                           {file.type === "pdf" ? (
@@ -298,6 +285,23 @@ export function ProductDetailContent({ product }: { product: Product }) {
               </div>
             </Reveal>
           )}
+        </div>
+
+        <div className="lg:col-start-1 lg:row-start-2">
+          <Reveal delay={0.15}>
+            <div>
+              <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">
+                {t("viewer3d")}
+              </p>
+              <ProductViewer3D
+                key={product.id}
+                modelUrl={product.modelUrl}
+                colors={viewerColors}
+                height={product.height}
+                depth={product.depth}
+              />
+            </div>
+          </Reveal>
         </div>
       </div>
 

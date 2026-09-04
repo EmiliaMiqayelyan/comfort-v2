@@ -37,7 +37,7 @@ export default async function ProductsPage({
   setRequestLocale(locale);
 
   return (
-    <section className="bg-background py-20 md:py-28">
+    <section className="catalog-surface min-h-screen py-20 md:py-28">
       <div className="container-wide px-4 md:px-8">
         <ProductsCatalog />
       </div>

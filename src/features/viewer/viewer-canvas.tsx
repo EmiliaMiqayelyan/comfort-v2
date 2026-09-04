@@ -37,6 +37,7 @@ interface ViewerCanvasProps {
   environment: EnvironmentPreset;
   heightMm: number;
   depthMm: number;
+  background?: string;
 }
 
 const LIGHTING_PRESETS: Record<
@@ -61,6 +62,7 @@ export function ViewerCanvas({
   environment,
   heightMm,
   depthMm,
+  background = "#ffffff",
 }: ViewerCanvasProps) {
   const resolvedModelUrl = resolveProductModelUrl(modelUrl);
 
@@ -73,7 +75,7 @@ export function ViewerCanvas({
       gl={{ preserveDrawingBuffer: true, antialias: true }}
     >
       <PerspectiveCamera makeDefault position={[0.42, 0.2, 0.55]} fov={38} />
-      <color attach="background" args={["#E7DFD9"]} />
+      <color attach="background" args={[background]} />
       <ambientLight intensity={LIGHTING_PRESETS[lighting].ambient} />
       <directionalLight
         castShadow

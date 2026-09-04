@@ -1,5 +1,5 @@
 import { jsonArray, mediaList } from "@/lib/utils";
-import type { Product, ProductColor, ProductDownload, ProductGalleryVariant, ProductSpec, ProductTexture, Project } from "@/types";
+import type { Author, BlogPost, Product, ProductColor, ProductDownload, ProductGalleryVariant, ProductSpec, ProductTexture, Project } from "@/types";
 
 function normalizeGalleryVariant(
   variant: ProductGalleryVariant & { thumbUrl?: string },
@@ -77,4 +77,45 @@ export function normalizeProject(project: Project): Project {
     images: mediaList(project.images),
     products: jsonArray<string>(project.products),
   };
+}
+
+const emptyAuthor: Author = {
+  id: "",
+  name: "",
+  avatar: "",
+  role: { en: "", ru: "", am: "" },
+};
+
+function normalizeAuthor(value: unknown): Author {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const author = value as Partial<Author>;
+    return {
+      id: author.id ?? "",
+      name: author.name ?? "",
+      avatar: author.avatar ?? "",
+      role: author.role ?? emptyAuthor.role,
+    };
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return emptyAuthor;
+    try {
+      return normalizeAuthor(JSON.parse(trimmed));
+    } catch {
+      return { ...emptyAuthor, name: trimmed };
+    }
+  }
+  return emptyAuthor;
+}
+
+export function normalizePost(post: BlogPost): BlogPost {
+  return {
+    ...post,
+    tags: jsonArray<string>(post.tags),
+    author: normalizeAuthor(post.author),
+  };
+}
+
+export function normalizePosts(posts: BlogPost[]): BlogPost[] {
+  return posts.map(normalizePost);
 }

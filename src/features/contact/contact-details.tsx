@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { MapPin, Clock, Phone, Mail } from "lucide-react";
+import { SocialIcon } from "@/components/atoms/social-icon";
 import { catalogApi } from "@/lib/api";
 import { getLocalized } from "@/data/catalog";
 import type { ContactSettings } from "@/types";
@@ -77,8 +78,9 @@ export function ContactDetails() {
             href={item.href}
             target="_blank"
             rel="noreferrer"
-            className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition hover:border-accent hover:text-accent"
+            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-foreground transition hover:border-accent hover:text-accent"
           >
+            <SocialIcon id={item.id} label={item.label} href={item.href} />
             {item.label}
           </a>
         ))}

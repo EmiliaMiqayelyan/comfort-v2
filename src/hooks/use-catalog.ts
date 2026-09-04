@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { catalogApi } from "@/lib/api";
-import { normalizeProducts, normalizeProject } from "@/lib/normalize";
+import { normalizePosts, normalizeProducts, normalizeProject } from "@/lib/normalize";
 import { normalizeCategories } from "@/lib/normalize-category";
 
 export function useProducts() {
@@ -40,7 +40,7 @@ export function useProjects() {
 export function usePosts() {
   return useQuery({
     queryKey: ["blog"],
-    queryFn: async () => (await catalogApi.posts()) ?? [],
+    queryFn: async () => normalizePosts((await catalogApi.posts()) ?? []),
     staleTime: 30_000,
   });
 }

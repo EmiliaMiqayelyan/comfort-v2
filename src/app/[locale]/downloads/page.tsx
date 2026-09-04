@@ -110,7 +110,7 @@ export default async function DownloadsPage({
                   <a
                     href={file.url}
                     download
-                    className="group flex items-center gap-5 rounded-3xl border border-border bg-card px-6 py-5 transition hover:border-foreground/20 hover:shadow-soft"
+                    className="catalog-panel catalog-shadow group flex items-center gap-5 rounded-3xl border px-6 py-5 transition hover:border-foreground/30"
                   >
                     <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                       {file.type === "pdf" ? (

@@ -1,5 +1,5 @@
 import { catalogApi } from "@/lib/api";
-import { normalizeProduct, normalizeProducts, normalizeProject } from "@/lib/normalize";
+import { normalizePost, normalizePosts, normalizeProduct, normalizeProducts, normalizeProject } from "@/lib/normalize";
 import { normalizeCategories, normalizeCategory } from "@/lib/normalize-category";
 import type { BlogPost, Collection, Product, ProductCategory, Project } from "@/types";
 
@@ -40,9 +40,10 @@ export async function loadProject(slug: string): Promise<Project | undefined> {
 }
 
 export async function loadPosts(): Promise<BlogPost[]> {
-  return (await catalogApi.posts()) ?? [];
+  return normalizePosts((await catalogApi.posts()) ?? []);
 }
 
 export async function loadPost(slug: string): Promise<BlogPost | undefined> {
-  return (await catalogApi.post(slug)) ?? undefined;
+  const post = await catalogApi.post(slug);
+  return post ? normalizePost(post) : undefined;
 }

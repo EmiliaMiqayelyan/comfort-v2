@@ -90,22 +90,27 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
       </div>
 
-      <div className="relative z-10 flex flex-1 flex-col justify-end pt-28">
-        <div className="container-wide px-4 pb-8 md:px-8 md:pb-10">
+      <div className="relative z-10 flex flex-1 flex-col justify-end pt-24 md:pt-28">
+        <div className="container-wide px-4 pb-6 md:px-8 md:pb-10">
           <div className="max-w-3xl">
             <Reveal delay={0.1}>
-              <h1 className="display text-balance text-4xl leading-[1.05] text-white sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="display text-balance text-[2.35rem] leading-[1.1] text-white sm:text-4xl md:text-6xl lg:text-7xl">
                 {t("title")}
               </h1>
             </Reveal>
             <Reveal delay={0.2}>
-              <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg md:text-xl">
+              <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/90 sm:mt-5 md:text-xl">
                 {t("subtitle")}
               </p>
             </Reveal>
 
-            <Reveal delay={0.3} className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="accent" size="lg">
+            <Reveal delay={0.3} className="mt-6 flex flex-col items-start gap-4 sm:mt-8 sm:flex-row sm:flex-wrap">
+              <Button
+                asChild
+                variant="accent"
+                size="lg"
+                className="h-12 px-6 text-base md:h-13 md:px-8"
+              >
                 <Link href="/products">
                   {t("explore")}
                   <ArrowUpRight />
@@ -115,7 +120,7 @@ export function HeroSection() {
                 asChild
                 variant="glass"
                 size="lg"
-                className="border-white/25 bg-white/10 text-white hover:bg-white/20"
+                className="hidden border-white/25 bg-white/10 text-white hover:bg-white/20 sm:inline-flex"
               >
                 <a href="/downloads/catalog.pdf" download>
                   <Download />
@@ -126,17 +131,32 @@ export function HeroSection() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="border-white/30 bg-transparent text-white hover:bg-white/10"
+                className="hidden border-white/30 bg-transparent text-white hover:bg-white/10 sm:inline-flex"
               >
                 <Link href="/contact">{t("requestSamples")}</Link>
               </Button>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:hidden">
+                <a
+                  href="/downloads/catalog.pdf"
+                  download
+                  className="text-base tracking-wide text-white/90 underline-offset-4 hover:text-white hover:underline"
+                >
+                  {t("downloadCatalog")}
+                </a>
+                <Link
+                  href="/contact"
+                  className="text-base tracking-wide text-white/90 underline-offset-4 hover:text-white hover:underline"
+                >
+                  {t("requestSamples")}
+                </Link>
+              </div>
             </Reveal>
           </div>
 
           {slideCount > 1 ? (
-            <Reveal delay={0.4} className="mt-12 flex items-center gap-4">
-              <span className="font-mono text-sm tracking-widest text-white">{current}</span>
-              <div className="flex h-px max-w-[120px] flex-1 items-center gap-1">
+            <Reveal delay={0.4} className="mt-8 flex items-center gap-3 md:mt-12 md:gap-4">
+              <span className="font-mono text-[11px] tracking-widest text-white md:text-sm">{current}</span>
+              <div className="flex h-px max-w-[88px] flex-1 items-center gap-1 md:max-w-[120px]">
                 {slides.map((_, i) => (
                   <button
                     key={i}
@@ -150,13 +170,13 @@ export function HeroSection() {
                   />
                 ))}
               </div>
-              <span className="font-mono text-sm tracking-widest text-white/50">{total}</span>
+              <span className="font-mono text-[11px] tracking-widest text-white/50 md:text-sm">{total}</span>
             </Reveal>
           ) : null}
         </div>
       </div>
 
-      <Reveal delay={0.5} className="relative z-10 shrink-0">
+      <Reveal delay={0.5} className="relative z-10 hidden shrink-0 md:block">
         <div className="border-t border-white/15 bg-black/45 backdrop-blur-md">
           <div className="container-wide grid grid-cols-2 gap-6 px-4 py-6 md:grid-cols-4 md:px-8 md:py-8">
             {trustItems.map(({ key, icon: Icon }) => (

@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
 import { useViewerStore } from "@/stores";
 import { resolveProductModelUrl } from "@/lib/product-model";
+import { useTheme } from "next-themes";
 import type { ProductColor } from "@/types";
 
 const FALLBACK_COLOR_SWATCHES = [
@@ -93,6 +94,8 @@ export function ProductViewer3D({
 }: ProductViewer3DProps) {
   const t = useTranslations("viewer");
   const locale = useLocale();
+  const { resolvedTheme } = useTheme();
+  const canvasBackground = resolvedTheme === "dark" ? "#2C333E" : "#ffffff";
   const containerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -232,7 +235,7 @@ export function ProductViewer3D({
     <div
       ref={containerRef}
       className={cn(
-        "relative w-full overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-muted/30 to-background shadow-soft",
+        "catalog-panel catalog-shadow relative w-full overflow-hidden rounded-3xl border",
         className,
         isFullscreen
           ? "h-full max-h-none rounded-none"
@@ -254,6 +257,7 @@ export function ProductViewer3D({
             environment={environment}
             heightMm={height}
             depthMm={depth}
+            background={canvasBackground}
           />
         </Suspense>
       </div>

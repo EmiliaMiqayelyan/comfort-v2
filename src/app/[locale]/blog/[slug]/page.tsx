@@ -8,6 +8,7 @@ import { Badge } from "@/components/atoms/badge";
 import { getLocalized } from "@/data/catalog";
 import { loadPost, loadPosts } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
+import { jsonArray } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 
 export async function generateStaticParams() {
@@ -64,7 +65,7 @@ export default async function BlogPostPage({
   const related = posts.filter((p) => p.id !== post.id).slice(0, 2);
 
   return (
-    <article className="bg-background py-16 md:py-24">
+    <article className="bg-background pt-28 pb-16 md:pt-36 md:pb-24">
       <div className="container-wide px-4 md:px-8">
         <Link
           href="/blog"
@@ -77,7 +78,7 @@ export default async function BlogPostPage({
         <Reveal className="mx-auto max-w-3xl">
           <div className="mb-6 flex flex-wrap gap-2">
             <Badge className="capitalize">{post.category}</Badge>
-            {post.tags.map((tag) => (
+            {jsonArray<string>(post.tags).map((tag) => (
               <Badge key={tag}>{tag}</Badge>
             ))}
           </div>

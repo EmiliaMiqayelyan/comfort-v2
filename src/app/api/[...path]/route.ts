@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApiOrigin } from "@/lib/api-base-url";
 
-const API_BASE = getApiOrigin();
-
 async function proxy(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await context.params;
-  const target = `${API_BASE}/api/${path.join("/")}${request.nextUrl.search}`;
+  const target = `${getApiOrigin()}/api/${path.join("/")}${request.nextUrl.search}`;
 
   const headers = new Headers();
   const auth = request.headers.get("authorization");
