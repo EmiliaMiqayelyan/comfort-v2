@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import { Reveal } from "@/components/molecules/reveal";
-import { ProductCardGrid } from "@/components/molecules/product-card";
-import { Badge } from "@/components/atoms/badge";
+import { CollectionDetailContent } from "@/features/collections/collection-detail-content";
 import { getLocalized } from "@/data/catalog";
-import { loadCollection, loadCollections, loadProducts } from "@/lib/catalog-source";
+import { loadCollection, loadCollections } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
+import { firstMedia } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 
 export async function generateStaticParams() {
@@ -29,6 +27,7 @@ export async function generateMetadata({
 
   const name = getLocalized(collection.name, locale);
   const description = getLocalized(collection.description, locale);
+  const image = firstMedia(collection.images) || collection.image;
 
   return {
     title: `${name} — Comfort`,
@@ -39,7 +38,7 @@ export async function generateMetadata({
     openGraph: {
       title: name,
       description,
-      images: [{ url: collection.image }],
+      images: image ? [{ url: image }] : undefined,
       locale,
     },
   };
@@ -56,11 +55,6 @@ export default async function CollectionDetailPage({
   const collection = await loadCollection(slug);
   if (!collection) notFound();
 
-  const allProducts = await loadProducts();
-  const collectionProducts = allProducts.filter(
-    (p) => p.collectionId === collection.id,
-  );
-  const t = await getTranslations({ locale, namespace: "collections" });
   const tc = await getTranslations({ locale, namespace: "common" });
 
   return (
@@ -74,44 +68,7 @@ export default async function CollectionDetailPage({
           {tc("back")}
         </Link>
 
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
-          <Reveal>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-soft">
-              <Image
-                src={collection.image}
-                alt={getLocalized(collection.name, locale)}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.1} className="flex flex-col justify-center">
-            <Badge className="mb-4 w-fit capitalize">{collection.style}</Badge>
-            <h1 className="display text-4xl text-foreground md:text-5xl">
-              {getLocalized(collection.name, locale)}
-            </h1>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              {getLocalized(collection.description, locale)}
-            </p>
-            <p className="mt-4 text-sm uppercase tracking-widest text-muted-foreground">
-              {t("products", { count: collection.productCount })}
-            </p>
-          </Reveal>
-        </div>
-
-        {collectionProducts.length > 0 && (
-          <div className="mt-24 border-t border-border pt-24">
-            <Reveal>
-              <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
-                {t("title")}
-              </h2>
-            </Reveal>
-            <ProductCardGrid products={collectionProducts} />
-          </div>
-        )}
+        <CollectionDetailContent collection={collection} />
       </div>
     </section>
   );

@@ -23,6 +23,7 @@ import {
 import { FileUploadField } from "@/features/admin/file-upload";
 import { AdminSelect } from "@/features/admin/admin-select";
 import { CategoryAttachFields } from "@/features/admin/category-attach";
+import { AdminMultiSelect } from "@/features/admin/admin-multi-select";
 import { useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -176,6 +177,12 @@ function toForm(product?: Product): Omit<Product, "id"> {
     description: asLocalized(product?.description),
     categoryId: product?.categoryId ?? "",
     collectionId: product?.collectionId ?? "",
+    collectionIds:
+      product?.collectionIds?.length
+        ? product.collectionIds
+        : product?.collectionId
+          ? [product.collectionId]
+          : [],
     images: galleryVariants.map((variant) => variant.imageUrl).filter(Boolean),
     modelUrl: product?.modelUrl ?? "",
     videoUrl: product?.videoUrl ?? "",
@@ -204,7 +211,15 @@ export function ProductForm({ product }: { product?: Product }) {
   const queryClient = useQueryClient();
   const isEdit = Boolean(product);
   const label = (key: string, fallback: string) => (t.has(key) ? t(key) : fallback);
-  const [form, setForm] = useState(() => toForm(product));
+  const [form, setForm] = useState(() => ({
+    ...toForm(product),
+    collectionIds:
+      product?.collectionIds?.length
+        ? product.collectionIds
+        : product?.collectionId
+          ? [product.collectionId]
+          : [],
+  }));
   const [slugLocked, setSlugLocked] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -285,7 +300,8 @@ export function ProductForm({ product }: { product?: Product }) {
       description: asLocalized(form.description),
       slug,
       sku,
-      collectionId: form.collectionId || "",
+      collectionIds: form.collectionIds ?? [],
+      collectionId: form.collectionIds?.[0] || form.collectionId || "",
       images: galleryVariants.map((variant) => variant.imageUrl),
       modelUrl: form.modelUrl?.trim() || undefined,
       videoUrl: form.videoUrl?.trim() || undefined,
@@ -404,30 +420,12 @@ export function ProductForm({ product }: { product?: Product }) {
           </Section>
 
           <Section title={t("classification")}>
-            <div className="grid gap-6 md:grid-cols-2">
-              <CategoryAttachFields
-                categories={categories}
-                value={form.categoryId}
-                error={fieldErrors.categoryId}
-                onChange={(categoryId) => update("categoryId", categoryId)}
-              />
-              <Field label={t("collections")}>
-                <AdminSelect
-                  value={form.collectionId || "__none__"}
-                  onValueChange={(value) =>
-                    update("collectionId", value === "__none__" ? "" : value)
-                  }
-                  placeholder={t("selectCollection")}
-                  options={[
-                    { value: "__none__", label: label("noCollection", "No collection") },
-                    ...collections.map((collection) => ({
-                      value: collection.id,
-                      label: getLocalized(collection.name, locale),
-                    })),
-                  ]}
-                />
-              </Field>
-            </div>
+            <CategoryAttachFields
+              categories={categories}
+              value={form.categoryId}
+              error={fieldErrors.categoryId}
+              onChange={(categoryId) => update("categoryId", categoryId)}
+            />
           </Section>
 
           <Section title={t("dimensions")}>
@@ -883,6 +881,20 @@ export function ProductForm({ product }: { product?: Product }) {
                 {label("addDownload", "Add download")}
               </Button>
             </div>
+          </Section>
+
+          <Section title={t("collections")}>
+            <Field label={t("selectCollection")}>
+              <AdminMultiSelect
+                values={form.collectionIds ?? []}
+                onChange={(collectionIds) => update("collectionIds", collectionIds)}
+                placeholder={label("noCollection", "No collection")}
+                options={collections.map((collection) => ({
+                  value: collection.id,
+                  label: getLocalized(collection.name, locale),
+                }))}
+              />
+            </Field>
           </Section>
 
           <FormActions

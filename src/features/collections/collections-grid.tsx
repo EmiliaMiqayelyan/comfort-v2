@@ -6,10 +6,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
-import { cn } from "@/lib/utils";
+import { cn, firstMedia, mediaSrc } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
 import { useCollections } from "@/hooks/use-catalog";
-import { mediaSrc } from "@/lib/utils";
 
 const STYLES = ["all", "minimal", "natural", "modern", "classic"] as const;
 
@@ -77,7 +76,7 @@ export function CollectionsGrid() {
             >
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#ecece8]">
                 <Image
-                  src={mediaSrc(collection.image)}
+                  src={mediaSrc(firstMedia(collection.images) || collection.image)}
                   alt={getLocalized(collection.name, locale)}
                   fill
                   quality={95}

@@ -95,10 +95,28 @@ export interface ContactMessage {
 export interface Collection {
   id: string;
   slug: string;
+  sku?: string;
   name: LocalizedString;
   description: LocalizedString;
   image: string;
   style: string;
+  images: string[];
+  modelUrl?: string;
+  videoUrl?: string;
+  height: number;
+  width: number;
+  depth: number;
+  length: number;
+  material: string;
+  finish: string;
+  colors: ProductColor[];
+  galleryVariants?: ProductGalleryVariant[];
+  textures: ProductTexture[];
+  specs: ProductSpec[];
+  downloads: ProductDownload[];
+  price: number;
+  featured?: boolean;
+  availability: "in_stock" | "limited" | "preorder";
   productCount: number;
 }
 
@@ -125,6 +143,7 @@ export interface Product {
   description: LocalizedString;
   categoryId: string;
   collectionId: string;
+  collectionIds?: string[];
   images: string[];
   modelUrl?: string;
   videoUrl?: string;

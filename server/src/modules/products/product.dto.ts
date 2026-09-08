@@ -8,6 +8,7 @@ export const createProductDto = z.object({
   description: localizedSchema.optional(),
   categoryId: z.string().min(1),
   collectionId: z.string().nullable().optional(),
+  collectionIds: z.array(z.string()).optional(),
   images: z.array(z.string()).optional(),
   modelUrl: z.string().nullable().optional(),
   videoUrl: z.string().nullable().optional(),

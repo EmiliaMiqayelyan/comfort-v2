@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { catalogApi } from "@/lib/api";
-import { normalizePosts, normalizeProducts, normalizeProject } from "@/lib/normalize";
+import { normalizeCollections, normalizePosts, normalizeProducts, normalizeProject } from "@/lib/normalize";
 import { normalizeCategories } from "@/lib/normalize-category";
 
 export function useProducts() {
@@ -24,7 +24,7 @@ export function useCategories() {
 export function useCollections() {
   return useQuery({
     queryKey: ["collections"],
-    queryFn: async () => (await catalogApi.collections()) ?? [],
+    queryFn: async () => normalizeCollections((await catalogApi.collections()) ?? []),
     staleTime: 30_000,
   });
 }
