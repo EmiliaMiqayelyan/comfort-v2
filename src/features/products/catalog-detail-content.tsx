@@ -109,7 +109,7 @@ export function CatalogDetailContent({
   const seeLessLabel = t.has("seeLess")
     ? t("seeLess")
     : locale === "am"
-      ? "Պակաս"
+      ? "Փակել"
       : locale === "ru"
         ? "Скрыть"
         : "Show less";

@@ -9,16 +9,22 @@ import type { Collection } from "@/types";
 export function CollectionCard({
   collection,
   className,
+  fromProductSlug,
 }: {
   collection: Collection;
   className?: string;
+  /** When set, collection breadcrumb continues from this product. */
+  fromProductSlug?: string;
 }) {
   const locale = useLocale();
   const image = firstMedia(collection.images) || collection.image;
+  const href = fromProductSlug
+    ? `/collections/${collection.slug}?from=product&product=${encodeURIComponent(fromProductSlug)}`
+    : `/collections/${collection.slug}`;
 
   return (
     <CatalogCard
-      href={`/collections/${collection.slug}`}
+      href={href}
       image={image}
       title={getLocalized(collection.name, locale)}
       description={getLocalized(collection.description, locale)}
@@ -30,9 +36,11 @@ export function CollectionCard({
 export function CollectionCardGrid({
   collections,
   className,
+  fromProductSlug,
 }: {
   collections: Collection[];
   className?: string;
+  fromProductSlug?: string;
 }) {
   return (
     <div
@@ -42,7 +50,11 @@ export function CollectionCardGrid({
       )}
     >
       {collections.map((collection) => (
-        <CollectionCard key={collection.id} collection={collection} />
+        <CollectionCard
+          key={collection.id}
+          collection={collection}
+          fromProductSlug={fromProductSlug}
+        />
       ))}
     </div>
   );

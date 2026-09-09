@@ -80,7 +80,10 @@ export function ProductDetailContent({ product }: { product: Product }) {
                     {collectionsTitle}
                   </h2>
                 </Reveal>
-                <CollectionCardGrid collections={linkedCollections} />
+                <CollectionCardGrid
+                  collections={linkedCollections}
+                  fromProductSlug={product.slug}
+                />
               </section>
             )}
 

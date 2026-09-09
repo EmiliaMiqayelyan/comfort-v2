@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/routing";
+import { setRequestLocale } from "next-intl/server";
 import { CollectionDetailContent } from "@/features/collections/collection-detail-content";
 import { getLocalized } from "@/data/catalog";
 import { loadCollection, loadCollections } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
 import { firstMedia } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
 
 export async function generateStaticParams() {
   const collections = await loadCollections();
@@ -55,19 +53,9 @@ export default async function CollectionDetailPage({
   const collection = await loadCollection(slug);
   if (!collection) notFound();
 
-  const tc = await getTranslations({ locale, namespace: "common" });
-
   return (
     <section className="catalog-surface min-h-screen pt-28 pb-16 md:pt-36 md:pb-24">
       <div className="container-wide px-4 md:px-8">
-        <Link
-          href="/collections"
-          className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {tc("back")}
-        </Link>
-
         <CollectionDetailContent collection={collection} />
       </div>
     </section>
