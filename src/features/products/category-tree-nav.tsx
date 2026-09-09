@@ -13,35 +13,65 @@ import {
 import { cn } from "@/lib/utils";
 import type { ProductCategory } from "@/types";
 
-function NavLink({
+type CategoryTreeNavProps = {
+  categories: ProductCategory[];
+  activeCategoryId?: string | null;
+  /** Expand all parent categories (useful on the products index). */
+  expandAll?: boolean;
+  /**
+   * When set, categories act as filters (buttons) instead of product-page links.
+   * Pass `null` to clear the selection (e.g. from the catalog header).
+   */
+  onSelect?: (categoryId: string | null) => void;
+};
+
+function CategoryLabel({
   category,
   isActive,
   depth = 0,
+  onSelect,
 }: {
   category: ProductCategory;
   isActive: boolean;
   depth?: number;
+  onSelect?: (categoryId: string | null) => void;
 }) {
   const locale = useLocale();
+  const className = cn(
+    "relative block border-b border-border/60 py-3.5 text-sm transition hover:text-foreground",
+    depth > 0 ? "pl-8 pr-4" : "px-4",
+    isActive
+      ? "font-semibold text-foreground"
+      : "font-normal text-foreground/70",
+  );
+
+  const indicator = isActive ? (
+    <span
+      aria-hidden
+      className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-accent"
+    />
+  ) : null;
+
+  const label = getLocalized(category.name, locale);
+
+  if (onSelect) {
+    return (
+      <button
+        type="button"
+        onClick={() => onSelect(isActive ? null : category.id)}
+        aria-pressed={isActive}
+        className={cn(className, "w-full text-left")}
+      >
+        {indicator}
+        {label}
+      </button>
+    );
+  }
 
   return (
-    <Link
-      href={`/products/${category.slug}`}
-      className={cn(
-        "relative block border-b border-border/60 py-3.5 text-sm transition hover:text-foreground",
-        depth > 0 ? "pl-8 pr-4" : "px-4",
-        isActive
-          ? "font-semibold text-foreground"
-          : "font-normal text-foreground/70",
-      )}
-    >
-      {isActive && (
-        <span
-          aria-hidden
-          className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-accent"
-        />
-      )}
-      {getLocalized(category.name, locale)}
+    <Link href={`/products/${category.slug}`} className={className}>
+      {indicator}
+      {label}
     </Link>
   );
 }
@@ -51,11 +81,13 @@ function CategoryBranch({
   categories,
   activeCategoryId,
   defaultOpen = false,
+  onSelect,
 }: {
   category: ProductCategory;
   categories: ProductCategory[];
   activeCategoryId: string;
   defaultOpen?: boolean;
+  onSelect?: (categoryId: string | null) => void;
 }) {
   const locale = useLocale();
   const children = childCategories(categories, category.id);
@@ -67,8 +99,22 @@ function CategoryBranch({
   const [open, setOpen] = useState(defaultOpen || isOnPath);
 
   if (!hasChildren) {
-    return <NavLink category={category} isActive={isActive} />;
+    return (
+      <CategoryLabel
+        category={category}
+        isActive={isActive}
+        onSelect={onSelect}
+      />
+    );
   }
+
+  const titleClass = cn(
+    "flex-1 py-3.5 pl-4 pr-2 text-sm transition hover:text-foreground",
+    isActive || isOnPath
+      ? "font-semibold text-foreground"
+      : "font-normal text-foreground/70",
+    onSelect && "text-left",
+  );
 
   return (
     <div className="border-b border-border/60 last:border-b-0">
@@ -79,17 +125,20 @@ function CategoryBranch({
             className="absolute inset-y-2 left-0 z-10 w-[3px] rounded-full bg-accent"
           />
         )}
-        <Link
-          href={`/products/${category.slug}`}
-          className={cn(
-            "flex-1 py-3.5 pl-4 pr-2 text-sm transition hover:text-foreground",
-            isActive || isOnPath
-              ? "font-semibold text-foreground"
-              : "font-normal text-foreground/70",
-          )}
-        >
-          {getLocalized(category.name, locale)}
-        </Link>
+        {onSelect ? (
+          <button
+            type="button"
+            onClick={() => onSelect(isActive ? null : category.id)}
+            aria-pressed={isActive}
+            className={titleClass}
+          >
+            {getLocalized(category.name, locale)}
+          </button>
+        ) : (
+          <Link href={`/products/${category.slug}`} className={titleClass}>
+            {getLocalized(category.name, locale)}
+          </Link>
+        )}
         <button
           type="button"
           aria-expanded={open}
@@ -108,11 +157,12 @@ function CategoryBranch({
             const nested = childCategories(categories, child.id);
             if (nested.length === 0) {
               return (
-                <NavLink
+                <CategoryLabel
                   key={child.id}
                   category={child}
                   isActive={child.id === activeCategoryId}
                   depth={1}
+                  onSelect={onSelect}
                 />
               );
             }
@@ -123,6 +173,7 @@ function CategoryBranch({
                 categories={categories}
                 activeCategoryId={activeCategoryId}
                 defaultOpen={defaultOpen}
+                onSelect={onSelect}
               />
             );
           })}
@@ -136,22 +187,19 @@ export function CategoryTreeNav({
   categories,
   activeCategoryId,
   expandAll = false,
-}: {
-  categories: ProductCategory[];
-  activeCategoryId?: string | null;
-  /** Expand all parent categories (useful on the products index). */
-  expandAll?: boolean;
-}) {
+  onSelect,
+}: CategoryTreeNavProps) {
   const t = useTranslations("categories");
   const roots = parentCategories(categories);
   const [collapsed, setCollapsed] = useState(false);
   const activeId = activeCategoryId ?? "";
+  const catalogLabel = t.has("catalog") ? t("catalog") : "Catalog";
 
   if (roots.length === 0) return null;
 
   return (
     <nav
-      aria-label={t.has("catalog") ? t("catalog") : "Catalog"}
+      aria-label={catalogLabel}
       className="overflow-hidden rounded-[5px] border border-border bg-white lg:sticky lg:top-28"
     >
       <button
@@ -160,7 +208,7 @@ export function CategoryTreeNav({
         className="flex w-full items-center justify-between border-b border-border/60 px-4 py-3.5 text-left"
       >
         <span className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
-          {t.has("catalog") ? t("catalog") : "Catalog"}
+          {catalogLabel}
         </span>
         <ChevronDown
           className={cn(
@@ -179,6 +227,7 @@ export function CategoryTreeNav({
               categories={categories}
               activeCategoryId={activeId}
               defaultOpen={expandAll}
+              onSelect={onSelect}
             />
           ))}
         </div>
