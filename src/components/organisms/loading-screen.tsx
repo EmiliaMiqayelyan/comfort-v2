@@ -31,7 +31,7 @@ export function LoadingScreen() {
           animate={reduceMotion ? undefined : { scale: [1, 1.04, 1], opacity: [0.9, 1, 0.9] }}
           transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
         >
-          <BrandLogo heightClassName="h-20" className="mx-auto" />
+          <BrandLogo heightClassName="h-20" className="mx-auto" inverted />
         </motion.div>
         <div className="mx-auto mt-8 h-px w-40 overflow-hidden bg-white/10">
           <motion.div

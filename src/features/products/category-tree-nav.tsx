@@ -50,18 +50,21 @@ function CategoryBranch({
   category,
   categories,
   activeCategoryId,
+  defaultOpen = false,
 }: {
   category: ProductCategory;
   categories: ProductCategory[];
   activeCategoryId: string;
+  defaultOpen?: boolean;
 }) {
   const locale = useLocale();
   const children = childCategories(categories, category.id);
   const hasChildren = children.length > 0;
   const isActive = category.id === activeCategoryId;
   const isOnPath =
-    isActive || isDescendantOf(activeCategoryId, category.id, categories);
-  const [open, setOpen] = useState(isOnPath);
+    Boolean(activeCategoryId) &&
+    (isActive || isDescendantOf(activeCategoryId, category.id, categories));
+  const [open, setOpen] = useState(defaultOpen || isOnPath);
 
   if (!hasChildren) {
     return <NavLink category={category} isActive={isActive} />;
@@ -119,6 +122,7 @@ function CategoryBranch({
                 category={child}
                 categories={categories}
                 activeCategoryId={activeCategoryId}
+                defaultOpen={defaultOpen}
               />
             );
           })}
@@ -131,13 +135,17 @@ function CategoryBranch({
 export function CategoryTreeNav({
   categories,
   activeCategoryId,
+  expandAll = false,
 }: {
   categories: ProductCategory[];
-  activeCategoryId: string;
+  activeCategoryId?: string | null;
+  /** Expand all parent categories (useful on the products index). */
+  expandAll?: boolean;
 }) {
   const t = useTranslations("categories");
   const roots = parentCategories(categories);
   const [collapsed, setCollapsed] = useState(false);
+  const activeId = activeCategoryId ?? "";
 
   if (roots.length === 0) return null;
 
@@ -169,7 +177,8 @@ export function CategoryTreeNav({
               key={root.id}
               category={root}
               categories={categories}
-              activeCategoryId={activeCategoryId}
+              activeCategoryId={activeId}
+              defaultOpen={expandAll}
             />
           ))}
         </div>
