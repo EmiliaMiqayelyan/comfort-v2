@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/routing";
+import { setRequestLocale } from "next-intl/server";
 import { ProductDetailContent } from "@/features/products/product-detail-content";
 import { CategoryDetailContent } from "@/features/products/category-detail-content";
 import { getLocalized } from "@/data/catalog";
 import { loadProduct, loadCategory, loadProducts, loadCategories } from "@/lib/catalog-source";
+import { categoryBreadcrumbChain } from "@/lib/category-tree";
 import { routing } from "@/i18n/routing";
-import { ArrowLeft } from "lucide-react";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 export async function generateStaticParams() {
@@ -92,60 +91,74 @@ export default async function ProductOrCategoryPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const product = await loadProduct(slug);
-  const category = await loadCategory(slug);
+  const [product, category, categories] = await Promise.all([
+    loadProduct(slug),
+    loadCategory(slug),
+    loadCategories(),
+  ]);
 
   if (!product && !category) notFound();
 
-  const tc = await getTranslations({ locale, namespace: "common" });
+  const homeUrl = `https://comfort.am/${locale}`;
+  const productsUrl = `${homeUrl}/products`;
 
-  return (
-    <section className="catalog-surface min-h-screen pt-28 pb-16 md:pt-36 md:pb-24">
-      <div className="container-wide px-4 md:px-8">
-        {product ? (
-          <>
-            <Link
-              href="/products"
-              className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {tc("back")}
-            </Link>
-            <ProductJsonLd
-              name={getLocalized(product.name, locale)}
-              description={getLocalized(product.description, locale)}
-              sku={product.sku}
-              image={product.images[0]}
-              price={product.price}
-            />
-            <BreadcrumbJsonLd
-              items={[
-                { name: "Comfort", url: `https://comfort.am/${locale}` },
-                { name: "Products", url: `https://comfort.am/${locale}/products` },
-                {
-                  name: getLocalized(product.name, locale),
-                  url: `https://comfort.am/${locale}/products/${product.slug}`,
-                },
-              ]}
-            />
-            <ProductDetailContent product={product} />
-          </>
-        ) : category ? (
-          <>
-            <BreadcrumbJsonLd
-              items={[
-                { name: "Comfort", url: `https://comfort.am/${locale}` },
-                { name: "Products", url: `https://comfort.am/${locale}/products` },
-                {
-                  name: getLocalized(category.name, locale),
-                  url: `https://comfort.am/${locale}/products/${category.slug}`,
-                },
-              ]}
-            />
-            <CategoryDetailContent category={category} />
-          </>
-        ) : null}
-      </div>
-    </section>
-  );
+  if (product) {
+    const productCategory = categories.find((item) => item.id === product.categoryId);
+    const categoryChain = productCategory
+      ? categoryBreadcrumbChain(productCategory.id, categories)
+      : [];
+
+    return (
+      <section className="catalog-surface min-h-screen pt-28 pb-16 md:pt-36 md:pb-24">
+        <div className="container-wide px-4 md:px-8">
+          <ProductJsonLd
+            name={getLocalized(product.name, locale)}
+            description={getLocalized(product.description, locale)}
+            sku={product.sku}
+            image={product.images[0]}
+            price={product.price}
+          />
+          <BreadcrumbJsonLd
+            items={[
+              { name: "Comfort", url: homeUrl },
+              { name: "Products", url: productsUrl },
+              ...categoryChain.map((item) => ({
+                name: getLocalized(item.name, locale),
+                url: `${productsUrl}/${item.slug}`,
+              })),
+              {
+                name: getLocalized(product.name, locale),
+                url: `${productsUrl}/${product.slug}`,
+              },
+            ]}
+          />
+          <ProductDetailContent product={product} />
+        </div>
+      </section>
+    );
+  }
+
+  if (category) {
+    const categoryChain = categoryBreadcrumbChain(category.id, categories);
+
+    return (
+      <section className="catalog-surface min-h-screen pt-28 pb-16 md:pt-36 md:pb-24">
+        <div className="container-wide px-4 md:px-8">
+          <BreadcrumbJsonLd
+            items={[
+              { name: "Comfort", url: homeUrl },
+              { name: "Products", url: productsUrl },
+              ...categoryChain.map((item) => ({
+                name: getLocalized(item.name, locale),
+                url: `${productsUrl}/${item.slug}`,
+              })),
+            ]}
+          />
+          <CategoryDetailContent category={category} />
+        </div>
+      </section>
+    );
+  }
+
+  return null;
 }

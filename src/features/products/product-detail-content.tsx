@@ -9,6 +9,7 @@ import { CollectionCardGrid } from "@/components/molecules/collection-card";
 import { getLocalized } from "@/data/catalog";
 import { useCategories, useCollections, useProducts } from "@/hooks/use-catalog";
 import { CatalogDetailContent } from "@/features/products/catalog-detail-content";
+import { CategoryBreadcrumb } from "@/features/products/category-breadcrumb";
 import type { Product } from "@/types";
 
 export function ProductDetailContent({ product }: { product: Product }) {
@@ -29,6 +30,7 @@ export function ProductDetailContent({ product }: { product: Product }) {
     productCollectionIds.includes(collection.id),
   );
   const category = categories.find((c) => c.id === product.categoryId);
+  const productName = getLocalized(product.name, locale);
 
   const related = useMemo(
     () =>
@@ -53,41 +55,48 @@ export function ProductDetailContent({ product }: { product: Product }) {
         : "Collections";
 
   return (
-    <CatalogDetailContent
-      item={product}
-      badges={
-        <>
-          {category ? <Badge>{getLocalized(category.name, locale)}</Badge> : null}
-          {linkedCollections.map((collection) => (
-            <Badge key={collection.id}>{getLocalized(collection.name, locale)}</Badge>
-          ))}
-        </>
-      }
-      footer={
-        <>
-          {linkedCollections.length > 0 && (
-            <section className="mt-24 border-t border-border pt-24">
-              <Reveal>
-                <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
-                  {collectionsTitle}
-                </h2>
-              </Reveal>
-              <CollectionCardGrid collections={linkedCollections} />
-            </section>
-          )}
+    <div>
+      <CategoryBreadcrumb
+        category={category ?? null}
+        categories={categories}
+        currentLabel={productName}
+      />
+      <CatalogDetailContent
+        item={product}
+        badges={
+          <>
+            {category ? <Badge>{getLocalized(category.name, locale)}</Badge> : null}
+            {linkedCollections.map((collection) => (
+              <Badge key={collection.id}>{getLocalized(collection.name, locale)}</Badge>
+            ))}
+          </>
+        }
+        footer={
+          <>
+            {linkedCollections.length > 0 && (
+              <section className="mt-24 border-t border-border pt-24">
+                <Reveal>
+                  <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
+                    {collectionsTitle}
+                  </h2>
+                </Reveal>
+                <CollectionCardGrid collections={linkedCollections} />
+              </section>
+            )}
 
-          {related.length > 0 && (
-            <section className="mt-24 border-t border-border pt-24">
-              <Reveal>
-                <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
-                  {t("related")}
-                </h2>
-              </Reveal>
-              <ProductCardGrid products={related} />
-            </section>
-          )}
-        </>
-      }
-    />
+            {related.length > 0 && (
+              <section className="mt-24 border-t border-border pt-24">
+                <Reveal>
+                  <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
+                    {t("related")}
+                  </h2>
+                </Reveal>
+                <ProductCardGrid products={related} />
+              </section>
+            )}
+          </>
+        }
+      />
+    </div>
   );
 }

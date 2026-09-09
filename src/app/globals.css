@@ -419,3 +419,29 @@ html.admin-scroll-lock body {
 .group:hover .catalog-cover {
   transform: scale(1.04);
 }
+
+.collections-swiper .swiper-pagination {
+  bottom: 0 !important;
+}
+
+.collections-swiper .swiper-pagination-bullet {
+  width: 6px;
+  height: 6px;
+  margin: 0 4px !important;
+  background: color-mix(in srgb, var(--foreground) 35%, transparent);
+  opacity: 1;
+  border-radius: 999px;
+  transition:
+    width 0.25s ease,
+    background 0.25s ease;
+}
+
+.collections-swiper .swiper-pagination-bullet-active {
+  width: 22px;
+  background: var(--foreground);
+}
+
+.collections-swiper-nav.swiper-button-disabled {
+  pointer-events: none;
+  opacity: 0.35;
+}

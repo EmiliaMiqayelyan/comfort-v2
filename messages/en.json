@@ -38,6 +38,7 @@
   },
   "categories": {
     "title": "Assortment",
+    "catalog": "Catalog",
     "viewAll": "View all products",
     "baseboards": "Baseboards",
     "baseboardsDesc": "Precision profiles that frame floors with quiet elegance.",

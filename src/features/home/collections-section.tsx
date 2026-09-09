@@ -1,23 +1,29 @@
 "use client";
 
-import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
-import { ArrowUpRight } from "lucide-react";
+import { useRef } from "react";
+import { useTranslations } from "next-intl";
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Navigation, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
-import { getLocalized } from "@/data/catalog";
+import { CollectionCard } from "@/components/molecules/collection-card";
 import { useCollections } from "@/hooks/use-catalog";
-import { mediaSrc } from "@/lib/utils";
 
 export function CollectionsSection() {
   const t = useTranslations("collections");
-  const locale = useLocale();
   const { data: collections = [], isLoading } = useCollections();
+  const prevRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
 
   if (isLoading || collections.length === 0) return null;
 
+  const showSlider = collections.length > 1;
+
   return (
-    <section className="bg-secondary/50 py-20 md:py-28">
+    <section className="overflow-x-clip bg-secondary/50 py-20 md:py-28">
       <div className="container-wide px-4 md:px-8">
         <Reveal className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <h2 className="display text-3xl text-foreground md:text-4xl lg:text-5xl">
@@ -32,43 +38,72 @@ export function CollectionsSection() {
           </Link>
         </Reveal>
 
-        <div className="-mx-4 flex gap-5 overflow-x-auto px-4 pb-4 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-6 md:pb-0">
-          {collections.map((collection, i) => (
-            <Reveal
-              key={collection.id}
-              delay={i * 0.06}
-              className="w-[260px] min-w-0 shrink-0 md:w-full"
-            >
-              <Link
-                href={`/collections/${collection.slug}`}
-                className="group block h-full overflow-hidden rounded-3xl bg-card shadow-soft transition hover:shadow-[0_24px_64px_rgba(17,24,39,0.12)]"
+        {!showSlider ? (
+          <Reveal className="mx-auto max-w-md sm:mx-0 sm:max-w-sm">
+            <CollectionCard collection={collections[0]} />
+          </Reveal>
+        ) : (
+          <Reveal>
+            <div className="collections-swiper relative">
+              <Swiper
+                modules={[Navigation, Pagination]}
+                spaceBetween={20}
+                slidesPerView={1.15}
+                watchOverflow
+                pagination={{ clickable: true }}
+                breakpoints={{
+                  640: { slidesPerView: 2.15, spaceBetween: 20 },
+                  1024: { slidesPerView: 3.25, spaceBetween: 24 },
+                }}
+                onBeforeInit={(swiper) => {
+                  const navigation = swiper.params.navigation;
+                  if (navigation && typeof navigation !== "boolean") {
+                    navigation.prevEl = prevRef.current;
+                    navigation.nextEl = nextRef.current;
+                  }
+                }}
+                onSwiper={(swiper) => {
+                  if (
+                    swiper.params.navigation &&
+                    typeof swiper.params.navigation !== "boolean"
+                  ) {
+                    swiper.params.navigation.prevEl = prevRef.current;
+                    swiper.params.navigation.nextEl = nextRef.current;
+                  }
+                  swiper.navigation.init();
+                  swiper.navigation.update();
+                }}
+                className="pb-12"
               >
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#ecece8]">
-                  <Image
-                    src={mediaSrc(collection.image)}
-                    alt={getLocalized(collection.name, locale)}
-                    fill
-                    quality={95}
-                    className="catalog-cover"
-                    sizes="(max-width: 768px) 260px, (max-width: 1280px) 30vw, 220px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                    <h3 className="display text-lg leading-tight">
-                      {getLocalized(collection.name, locale)}
-                    </h3>
-                    <p className="mt-1 line-clamp-2 text-xs text-white/70">
-                      {getLocalized(collection.description, locale)}
-                    </p>
-                    <p className="mt-3 text-xs tracking-wide text-white/85">
-                      {t("products", { count: collection.productCount })}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
+                {collections.map((collection) => (
+                  <SwiperSlide key={collection.id} className="!h-auto">
+                    <CollectionCard
+                      collection={collection}
+                      className="h-full"
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              <button
+                ref={prevRef}
+                type="button"
+                aria-label="Previous"
+                className="collections-swiper-nav absolute top-[26%] left-0 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 md:h-14 md:w-14"
+              >
+                <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
+              </button>
+              <button
+                ref={nextRef}
+                type="button"
+                aria-label="Next"
+                className="collections-swiper-nav absolute top-[26%] right-0 z-10 flex h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 md:h-14 md:w-14"
+              >
+                <ChevronRight className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
+              </button>
+            </div>
+          </Reveal>
+        )}
       </div>
     </section>
   );
