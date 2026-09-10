@@ -36,7 +36,7 @@ export function AboutTeaser() {
           <Reveal delay={0.15}>
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-soft lg:aspect-[5/6]">
               <Image
-                src={siteImages.living}
+                src={siteImages.factory}
                 alt=""
                 fill
                 className="object-cover"

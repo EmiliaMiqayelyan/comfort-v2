@@ -2,23 +2,17 @@
 
 import { useCallback, useEffect, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Calculator, Download, Mail, Save } from "lucide-react";
+import { Calculator, Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
-import { Badge } from "@/components/atoms/badge";
 import { cn, formatPrice } from "@/lib/utils";
 import { calculateMaterials } from "@/lib/calculator";
-import { saveCalculator } from "@/lib/api";
 import { useProducts } from "@/hooks/use-catalog";
 import { useCalculatorStore } from "@/stores";
 
-const CORNER_TYPES = [
-  { id: "standard", label: "Standard" },
-  { id: "soft", label: "Soft radius" },
-  { id: "sharp", label: "Sharp" },
-];
+const CORNER_TYPES = ["standard", "soft", "sharp"] as const;
 
 export function SmartCalculator({ className }: { className?: string }) {
   const t = useTranslations("calculator");
@@ -63,35 +57,9 @@ export function SmartCalculator({ className }: { className?: string }) {
     doc.save("comfort-calculation.pdf");
   }, [input, locale, result, t, tc]);
 
-  const handleSave = useCallback(async () => {
-    if (!result) return;
-    try {
-      await saveCalculator({ input, result });
-    } catch {
-      // Keep local result even if API is offline.
-    }
-  }, [input, result]);
-
-  const emailHref = result
-    ? `mailto:?subject=${encodeURIComponent(t("title"))}&body=${encodeURIComponent(
-        [
-          `${t("pieces")}: ${result.pieces}`,
-          `${t("connectors")}: ${result.connectors}`,
-          `${t("innerCorners")}: ${result.innerCorners}`,
-          `${t("outerCorners")}: ${result.outerCorners}`,
-          `${t("adhesiveAmount")}: ${result.adhesiveKg} ${tc("kg")}`,
-          `${t("estimatedPrice")}: ${formatPrice(result.estimatedPrice, locale)}`,
-        ].join("\n"),
-      )}`
-    : "#";
-
   return (
     <section className={cn("container-wide py-10 lg:py-16", className)}>
       <header className="mb-10 max-w-2xl">
-        <Badge className="mb-4 border-accent/30 bg-accent/10 text-accent">
-          <Calculator className="mr-1.5 size-3.5" aria-hidden />
-          Comfort Tools
-        </Badge>
         <h1 className="display text-3xl md:text-4xl">{t("title")}</h1>
         <p className="mt-3 text-muted-foreground">{t("subtitle")}</p>
       </header>
@@ -194,8 +162,8 @@ export function SmartCalculator({ className }: { className?: string }) {
               aria-label={t("corner")}
             >
               {CORNER_TYPES.map((corner) => (
-                <option key={corner.id} value={corner.id}>
-                  {corner.label}
+                <option key={corner} value={corner}>
+                  {t(`cornerTypes.${corner}`)}
                 </option>
               ))}
             </select>
@@ -216,17 +184,37 @@ export function SmartCalculator({ className }: { className?: string }) {
             />
           </Field>
 
-          <label className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card/60 px-4 py-3">
-            <span className="text-sm font-medium">{t("adhesive")}</span>
-            <input
-              type="checkbox"
+          <div
+            role="presentation"
+            className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-border bg-card/60 px-4 py-3"
+            onClick={() => setInput("includeAdhesive", !input.includeAdhesive)}
+          >
+            <span id="calc-adhesive-label" className="text-sm font-medium">
+              {t("adhesive")}
+            </span>
+            <button
+              type="button"
               role="switch"
-              aria-label={t("adhesive")}
-              checked={input.includeAdhesive}
-              onChange={(e) => setInput("includeAdhesive", e.target.checked)}
-              className="h-5 w-9 cursor-pointer appearance-none rounded-full bg-muted transition checked:bg-accent focus-ring [&::after]:ml-0.5 [&::after]:block [&::after]:h-4 [&::after]:w-4 [&::after]:rounded-full [&::after]:bg-white [&::after]:transition checked:[&::after]:translate-x-4"
-            />
-          </label>
+              aria-checked={input.includeAdhesive}
+              aria-labelledby="calc-adhesive-label"
+              onClick={(e) => {
+                e.stopPropagation();
+                setInput("includeAdhesive", !input.includeAdhesive);
+              }}
+              className={cn(
+                "relative h-6 w-11 shrink-0 rounded-full transition-colors focus-ring",
+                input.includeAdhesive ? "bg-accent" : "bg-muted",
+              )}
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow-sm transition-transform",
+                  input.includeAdhesive && "translate-x-5",
+                )}
+              />
+            </button>
+          </div>
 
           <Button type="submit" variant="accent" size="lg" className="w-full">
             <Calculator aria-hidden />
@@ -264,22 +252,10 @@ export function SmartCalculator({ className }: { className?: string }) {
                 />
               </div>
 
-              <p className="mt-4 text-xs text-muted-foreground">
-                Total length: {result.totalLength} {tc("meters")} · Waste:{" "}
-                {result.wasteMeters} {tc("meters")}
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-6">
                 <Button type="button" variant="secondary" onClick={handlePdf}>
                   <Download aria-hidden />
                   {t("pdf")}
-                </Button>
-                <Button type="button" variant="outline" asChild>
-                  <a href={emailHref}>{t("email")}</a>
-                </Button>
-                <Button type="button" variant="ghost" onClick={handleSave}>
-                  <Save aria-hidden />
-                  {t("save")}
                 </Button>
               </div>
             </>
@@ -290,7 +266,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                 aria-hidden
               />
               <p className="text-sm text-muted-foreground">
-                Enter your room dimensions and calculate material requirements.
+                {t("emptyHint")}
               </p>
             </div>
           )}

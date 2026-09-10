@@ -58,6 +58,8 @@ export interface ContactShowroom {
   address: string;
   hours: string;
   phone?: string;
+  /** Google Maps / OSM iframe `src` URL for this location. */
+  mapEmbedUrl?: string;
 }
 
 export interface ContactSocial {
@@ -67,12 +69,18 @@ export interface ContactSocial {
 }
 
 export interface ContactSettings {
+  /** Optional overrides; empty locales fall back to i18n `contact.title`. */
+  title?: LocalizedString;
+  /** Optional overrides; empty locales fall back to i18n `contact.subtitle`. */
+  subtitle?: LocalizedString;
   phones: string[];
   emails: string[];
   address: LocalizedString;
   hours: LocalizedString;
   socials: ContactSocial[];
   showrooms: ContactShowroom[];
+  /** Primary map embed URL shown on the contact page. */
+  mapEmbedUrl?: string;
 }
 
 export interface HeroSettings {

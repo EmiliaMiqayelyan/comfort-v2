@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
-import { Badge } from "@/components/atoms/badge";
 import { getLocalized } from "@/data/catalog";
 import {
   useCategories,
@@ -79,9 +78,6 @@ export function CollectionsGrid() {
                     sizes="(max-width: 640px) 100vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-                  <Badge className="absolute left-4 top-4 border-white/20 bg-background/80 capitalize backdrop-blur">
-                    {collection.style}
-                  </Badge>
                 </div>
                 <div className="flex flex-1 flex-col gap-2 p-6 md:p-8">
                   <h3 className="display text-xl text-foreground md:text-2xl">

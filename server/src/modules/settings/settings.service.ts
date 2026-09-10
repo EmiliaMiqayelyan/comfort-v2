@@ -2,19 +2,27 @@ import { SiteSetting } from '../../shared/database/models';
 
 const emptyLocalized = { en: '', ru: '', am: '' };
 
+type Localized = { en: string; ru: string; am: string };
+
+type ShowroomValue = {
+  id: string;
+  name: string;
+  address: string;
+  hours: string;
+  phone?: string;
+  mapEmbedUrl?: string;
+};
+
 const DEFAULT_CONTACT = {
+  title: { ...emptyLocalized },
+  subtitle: { ...emptyLocalized },
   phones: [] as string[],
   emails: [] as string[],
   address: { ...emptyLocalized },
   hours: { ...emptyLocalized },
   socials: [] as Array<{ id: string; label: string; href: string }>,
-  showrooms: [] as Array<{
-    id: string;
-    name: string;
-    address: string;
-    hours: string;
-    phone?: string;
-  }>,
+  showrooms: [] as ShowroomValue[],
+  mapEmbedUrl: '',
 };
 
 const DEFAULT_HERO_IMAGES = [
@@ -47,6 +55,37 @@ function parseSettingValue(value: unknown): Record<string, unknown> {
   return {};
 }
 
+function asLocalized(value: unknown): Localized {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const raw = value as Record<string, unknown>;
+    return {
+      en: typeof raw.en === 'string' ? raw.en : '',
+      ru: typeof raw.ru === 'string' ? raw.ru : '',
+      am: typeof raw.am === 'string' ? raw.am : '',
+    };
+  }
+  if (typeof value === 'string') {
+    return { en: value, ru: value, am: value };
+  }
+  return { ...emptyLocalized };
+}
+
+function normalizeShowrooms(value: unknown): ShowroomValue[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((item, index) => {
+    const raw = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
+    const id = typeof raw.id === 'string' && raw.id ? raw.id : `room-${index}`;
+    return {
+      id,
+      name: typeof raw.name === 'string' ? raw.name : '',
+      address: typeof raw.address === 'string' ? raw.address : '',
+      hours: typeof raw.hours === 'string' ? raw.hours : '',
+      phone: typeof raw.phone === 'string' ? raw.phone : '',
+      mapEmbedUrl: typeof raw.mapEmbedUrl === 'string' ? raw.mapEmbedUrl.trim() : '',
+    };
+  });
+}
+
 function normalizeContact(value: Record<string, unknown> | null | undefined): ContactValue {
   const raw = parseSettingValue(value);
   const phones = Array.isArray(raw.phones)
@@ -59,25 +98,31 @@ function normalizeContact(value: Record<string, unknown> | null | undefined): Co
     : typeof raw.email === 'string' && raw.email
       ? [raw.email]
       : [];
-  const address =
-    raw.address && typeof raw.address === 'object'
-      ? { ...emptyLocalized, ...(raw.address as object) }
-      : { ...emptyLocalized };
+  const address = asLocalized(raw.address);
   const hoursSource =
     raw.hours && typeof raw.hours === 'object'
       ? raw.hours
       : raw.workingHours && typeof raw.workingHours === 'object'
         ? raw.workingHours
         : emptyLocalized;
-  const hours = { ...emptyLocalized, ...(hoursSource as object) };
+  const hours = asLocalized(hoursSource);
+  const mapEmbedUrl =
+    typeof raw.mapEmbedUrl === 'string'
+      ? raw.mapEmbedUrl.trim()
+      : typeof raw.mapUrl === 'string'
+        ? raw.mapUrl.trim()
+        : '';
 
   return {
+    title: asLocalized(raw.title),
+    subtitle: asLocalized(raw.subtitle),
     phones,
     emails,
     address,
     hours,
     socials: Array.isArray(raw.socials) ? (raw.socials as ContactValue['socials']) : [],
-    showrooms: Array.isArray(raw.showrooms) ? (raw.showrooms as ContactValue['showrooms']) : [],
+    showrooms: normalizeShowrooms(raw.showrooms),
+    mapEmbedUrl,
   };
 }
 

@@ -2,19 +2,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
-import { Badge } from "@/components/atoms/badge";
 import { catalogApi } from "@/lib/api";
-import { getLocalized, siteImages } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
 import { FileText } from "lucide-react";
 
-const TIMELINE = [
-  { year: "2010", key: "founded" },
-  { year: "2015", key: "factory" },
-  { year: "2020", key: "export" },
-  { year: "2026", key: "digital" },
-] as const;
+const ABOUT_IMAGE = "/images/about/about_comf.jpg";
 
-const VALUES = ["production", "materials", "technology", "design"] as const;
+const PARTNER_LOGOS = [
+  { src: "/images/partners/domus-1.svg", alt: "Domus" },
+  { src: "/images/partners/domus-2.svg", alt: "Partner" },
+  { src: "/images/partners/domus-3.svg", alt: "Partner" },
+  { src: "/images/partners/domus-4.svg", alt: "Partner" },
+  { src: "/images/partners/rbandb.svg", alt: "RB & B" },
+  { src: "/images/partners/visionarch.jpg", alt: "Vision Arch" },
+] as const;
 
 export async function generateMetadata({
   params,
@@ -23,9 +24,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
+  const about = await getTranslations({ locale, namespace: "about" });
   return {
     title: t("aboutTitle"),
-    description: t("homeDescription"),
+    description: about("subtitle"),
     alternates: {
       canonical: `https://comfort.am/${locale}/about`,
       languages: {
@@ -50,115 +52,63 @@ export default async function AboutPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "about" });
-  const ta = await getTranslations({ locale, namespace: "advantages" });
   const certificates = await catalogApi.certificates();
 
   return (
     <>
-      <section className="bg-background pt-28 pb-20 md:pt-36 md:pb-28">
+      <section className="bg-background pt-28 pb-16 md:pt-36 md:pb-24">
         <div className="container-wide px-4 md:px-8">
-          <Reveal className="max-w-4xl">
-            <h1 className="display text-4xl text-foreground md:text-5xl lg:text-6xl">
-              {t("title")}
-            </h1>
-            <p className="mt-6 text-xl leading-relaxed text-muted-foreground">
-              {t("subtitle")}
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="border-t border-border bg-muted/30 py-20 md:py-28">
-        <div className="container-wide px-4 md:px-8">
-          <Reveal>
-            <h2 className="display mb-12 text-3xl text-foreground md:text-4xl">
-              {t("mission")}
-            </h2>
-            <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
-              {t("missionText")}
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="py-20 md:py-28">
-        <div className="container-wide px-4 md:px-8">
-          <Reveal className="mb-16">
-            <h2 className="display text-3xl text-foreground md:text-4xl">
-              {t("values")}
-            </h2>
-          </Reveal>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {VALUES.map((value, i) => (
-              <Reveal key={value} delay={i * 0.08}>
-                <div className="rounded-3xl border border-border bg-card p-8 shadow-soft">
-                  <h3 className="display text-lg text-foreground">
-                    {ta(value)}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    {ta(`${value}Desc`)}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-border bg-muted/30 py-20 md:py-28">
-        <div className="container-wide px-4 md:px-8">
-          <Reveal className="mb-16">
-            <h2 className="display text-3xl text-foreground md:text-4xl">
-              {t("timeline")}
-            </h2>
-          </Reveal>
-          <div className="relative space-y-12 border-l border-border pl-8 md:pl-12">
-            {TIMELINE.map((item, i) => (
-              <Reveal key={item.year} delay={i * 0.1}>
-                <div className="relative">
-                  <span className="absolute -left-[calc(2rem+5px)] top-1 h-2.5 w-2.5 rounded-full bg-foreground md:-left-[calc(3rem+5px)]" />
-                  <p className="display text-2xl text-accent">{item.year}</p>
-                  <p className="mt-2 max-w-xl text-muted-foreground">
-                    {t("missionText")}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 md:py-28">
-        <div className="container-wide px-4 md:px-8">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
+          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
             <Reveal>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-soft">
+              <div className="relative aspect-[620/348] overflow-hidden rounded-[20px] shadow-soft">
                 <Image
-                  src={siteImages.factory}
-                  alt={t("factory")}
+                  src={ABOUT_IMAGE}
+                  alt={t("factoryImageAlt")}
                   fill
+                  priority
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               </div>
             </Reveal>
-            <Reveal delay={0.1} className="flex flex-col justify-center">
-              <h2 className="display text-3xl text-foreground md:text-4xl">
-                {t("factory")}
-              </h2>
-              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-                {t("factoryText")}
+
+            <Reveal delay={0.1}>
+              <h1 className="display text-4xl text-foreground md:text-5xl">
+                {t("title")}
+              </h1>
+              <p className="mt-6 text-base leading-relaxed text-muted-foreground md:text-lg">
+                {t("body")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Badge>{t("technology")}</Badge>
-                <Badge>{t("quality")}</Badge>
-              </div>
             </Reveal>
           </div>
         </div>
       </section>
 
-      <section className="border-t border-border bg-muted/30 py-20 md:py-28">
+      <section className="border-t border-border bg-muted/30 py-16 md:py-20">
+        <div className="container-wide px-4 md:px-8">
+          <Reveal className="mb-12 text-center">
+            <h2 className="display text-3xl text-foreground md:text-4xl">
+              {t("ourPartners")}
+            </h2>
+          </Reveal>
+          <div className="grid grid-cols-2 items-center justify-items-center gap-8 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between">
+            {PARTNER_LOGOS.map((logo, i) => (
+              <Reveal key={logo.src} delay={i * 0.05}>
+                <div className="relative flex h-16 w-28 items-center justify-center sm:h-20 sm:w-32">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={logo.src}
+                    alt={logo.alt}
+                    className="max-h-16 w-auto max-w-full object-contain sm:max-h-20"
+                  />
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 md:py-28">
         <div className="container-wide px-4 md:px-8">
           <Reveal className="mb-12">
             <h2 className="display text-3xl text-foreground md:text-4xl">
@@ -170,32 +120,36 @@ export default async function AboutPage({
               <p className="text-muted-foreground">{t("certificatesEmpty")}</p>
             ) : (
               (certificates ?? []).map((cert, i) => (
-              <Reveal key={cert.id} delay={i * 0.06}>
-                <a
-                  href={cert.fileUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block rounded-3xl border border-border bg-card px-6 py-8 text-center shadow-soft transition hover:border-accent/40"
-                >
-                  {cert.image ? (
-                    <span className="relative mx-auto mb-4 block h-20 w-20 overflow-hidden rounded-xl bg-muted">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={cert.image} alt="" className="h-full w-full object-cover" />
-                    </span>
-                  ) : (
-                    <FileText className="mx-auto mb-4 h-6 w-6 text-accent" />
-                  )}
-                  <p className="display text-sm text-foreground md:text-base">
-                    {getLocalized(cert.title, locale)}
-                  </p>
-                  {cert.issuer && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {cert.issuer}
-                      {cert.year ? ` · ${cert.year}` : ""}
+                <Reveal key={cert.id} delay={i * 0.06}>
+                  <a
+                    href={cert.fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block rounded-3xl border border-border bg-card px-6 py-8 text-center shadow-soft transition hover:border-accent/40"
+                  >
+                    {cert.image ? (
+                      <span className="relative mx-auto mb-4 block h-20 w-20 overflow-hidden rounded-xl bg-muted">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={cert.image}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      </span>
+                    ) : (
+                      <FileText className="mx-auto mb-4 h-6 w-6 text-accent" />
+                    )}
+                    <p className="display text-sm text-foreground md:text-base">
+                      {getLocalized(cert.title, locale)}
                     </p>
-                  )}
-                </a>
-              </Reveal>
+                    {cert.issuer && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {cert.issuer}
+                        {cert.year ? ` · ${cert.year}` : ""}
+                      </p>
+                    )}
+                  </a>
+                </Reveal>
               ))
             )}
           </div>

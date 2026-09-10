@@ -98,17 +98,27 @@ module.exports = {
       {
         setting_key: 'contact',
         setting_value: JSON.stringify({
+          title: { en: '', ru: '', am: '' },
+          subtitle: { en: '', ru: '', am: '' },
           phones: ['+374 00 000000'],
           emails: ['info@comfort.am'],
-          address: { en: 'Yerevan, Armenia', ru: 'Ереван, Армения', am: 'Երdelays' },
-          hours: { en: 'Mon–Sat 10:00–19:00', ru: 'Пн–Сб 10:00–19:00', am: 'Еdelays' },
+          address: { en: 'Yerevan, Armenia', ru: 'Ереван, Армения', am: 'Երևան, Հայաստան' },
+          hours: { en: 'Mon–Sat 10:00–19:00', ru: 'Пн–Сб 10:00–19:00', am: 'Երկ–Շաբ 10:00–19:00' },
+          mapEmbedUrl: 'https://maps.google.com/maps?q=15+Northern+Ave,+Yerevan,+Armenia&z=15&output=embed',
           socials: [
             { id: 'whatsapp', label: 'WhatsApp', href: 'https://wa.me/37400000000' },
             { id: 'telegram', label: 'Telegram', href: 'https://t.me/comfort' },
             { id: 'instagram', label: 'Instagram', href: 'https://instagram.com' },
           ],
           showrooms: [
-            { id: 'yerevan', name: 'Yerevan Showroom', address: '15 Northern Ave, Yerevan, Armenia', hours: 'Mon–Sat 10:00–19:00', phone: '+374 00 000000' },
+            {
+              id: 'yerevan',
+              name: 'Yerevan Showroom',
+              address: '15 Northern Ave, Yerevan, Armenia',
+              hours: 'Mon–Sat 10:00–19:00',
+              phone: '+374 00 000000',
+              mapEmbedUrl: '',
+            },
           ],
         }),
       },
