@@ -1,20 +1,30 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUiStore } from "@/stores";
 import { BrandLogo } from "@/components/atoms/brand-logo";
 
 export function LoadingScreen() {
   const { loadingScreen, setLoadingScreen } = useUiStore();
   const reduceMotion = useReducedMotion();
+  // Client-only: avoids SSR/client mismatch from useReducedMotion + motion markup.
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoadingScreen(false), reduceMotion ? 200 : 1400);
-    return () => clearTimeout(t);
-  }, [reduceMotion, setLoadingScreen]);
+    setMounted(true);
+  }, []);
 
-  if (!loadingScreen) return null;
+  useEffect(() => {
+    if (!mounted || !loadingScreen) return;
+    const t = setTimeout(
+      () => setLoadingScreen(false),
+      reduceMotion ? 200 : 1400,
+    );
+    return () => clearTimeout(t);
+  }, [mounted, loadingScreen, reduceMotion, setLoadingScreen]);
+
+  if (!mounted || !loadingScreen) return null;
 
   return (
     <motion.div
@@ -23,12 +33,15 @@ export function LoadingScreen() {
       exit={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      onAnimationComplete={() => undefined}
     >
       <div className="text-center">
         <motion.div
           className="mx-auto mb-6"
-          animate={reduceMotion ? undefined : { scale: [1, 1.04, 1], opacity: [0.9, 1, 0.9] }}
+          animate={
+            reduceMotion
+              ? undefined
+              : { scale: [1, 1.04, 1], opacity: [0.9, 1, 0.9] }
+          }
           transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
         >
           <BrandLogo heightClassName="h-20" className="mx-auto" inverted />

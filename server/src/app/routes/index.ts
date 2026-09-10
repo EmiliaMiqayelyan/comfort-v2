@@ -10,6 +10,7 @@ import { mediaRoutes } from '../../modules/media/media.routes';
 import { contactRoutes } from '../../modules/contact/contact.routes';
 import { calculatorRoutes } from '../../modules/calculator/calculator.routes';
 import { certificateRoutes } from '../../modules/certificates/certificate.routes';
+import { partnerRoutes } from '../../modules/partners/partner.routes';
 import { downloadRoutes } from '../../modules/downloads/download.routes';
 import { settingsRoutes } from '../../modules/settings/settings.routes';
 import { sequelize } from '../../shared/database/sequelize';
@@ -27,6 +28,7 @@ router.use('/media', mediaRoutes);
 router.use('/contact', contactRoutes);
 router.use('/calculator', calculatorRoutes);
 router.use('/certificates', certificateRoutes);
+router.use('/partners', partnerRoutes);
 router.use('/downloads', downloadRoutes);
 router.use('/settings', settingsRoutes);
 

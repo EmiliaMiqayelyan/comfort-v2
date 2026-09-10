@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { SmartCalculator } from "@/features/calculator/smart-calculator";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -10,18 +11,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
-  return {
+  return buildPageMetadata({
+    locale,
+    path: "/calculator",
     title: t("calculatorTitle"),
-    description: t("homeDescription"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/calculator`,
-    },
-    openGraph: {
-      title: t("calculatorTitle"),
-      url: `https://comfort.am/${locale}/calculator`,
-      locale,
-    },
-  };
+    description: t("calculatorDescription"),
+  });
 }
 
 export default async function CalculatorPage({

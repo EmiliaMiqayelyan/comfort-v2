@@ -6,6 +6,7 @@ import { Reveal } from "@/components/molecules/reveal";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { siteImages } from "@/data/catalog";
+import { buildPageMetadata } from "@/lib/seo";
 import { ArrowUpRight } from "lucide-react";
 
 export async function generateMetadata({
@@ -14,11 +15,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "about" });
-  return {
-    title: `${t("factory")} — Comfort`,
-    description: t("factoryText"),
-  };
+  const t = await getTranslations({ locale, namespace: "seo" });
+  return buildPageMetadata({
+    locale,
+    path: "/production",
+    title: t("productionTitle"),
+    description: t("productionDescription"),
+    images: siteImages.factory,
+  });
 }
 
 export default async function ProductionPage({

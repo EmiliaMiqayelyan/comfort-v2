@@ -89,6 +89,15 @@ module.exports = {
       { id: 'cert-ce', title: L('CE Marking', 'CE Marking', 'CE Marking'), issuer: 'CE', year: 2022, file_url: '/products/plinth.png', image: '/products/plinth.png', created_at: now, updated_at: now },
     ]);
 
+    await queryInterface.bulkInsert('partners', [
+      { id: 'partner-1', title: L('Domus', 'Domus', 'Domus'), logo: '/images/partners/domus-1.svg', website_url: null, sort_order: 1, created_at: now, updated_at: now },
+      { id: 'partner-2', title: L('Partner 2', 'Партнёр 2', 'Գործընկեր 2'), logo: '/images/partners/domus-2.svg', website_url: null, sort_order: 2, created_at: now, updated_at: now },
+      { id: 'partner-3', title: L('Partner 3', 'Партнёр 3', 'Գործընկեր 3'), logo: '/images/partners/domus-3.svg', website_url: null, sort_order: 3, created_at: now, updated_at: now },
+      { id: 'partner-4', title: L('Partner 4', 'Партнёр 4', 'Գործընկեր 4'), logo: '/images/partners/domus-4.svg', website_url: null, sort_order: 4, created_at: now, updated_at: now },
+      { id: 'partner-5', title: L('RB & B', 'RB & B', 'RB & B'), logo: '/images/partners/rbandb.svg', website_url: null, sort_order: 5, created_at: now, updated_at: now },
+      { id: 'partner-6', title: L('Vision Arch', 'Vision Arch', 'Vision Arch'), logo: '/images/partners/visionarch.jpg', website_url: null, sort_order: 6, created_at: now, updated_at: now },
+    ]);
+
     await queryInterface.bulkInsert('download_files', [
       { id: 'dl-catalog', filename: 'comfort-catalog.pdf', title: L('Comfort catalog', 'Каталог Comfort', 'Comfort delays'), category: 'catalogs', url: '/downloads/md101.pdf', file_size: '1.2 MB', downloadable: 1, created_at: now, updated_at: now },
       { id: 'dl-template', filename: 'order-template.docx', title: L('Order template', 'Шabldelays', 'Пdelays'), category: 'templates', url: '/downloads/md101.pdf', file_size: '240 KB', downloadable: 1, created_at: now, updated_at: now },
@@ -128,6 +137,7 @@ module.exports = {
   async down(queryInterface) {
     await queryInterface.bulkDelete('site_settings', null, {});
     await queryInterface.bulkDelete('download_files', null, {});
+    await queryInterface.bulkDelete('partners', null, {});
     await queryInterface.bulkDelete('certificates', null, {});
     await queryInterface.bulkDelete('media_assets', null, {});
     await queryInterface.bulkDelete('blog_posts', null, {});

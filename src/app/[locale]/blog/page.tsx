@@ -6,6 +6,7 @@ import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
 import { getLocalized } from "@/data/catalog";
 import { loadPosts } from "@/lib/catalog-source";
+import { buildPageMetadata } from "@/lib/seo";
 import { jsonArray } from "@/lib/utils";
 
 export async function generateMetadata({
@@ -15,23 +16,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
-  return {
+  return buildPageMetadata({
+    locale,
+    path: "/blog",
     title: t("blogTitle"),
-    description: t("homeDescription"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/blog`,
-      languages: {
-        am: "https://comfort.am/am/blog",
-        ru: "https://comfort.am/ru/blog",
-        en: "https://comfort.am/en/blog",
-      },
-    },
-    openGraph: {
-      title: t("blogTitle"),
-      url: `https://comfort.am/${locale}/blog`,
-      locale,
-    },
-  };
+    description: t("blogDescription"),
+  });
 }
 
 export default async function BlogPage({

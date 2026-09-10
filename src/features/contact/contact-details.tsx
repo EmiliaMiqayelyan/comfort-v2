@@ -4,20 +4,11 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { MapPin, Clock, Phone, Mail } from "lucide-react";
 import { SocialIcon } from "@/components/atoms/social-icon";
+import { BrandMap } from "@/components/molecules/brand-map";
 import { catalogApi } from "@/lib/api";
+import { locationQuery } from "@/lib/maps";
 import { getLocalized } from "@/data/catalog";
 import type { ContactSettings, LocalizedString } from "@/types";
-
-function safeMapEmbedUrl(url: string | undefined | null): string | null {
-  if (!url?.trim()) return null;
-  try {
-    const parsed = new URL(url.trim());
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
-    return parsed.toString();
-  } catch {
-    return null;
-  }
-}
 
 function pickLocalized(
   value: LocalizedString | undefined,
@@ -73,7 +64,7 @@ export function ContactDetails() {
         </h2>
         <ul className="space-y-6">
           {(settings.showrooms ?? []).map((room) => {
-            const roomMap = safeMapEmbedUrl(room.mapEmbedUrl);
+            const roomQuery = locationQuery(room.mapEmbedUrl, room.address);
             return (
               <li key={room.id} className="rounded-3xl border border-border bg-card p-6 shadow-soft">
                 <h3 className="font-medium text-foreground">{room.name}</h3>
@@ -91,15 +82,15 @@ export function ContactDetails() {
                     {room.phone}
                   </p>
                 )}
-                {roomMap && (
+                {roomQuery && (
                   <div className="mt-4 overflow-hidden rounded-2xl border border-border">
-                    <iframe
+                    <BrandMap
                       title={`${room.name} map`}
-                      src={roomMap}
-                      className="h-44 w-full border-0"
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      allowFullScreen
+                      address={room.address}
+                      embedUrl={room.mapEmbedUrl}
+                      className="h-44 w-full"
+                      interactive={false}
+                      zoom={14}
                     />
                   </div>
                 )}
@@ -152,24 +143,45 @@ export function ContactDetails() {
 
 export function ContactMap() {
   const t = useTranslations("contact");
+  const locale = useLocale();
   const settings = useContactSettings();
-  const mapUrl = safeMapEmbedUrl(settings?.mapEmbedUrl);
 
-  if (!mapUrl) return null;
+  const address = settings ? getLocalized(settings.address, locale) : "";
+  const query = locationQuery(settings?.mapEmbedUrl, address);
+
+  if (!query) return null;
 
   return (
     <div className="mt-16 md:mt-20">
-      <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
-        {t("map")}
-      </h2>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="display text-xl text-foreground md:text-2xl">
+            {t("warehouseMap")}
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
+            {t("warehouseMapSubtitle")}
+          </p>
+        </div>
+        {address && (
+          <p className="inline-flex items-start gap-2 text-sm text-muted-foreground sm:max-w-xs sm:text-right">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+            <span>
+              <span className="mb-0.5 block text-[11px] font-medium tracking-[0.15em] uppercase text-muted-foreground/80">
+                {t("warehouse")}
+              </span>
+              {address}
+            </span>
+          </p>
+        )}
+      </div>
+
       <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
-        <iframe
-          title={t("map")}
-          src={mapUrl}
-          className="h-72 w-full border-0 md:h-[28rem]"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          allowFullScreen
+        <BrandMap
+          title={t("warehouseMap")}
+          address={address}
+          embedUrl={settings?.mapEmbedUrl}
+          className="h-72 w-full md:h-[28rem]"
+          zoom={15}
         />
       </div>
     </div>

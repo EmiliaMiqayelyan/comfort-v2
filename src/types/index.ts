@@ -32,6 +32,14 @@ export interface Certificate {
   image?: string;
 }
 
+export interface Partner {
+  id: string;
+  title: LocalizedString;
+  logo: string;
+  websiteUrl?: string | null;
+  sortOrder: number;
+}
+
 export type DownloadCategory =
   | "catalogs"
   | "templates"
@@ -58,7 +66,7 @@ export interface ContactShowroom {
   address: string;
   hours: string;
   phone?: string;
-  /** Google Maps / OSM iframe `src` URL for this location. */
+  /** Optional place hint (legacy Google embed URL or OSM). Used to locate BrandMap. */
   mapEmbedUrl?: string;
 }
 
@@ -79,7 +87,7 @@ export interface ContactSettings {
   hours: LocalizedString;
   socials: ContactSocial[];
   showrooms: ContactShowroom[];
-  /** Primary map embed URL shown on the contact page. */
+  /** Primary map location hint (legacy Google embed URL still supported). */
   mapEmbedUrl?: string;
 }
 

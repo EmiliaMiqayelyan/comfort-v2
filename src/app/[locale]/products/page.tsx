@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ProductsCatalog } from "@/features/products/products-catalog";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -9,23 +10,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
-  return {
+  return buildPageMetadata({
+    locale,
+    path: "/products",
     title: t("productsTitle"),
-    description: t("homeDescription"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/products`,
-      languages: {
-        am: "https://comfort.am/am/products",
-        ru: "https://comfort.am/ru/products",
-        en: "https://comfort.am/en/products",
-      },
-    },
-    openGraph: {
-      title: t("productsTitle"),
-      url: `https://comfort.am/${locale}/products`,
-      locale,
-    },
-  };
+    description: t("productsDescription"),
+  });
 }
 
 export default async function ProductsPage({

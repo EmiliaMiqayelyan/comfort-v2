@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { ArViewer } from "@/features/ar/ar-viewer";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -9,19 +10,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const tAr = await getTranslations({ locale, namespace: "ar" });
-  return {
-    title: `${tAr("title")} — Comfort`,
-    description: tAr("subtitle"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/ar`,
-    },
-    openGraph: {
-      title: tAr("title"),
-      url: `https://comfort.am/${locale}/ar`,
-      locale,
-    },
-  };
+  const t = await getTranslations({ locale, namespace: "seo" });
+  return buildPageMetadata({
+    locale,
+    path: "/ar",
+    title: t("arTitle"),
+    description: t("arDescription"),
+  });
 }
 
 export default async function ArPage({

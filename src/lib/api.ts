@@ -6,6 +6,7 @@ import type {
   ContactSettings,
   DownloadFile,
   HeroSettings,
+  Partner,
   Product,
   ProductCategory,
   Project,
@@ -105,6 +106,8 @@ export const catalogApi = {
   post: (slug: string) => apiGet<BlogPost>(`/blog/${slug}`),
   certificates: () => apiGet<Certificate[]>("/certificates"),
   certificate: (id: string) => apiGet<Certificate>(`/certificates/${id}`),
+  partners: () => apiGet<Partner[]>("/partners"),
+  partner: (id: string) => apiGet<Partner>(`/partners/${id}`),
   downloads: (publicOnly = false) =>
     apiGet<DownloadFile[]>(`/downloads${publicOnly ? "?public=true" : ""}`),
   download: (id: string) => apiGet<DownloadFile>(`/downloads/${id}`),
@@ -154,6 +157,12 @@ export const adminApi = {
     apiFetch<Certificate>(`/certificates/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteCertificate: (id: string) =>
     apiFetch<void>(`/certificates/${id}`, { method: "DELETE" }),
+  createPartner: (payload: Partial<Partner>) =>
+    apiFetch<Partner>("/partners", { method: "POST", body: JSON.stringify(payload) }),
+  updatePartner: (id: string, payload: Partial<Partner>) =>
+    apiFetch<Partner>(`/partners/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+  deletePartner: (id: string) =>
+    apiFetch<void>(`/partners/${id}`, { method: "DELETE" }),
   createDownload: (payload: Partial<DownloadFile>) =>
     apiFetch<DownloadFile>("/downloads", { method: "POST", body: JSON.stringify(payload) }),
   updateDownload: (id: string, payload: Partial<DownloadFile>) =>

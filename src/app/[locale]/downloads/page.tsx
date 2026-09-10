@@ -5,6 +5,7 @@ import { Badge } from "@/components/atoms/badge";
 import { getLocalized } from "@/data/catalog";
 import { loadProducts } from "@/lib/catalog-source";
 import { catalogApi } from "@/lib/api";
+import { buildPageMetadata } from "@/lib/seo";
 import { jsonArray } from "@/lib/utils";
 import type { ProductDownload } from "@/types";
 import { Download, FileText } from "lucide-react";
@@ -26,23 +27,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
-  return {
+  return buildPageMetadata({
+    locale,
+    path: "/downloads",
     title: t("downloadsTitle"),
-    description: t("homeDescription"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/downloads`,
-      languages: {
-        am: "https://comfort.am/am/downloads",
-        ru: "https://comfort.am/ru/downloads",
-        en: "https://comfort.am/en/downloads",
-      },
-    },
-    openGraph: {
-      title: t("downloadsTitle"),
-      url: `https://comfort.am/${locale}/downloads`,
-      locale,
-    },
-  };
+    description: t("downloadsDescription"),
+  });
 }
 
 export default async function DownloadsPage({

@@ -7,6 +7,7 @@ import { getLocalized } from "@/data/catalog";
 import { loadProduct, loadCategory, loadProducts, loadCategories } from "@/lib/catalog-source";
 import { categoryBreadcrumbChain } from "@/lib/category-tree";
 import { routing } from "@/i18n/routing";
+import { buildPageMetadata, siteUrl } from "@/lib/seo";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 export async function generateStaticParams() {
@@ -31,56 +32,33 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const product = await loadProduct(slug);
   const category = await loadCategory(slug);
+  const path = `/products/${slug}`;
 
   if (product) {
     const name = getLocalized(product.name, locale);
     const description = getLocalized(product.description, locale);
-    return {
-      title: `${name} — Comfort`,
+    return buildPageMetadata({
+      locale,
+      path,
+      title: name,
       description,
-      alternates: {
-        canonical: `https://comfort.am/${locale}/products/${slug}`,
-        languages: {
-          am: `https://comfort.am/am/products/${slug}`,
-          ru: `https://comfort.am/ru/products/${slug}`,
-          en: `https://comfort.am/en/products/${slug}`,
-        },
-      },
-      openGraph: {
-        title: name,
-        description,
-        url: `https://comfort.am/${locale}/products/${slug}`,
-        images: product.images[0] ? [{ url: product.images[0] }] : undefined,
-        locale,
-      },
-    };
+      images: product.images[0],
+    });
   }
 
   if (category) {
     const name = getLocalized(category.name, locale);
     const description = getLocalized(category.description, locale);
-    return {
-      title: `${name} — Comfort`,
+    return buildPageMetadata({
+      locale,
+      path,
+      title: name,
       description,
-      alternates: {
-        canonical: `https://comfort.am/${locale}/products/${slug}`,
-        languages: {
-          am: `https://comfort.am/am/products/${slug}`,
-          ru: `https://comfort.am/ru/products/${slug}`,
-          en: `https://comfort.am/en/products/${slug}`,
-        },
-      },
-      openGraph: {
-        title: name,
-        description,
-        url: `https://comfort.am/${locale}/products/${slug}`,
-        images: [{ url: category.image }],
-        locale,
-      },
-    };
+      images: category.image,
+    });
   }
 
-  return { title: "Not found — Comfort" };
+  return { title: "Not found", robots: { index: false, follow: false } };
 }
 
 export default async function ProductOrCategoryPage({
@@ -99,14 +77,15 @@ export default async function ProductOrCategoryPage({
 
   if (!product && !category) notFound();
 
-  const homeUrl = `https://comfort.am/${locale}`;
-  const productsUrl = `${homeUrl}/products`;
+  const homeUrl = siteUrl(locale);
+  const productsUrl = siteUrl(locale, "/products");
 
   if (product) {
     const productCategory = categories.find((item) => item.id === product.categoryId);
     const categoryChain = productCategory
       ? categoryBreadcrumbChain(productCategory.id, categories)
       : [];
+    const productUrl = `${productsUrl}/${product.slug}`;
 
     return (
       <section className="catalog-surface min-h-screen pt-28 pb-16 md:pt-36 md:pb-24">
@@ -117,6 +96,7 @@ export default async function ProductOrCategoryPage({
             sku={product.sku}
             image={product.images[0]}
             price={product.price}
+            url={productUrl}
           />
           <BreadcrumbJsonLd
             items={[
@@ -128,7 +108,7 @@ export default async function ProductOrCategoryPage({
               })),
               {
                 name: getLocalized(product.name, locale),
-                url: `${productsUrl}/${product.slug}`,
+                url: productUrl,
               },
             ]}
           />

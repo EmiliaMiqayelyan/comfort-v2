@@ -349,6 +349,23 @@ body {
   }
 }
 
+@keyframes partners-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.partners-marquee {
+  animation: partners-marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+.partners-marquee:hover {
+  animation-play-state: paused;
+}
+
 .animate-fade-up {
   animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -444,4 +461,31 @@ html.admin-scroll-lock body {
 .collections-swiper-nav.swiper-button-disabled {
   pointer-events: none;
   opacity: 0.35;
+}
+
+/* Comfort branded MapLibre controls */
+.maplibregl-ctrl-group {
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent) !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--card) 92%, transparent) !important;
+}
+
+.maplibregl-ctrl-group button {
+  background-color: transparent !important;
+}
+
+.maplibregl-ctrl-group button + button {
+  border-top-color: color-mix(in srgb, var(--border) 70%, transparent) !important;
+}
+
+.maplibregl-ctrl-attrib {
+  background: color-mix(in srgb, #e7dfd9 88%, transparent) !important;
+  color: #5a6270 !important;
+  font-size: 10px !important;
+}
+
+.maplibregl-ctrl-attrib a {
+  color: #203e4b !important;
 }

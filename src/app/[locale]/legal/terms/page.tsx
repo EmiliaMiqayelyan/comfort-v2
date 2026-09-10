@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -8,13 +9,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "footer" });
-  return {
-    title: `${t("terms")} — Comfort`,
-    alternates: {
-      canonical: `https://comfort.am/${locale}/legal/terms`,
-    },
-  };
+  const t = await getTranslations({ locale, namespace: "seo" });
+  return buildPageMetadata({
+    locale,
+    path: "/legal/terms",
+    title: t("termsTitle"),
+    description: t("termsDescription"),
+  });
 }
 
 export default async function TermsPage({

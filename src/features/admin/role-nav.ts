@@ -6,6 +6,7 @@ import {
   Layers,
   Building2,
   Award,
+  Handshake,
   Download,
   Mail,
   ImageIcon,
@@ -61,6 +62,12 @@ export const adminNavItems: AdminNavItem[] = [
     href: "/admin/certificates",
     labelKey: "certificates",
     icon: Award,
+    roles: ["admin", "manager", "editor"],
+  },
+  {
+    href: "/admin/partners",
+    labelKey: "partners",
+    icon: Handshake,
     roles: ["admin", "manager", "editor"],
   },
   {

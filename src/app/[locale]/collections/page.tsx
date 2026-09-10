@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { CollectionsGrid } from "@/features/collections/collections-grid";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -10,23 +11,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
-  return {
+  return buildPageMetadata({
+    locale,
+    path: "/collections",
     title: t("collectionsTitle"),
-    description: t("homeDescription"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/collections`,
-      languages: {
-        am: "https://comfort.am/am/collections",
-        ru: "https://comfort.am/ru/collections",
-        en: "https://comfort.am/en/collections",
-      },
-    },
-    openGraph: {
-      title: t("collectionsTitle"),
-      url: `https://comfort.am/${locale}/collections`,
-      locale,
-    },
-  };
+    description: t("collectionsDescription"),
+  });
 }
 
 export default async function CollectionsPage({

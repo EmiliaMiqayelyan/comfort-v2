@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { RoomVisualizer } from "@/features/visualizer/room-visualizer";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -10,18 +11,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
-  return {
+  return buildPageMetadata({
+    locale,
+    path: "/visualizer",
     title: t("visualizerTitle"),
-    description: t("homeDescription"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/visualizer`,
-    },
-    openGraph: {
-      title: t("visualizerTitle"),
-      url: `https://comfort.am/${locale}/visualizer`,
-      locale,
-    },
-  };
+    description: t("visualizerDescription"),
+  });
 }
 
 export default async function VisualizerPage({

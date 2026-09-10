@@ -5,6 +5,8 @@ import { CollectionDetailContent } from "@/features/collections/collection-detai
 import { getLocalized } from "@/data/catalog";
 import { loadCollection, loadCollections } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
+import { buildPageMetadata, siteUrl } from "@/lib/seo";
+import { BreadcrumbJsonLd, CollectionPageJsonLd } from "@/components/seo/json-ld";
 import { firstMedia } from "@/lib/utils";
 
 export async function generateStaticParams() {
@@ -21,25 +23,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const collection = await loadCollection(slug);
-  if (!collection) return { title: "Collection — Comfort" };
+  if (!collection) {
+    return { title: "Collection", robots: { index: false, follow: false } };
+  }
 
   const name = getLocalized(collection.name, locale);
   const description = getLocalized(collection.description, locale);
   const image = firstMedia(collection.images) || collection.image;
 
-  return {
-    title: `${name} — Comfort`,
+  return buildPageMetadata({
+    locale,
+    path: `/collections/${slug}`,
+    title: name,
     description,
-    alternates: {
-      canonical: `https://comfort.am/${locale}/collections/${slug}`,
-    },
-    openGraph: {
-      title: name,
-      description,
-      images: image ? [{ url: image }] : undefined,
-      locale,
-    },
-  };
+    images: image || undefined,
+  });
 }
 
 export default async function CollectionDetailPage({
@@ -53,9 +51,27 @@ export default async function CollectionDetailPage({
   const collection = await loadCollection(slug);
   if (!collection) notFound();
 
+  const name = getLocalized(collection.name, locale);
+  const description = getLocalized(collection.description, locale);
+  const image = firstMedia(collection.images) || collection.image;
+  const url = siteUrl(locale, `/collections/${slug}`);
+
   return (
     <section className="catalog-surface min-h-screen pt-28 pb-16 md:pt-36 md:pb-24">
       <div className="container-wide px-4 md:px-8">
+        <CollectionPageJsonLd
+          name={name}
+          description={description}
+          url={url}
+          image={image || undefined}
+        />
+        <BreadcrumbJsonLd
+          items={[
+            { name: "Comfort", url: siteUrl(locale) },
+            { name: "Collections", url: siteUrl(locale, "/collections") },
+            { name, url },
+          ]}
+        />
         <CollectionDetailContent collection={collection} />
       </div>
     </section>

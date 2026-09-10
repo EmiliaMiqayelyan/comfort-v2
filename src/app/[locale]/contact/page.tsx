@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { ContactForm } from "@/features/contact/contact-form";
 import { ContactDetails, ContactIntro, ContactMap } from "@/features/contact/contact-details";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -11,23 +12,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
-  return {
+  const tContact = await getTranslations({ locale, namespace: "contact" });
+  return buildPageMetadata({
+    locale,
+    path: "/contact",
     title: t("contactTitle"),
-    description: t("homeDescription"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/contact`,
-      languages: {
-        am: "https://comfort.am/am/contact",
-        ru: "https://comfort.am/ru/contact",
-        en: "https://comfort.am/en/contact",
-      },
-    },
-    openGraph: {
-      title: t("contactTitle"),
-      url: `https://comfort.am/${locale}/contact`,
-      locale,
-    },
-  };
+    description: t.has("contactDescription")
+      ? t("contactDescription")
+      : tContact("subtitle"),
+  });
 }
 
 export default async function ContactPage({

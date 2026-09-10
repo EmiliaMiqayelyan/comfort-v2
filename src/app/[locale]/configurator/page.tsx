@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { ProductConfigurator } from "@/features/configurator/product-configurator";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -9,19 +10,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const tConfig = await getTranslations({ locale, namespace: "configurator" });
-  return {
-    title: `${tConfig("title")} — Comfort`,
-    description: tConfig("subtitle"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/configurator`,
-    },
-    openGraph: {
-      title: tConfig("title"),
-      url: `https://comfort.am/${locale}/configurator`,
-      locale,
-    },
-  };
+  const t = await getTranslations({ locale, namespace: "seo" });
+  return buildPageMetadata({
+    locale,
+    path: "/configurator",
+    title: t("configuratorTitle"),
+    description: t("configuratorDescription"),
+  });
 }
 
 export default async function ConfiguratorPage({

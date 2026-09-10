@@ -2,20 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
+import { PartnersMarquee } from "@/features/about/partners-marquee";
 import { catalogApi } from "@/lib/api";
 import { getLocalized } from "@/data/catalog";
+import { buildPageMetadata } from "@/lib/seo";
 import { FileText } from "lucide-react";
 
 const ABOUT_IMAGE = "/images/about/about_comf.jpg";
-
-const PARTNER_LOGOS = [
-  { src: "/images/partners/domus-1.svg", alt: "Domus" },
-  { src: "/images/partners/domus-2.svg", alt: "Partner" },
-  { src: "/images/partners/domus-3.svg", alt: "Partner" },
-  { src: "/images/partners/domus-4.svg", alt: "Partner" },
-  { src: "/images/partners/rbandb.svg", alt: "RB & B" },
-  { src: "/images/partners/visionarch.jpg", alt: "Vision Arch" },
-] as const;
 
 export async function generateMetadata({
   params,
@@ -24,24 +17,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "seo" });
-  const about = await getTranslations({ locale, namespace: "about" });
-  return {
+  const tAbout = await getTranslations({ locale, namespace: "about" });
+  return buildPageMetadata({
+    locale,
+    path: "/about",
     title: t("aboutTitle"),
-    description: about("subtitle"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/about`,
-      languages: {
-        am: "https://comfort.am/am/about",
-        ru: "https://comfort.am/ru/about",
-        en: "https://comfort.am/en/about",
-      },
-    },
-    openGraph: {
-      title: t("aboutTitle"),
-      url: `https://comfort.am/${locale}/about`,
-      locale,
-    },
-  };
+    description: t.has("aboutDescription")
+      ? t("aboutDescription")
+      : tAbout("subtitle"),
+    images: ABOUT_IMAGE,
+  });
 }
 
 export default async function AboutPage({
@@ -52,7 +37,12 @@ export default async function AboutPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "about" });
-  const certificates = await catalogApi.certificates();
+  const [certificates, partners] = await Promise.all([
+    catalogApi.certificates(),
+    catalogApi.partners(),
+  ]);
+  const partnerList = partners ?? [];
+  const certificateList = certificates ?? [];
 
   return (
     <>
@@ -84,42 +74,29 @@ export default async function AboutPage({
         </div>
       </section>
 
-      <section className="border-t border-border bg-muted/30 py-16 md:py-20">
-        <div className="container-wide px-4 md:px-8">
-          <Reveal className="mb-12 text-center">
-            <h2 className="display text-3xl text-foreground md:text-4xl">
-              {t("ourPartners")}
-            </h2>
-          </Reveal>
-          <div className="grid grid-cols-2 items-center justify-items-center gap-8 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between">
-            {PARTNER_LOGOS.map((logo, i) => (
-              <Reveal key={logo.src} delay={i * 0.05}>
-                <div className="relative flex h-16 w-28 items-center justify-center sm:h-20 sm:w-32">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={logo.src}
-                    alt={logo.alt}
-                    className="max-h-16 w-auto max-w-full object-contain sm:max-h-20"
-                  />
-                </div>
-              </Reveal>
-            ))}
+      {partnerList.length > 0 ? (
+        <section className="border-t border-border bg-muted/30 py-16 md:py-20">
+          <div className="container-wide px-4 md:px-8">
+            <Reveal className="mb-12 text-center">
+              <h2 className="display text-3xl text-foreground md:text-4xl">
+                {t("ourPartners")}
+              </h2>
+            </Reveal>
+            <PartnersMarquee partners={partnerList} />
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
-      <section className="py-20 md:py-28">
-        <div className="container-wide px-4 md:px-8">
-          <Reveal className="mb-12">
-            <h2 className="display text-3xl text-foreground md:text-4xl">
-              {t("certificates")}
-            </h2>
-          </Reveal>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {(certificates ?? []).length === 0 ? (
-              <p className="text-muted-foreground">{t("certificatesEmpty")}</p>
-            ) : (
-              (certificates ?? []).map((cert, i) => (
+      {certificateList.length > 0 ? (
+        <section className="py-20 md:py-28">
+          <div className="container-wide px-4 md:px-8">
+            <Reveal className="mb-12">
+              <h2 className="display text-3xl text-foreground md:text-4xl">
+                {t("certificates")}
+              </h2>
+            </Reveal>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {certificateList.map((cert, i) => (
                 <Reveal key={cert.id} delay={i * 0.06}>
                   <a
                     href={cert.fileUrl}
@@ -150,11 +127,11 @@ export default async function AboutPage({
                     )}
                   </a>
                 </Reveal>
-              ))
-            )}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </>
   );
 }

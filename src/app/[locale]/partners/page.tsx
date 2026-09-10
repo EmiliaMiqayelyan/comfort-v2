@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 import { Button } from "@/components/atoms/button";
+import { buildPageMetadata } from "@/lib/seo";
 import { ArrowUpRight } from "lucide-react";
 
 export async function generateMetadata({
@@ -11,19 +12,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "partners" });
-  return {
-    title: `${t("title")} — Comfort`,
-    description: t("subtitle"),
-    alternates: {
-      canonical: `https://comfort.am/${locale}/partners`,
-    },
-    openGraph: {
-      title: t("title"),
-      url: `https://comfort.am/${locale}/partners`,
-      locale,
-    },
-  };
+  const t = await getTranslations({ locale, namespace: "seo" });
+  return buildPageMetadata({
+    locale,
+    path: "/partners",
+    title: t("partnersTitle"),
+    description: t("partnersDescription"),
+  });
 }
 
 export default async function PartnersPage({

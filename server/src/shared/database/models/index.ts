@@ -9,6 +9,7 @@ export { MediaAsset } from './MediaAsset';
 export { ContactMessage } from './ContactMessage';
 export { CalculatorProject } from './CalculatorProject';
 export { Certificate } from './Certificate';
+export { Partner } from './Partner';
 export { DownloadFile } from './DownloadFile';
 export { SiteSetting } from './SiteSetting';
 

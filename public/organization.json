@@ -1,14 +1,19 @@
 {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": ["Organization", "LocalBusiness"],
   "name": "Comfort",
   "url": "https://comfort.am",
-  "logo": "https://comfort.am/logo.png",
-  "description": "Premium architectural interior products: baseboards, 3D wall panels, moldings and profiles.",
+  "logo": "https://comfort.am/brand/comfort-logo.png",
+  "image": "https://comfort.am/images/about/about_comf.jpg",
+  "description": "Premium architectural interior products: baseboards, 3D wall panels, moldings and profiles for modern architecture in Armenia.",
   "address": {
     "@type": "PostalAddress",
     "addressCountry": "AM",
     "addressLocality": "Yerevan"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Armenia"
   },
   "sameAs": [
     "https://www.instagram.com/",

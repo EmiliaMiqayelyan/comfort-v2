@@ -8,6 +8,8 @@ import { Badge } from "@/components/atoms/badge";
 import { getLocalized } from "@/data/catalog";
 import { loadPost, loadPosts } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
+import { buildPageMetadata, siteUrl } from "@/lib/seo";
+import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 import { jsonArray } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 
@@ -25,26 +27,23 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const post = await loadPost(slug);
-  if (!post) return { title: "Journal — Comfort" };
+  if (!post) {
+    return { title: "Journal", robots: { index: false, follow: false } };
+  }
 
   const title = getLocalized(post.title, locale);
   const description = getLocalized(post.excerpt, locale);
 
-  return {
-    title: `${title} — Comfort`,
+  return buildPageMetadata({
+    locale,
+    path: `/blog/${slug}`,
+    title,
     description,
-    alternates: {
-      canonical: `https://comfort.am/${locale}/blog/${slug}`,
-    },
-    openGraph: {
-      title,
-      description,
-      images: [{ url: post.coverImage }],
-      locale,
-      type: "article",
-      publishedTime: post.publishedAt,
-    },
-  };
+    images: post.coverImage,
+    type: "article",
+    publishedTime: post.publishedAt,
+    authors: [post.author.name],
+  });
 }
 
 export default async function BlogPostPage({
@@ -63,10 +62,28 @@ export default async function BlogPostPage({
 
   const posts = await loadPosts();
   const related = posts.filter((p) => p.id !== post.id).slice(0, 2);
+  const title = getLocalized(post.title, locale);
+  const description = getLocalized(post.excerpt, locale);
+  const url = siteUrl(locale, `/blog/${slug}`);
 
   return (
     <article className="bg-background pt-28 pb-16 md:pt-36 md:pb-24">
       <div className="container-wide px-4 md:px-8">
+        <ArticleJsonLd
+          title={title}
+          description={description}
+          image={post.coverImage}
+          url={url}
+          datePublished={post.publishedAt}
+          locale={locale}
+        />
+        <BreadcrumbJsonLd
+          items={[
+            { name: "Comfort", url: siteUrl(locale) },
+            { name: "Journal", url: siteUrl(locale, "/blog") },
+            { name: title, url },
+          ]}
+        />
         <Link
           href="/blog"
           className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
