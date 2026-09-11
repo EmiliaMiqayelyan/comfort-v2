@@ -515,3 +515,7 @@ html.admin-scroll-lock body {
   background: transparent !important;
   border: none !important;
 }
+
+.comfort-map-marker-dot {
+  margin: 0;
+}

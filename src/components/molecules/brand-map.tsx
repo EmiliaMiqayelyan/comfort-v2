@@ -2,12 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
+import { useTranslations } from "next-intl";
+import { ExternalLink, Navigation } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import {
   COMFORT_MAP_MARKER,
   COMFORT_TILE_ATTR,
   COMFORT_TILE_URL,
+  googleDirectionsUrl,
   resolveMapCoords,
+  yandexDirectionsUrl,
   type MapCoords,
 } from "@/lib/maps";
 import { cn } from "@/lib/utils";
@@ -20,6 +24,8 @@ type BrandMapProps = {
   zoom?: number;
   /** Allow pan/zoom (default true). */
   interactive?: boolean;
+  /** Show Google / Yandex directions links (default true). */
+  showDirections?: boolean;
   title?: string;
 };
 
@@ -33,18 +39,23 @@ function createBrandIcon(L: {
 }) {
   return L.divIcon({
     className: "comfort-map-marker",
-    html: `<span style="
+    html: `<span class="comfort-map-marker-dot" style="
       display:block;
-      width:16px;
-      height:16px;
+      width:18px;
+      height:18px;
       border-radius:9999px;
       background:${COMFORT_MAP_MARKER};
       border:2.5px solid #E7DFD9;
       box-shadow:0 4px 14px rgba(44,51,62,0.35);
     "></span>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
   });
+}
+
+function focusMap(map: LeafletMap, coords: MapCoords, zoom: number) {
+  map.invalidateSize({ animate: false });
+  map.setView([coords.lat, coords.lng], zoom, { animate: false });
 }
 
 export function BrandMap({
@@ -53,8 +64,10 @@ export function BrandMap({
   className,
   zoom = 15,
   interactive = true,
+  showDirections = true,
   title = "Map",
 }: BrandMapProps) {
+  const t = useTranslations("contact");
   const containerRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState<MapCoords | null>(null);
   const [failed, setFailed] = useState(false);
@@ -84,6 +97,8 @@ export function BrandMap({
     let cancelled = false;
     let map: LeafletMap | undefined;
     let marker: LeafletMarker | undefined;
+    let resizeObserver: ResizeObserver | undefined;
+    let focusTimers: number[] = [];
 
     (async () => {
       const leafletMod = await import("leaflet");
@@ -124,14 +139,27 @@ export function BrandMap({
         keyboard: false,
       }).addTo(instance);
 
-      // Fix grey tiles when the container was sized after mount.
-      requestAnimationFrame(() => {
-        if (!cancelled) instance.invalidateSize();
-      });
+      const refocus = () => {
+        if (!cancelled) focusMap(instance, coords, zoom);
+      };
+
+      instance.whenReady(refocus);
+      focusTimers = [
+        window.setTimeout(refocus, 50),
+        window.setTimeout(refocus, 250),
+        window.setTimeout(refocus, 600),
+      ];
+
+      if (typeof ResizeObserver !== "undefined" && containerRef.current) {
+        resizeObserver = new ResizeObserver(refocus);
+        resizeObserver.observe(containerRef.current);
+      }
     })();
 
     return () => {
       cancelled = true;
+      focusTimers.forEach((id) => window.clearTimeout(id));
+      resizeObserver?.disconnect();
       marker?.remove();
       map?.remove();
     };
@@ -141,7 +169,7 @@ export function BrandMap({
 
   return (
     <div
-      role="img"
+      role="region"
       aria-label={title}
       className={cn("comfort-brand-map relative overflow-hidden bg-[#E7DFD9]", className)}
     >
@@ -149,6 +177,31 @@ export function BrandMap({
         <div className="absolute inset-0 animate-pulse bg-[#DED6CE]" aria-hidden />
       )}
       <div ref={containerRef} className="absolute inset-0 z-0 h-full w-full" />
+
+      {coords && showDirections && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-wrap gap-2 p-3 sm:justify-end">
+          <a
+            href={googleDirectionsUrl(coords)}
+            target="_blank"
+            rel="noreferrer"
+            className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/95 px-3 py-1.5 text-xs font-medium text-foreground shadow-soft backdrop-blur-sm transition hover:border-accent hover:text-accent"
+          >
+            <Navigation className="h-3.5 w-3.5" />
+            {t("directionsGoogle")}
+            <ExternalLink className="h-3 w-3 opacity-60" />
+          </a>
+          <a
+            href={yandexDirectionsUrl(coords)}
+            target="_blank"
+            rel="noreferrer"
+            className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/95 px-3 py-1.5 text-xs font-medium text-foreground shadow-soft backdrop-blur-sm transition hover:border-accent hover:text-accent"
+          >
+            <Navigation className="h-3.5 w-3.5" />
+            {t("directionsYandex")}
+            <ExternalLink className="h-3 w-3 opacity-60" />
+          </a>
+        </div>
+      )}
     </div>
   );
 }
