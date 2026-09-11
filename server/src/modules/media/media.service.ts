@@ -1,6 +1,7 @@
 import { MediaAsset } from '../../shared/database/models';
 import { generateId } from '../../shared/utils/uuid';
 import { detectMediaType } from '../../shared/utils/mediaType';
+import { optimizeUploadedImage } from '../../shared/utils/optimizeImage';
 
 export class MediaService {
   async list() {
@@ -8,16 +9,17 @@ export class MediaService {
   }
 
   async createFromUpload(file: Express.Multer.File) {
+    const optimized = await optimizeUploadedImage(file);
     const id = generateId();
-    const type = detectMediaType(file.mimetype, file.originalname);
-    const url = `/uploads/${file.filename}`;
+    const type = detectMediaType(optimized.mimetype, optimized.originalname);
+    const url = `/uploads/${optimized.filename}`;
     return MediaAsset.create({
       id,
-      name: file.originalname,
+      name: optimized.originalname,
       type,
       url,
       folder: null,
-      size: file.size,
+      size: optimized.size,
     });
   }
 }

@@ -177,8 +177,10 @@ export const adminApi = {
 };
 
 export async function uploadFile(file: File) {
+  const { optimizeImageForUpload } = await import("@/lib/optimize-image");
+  const optimized = await optimizeImageForUpload(file);
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", optimized);
   return apiFetch<{ id: string; name: string; url: string; size: number; type: string }>("/media", {
     method: "POST",
     body,

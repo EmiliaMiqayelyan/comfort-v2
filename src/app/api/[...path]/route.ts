@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApiOrigin } from "@/lib/api-base-url";
 
+/** Allow larger multipart uploads (admin media) through the same-origin proxy. */
+export const maxDuration = 60;
+
 async function proxy(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
