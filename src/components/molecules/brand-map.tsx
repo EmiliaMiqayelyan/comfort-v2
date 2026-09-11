@@ -10,6 +10,20 @@ import {
 } from "@/lib/maps";
 import { cn } from "@/lib/utils";
 
+/** Served from public/ — Turbopack cannot bundle MapLibre's worker correctly. */
+const MAPLIBRE_WORKER_URL = "/maplibre/maplibre-gl-worker.mjs";
+
+let workerConfigured = false;
+
+async function loadMapLibre() {
+  const maplibregl = await import("maplibre-gl");
+  if (!workerConfigured) {
+    maplibregl.setWorkerUrl(MAPLIBRE_WORKER_URL);
+    workerConfigured = true;
+  }
+  return maplibregl;
+}
+
 type BrandMapProps = {
   address?: string | null;
   embedUrl?: string | null;
@@ -74,7 +88,7 @@ export function BrandMap({
     let marker: import("maplibre-gl").Marker | undefined;
 
     (async () => {
-      const maplibregl = await import("maplibre-gl");
+      const maplibregl = await loadMapLibre();
       if (cancelled || !containerRef.current) return;
 
       const instance = new maplibregl.Map({
@@ -85,6 +99,12 @@ export function BrandMap({
         interactive,
         attributionControl: { compact: true },
       });
+
+      if (cancelled) {
+        instance.remove();
+        return;
+      }
+
       map = instance;
 
       if (!interactive) {
@@ -108,6 +128,10 @@ export function BrandMap({
 
       instance.on("load", () => {
         if (!cancelled) instance.resize();
+      });
+
+      instance.on("error", () => {
+        /* Style/tile errors are non-fatal; keep the shell visible. */
       });
     })();
 
