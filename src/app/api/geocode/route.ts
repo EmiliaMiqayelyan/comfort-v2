@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 
 type NominatimHit = { lat: string; lon: string };
+type Coords = { lat: number; lng: number };
 
 /**
  * Server-side geocode proxy — Nominatim blocks/limits bare browser calls.
- * Tries progressive address fallbacks (full → without house number → city).
+ * Tries progressive address fallbacks (cleaned street → city).
+ * Successful results only are cached (failed lookups are retried next time).
  */
-const cache = new Map<string, { lat: number; lng: number } | null>();
+const successCache = new Map<string, Coords>();
 
 function buildFallbacks(query: string): string[] {
   const out: string[] = [];
   const add = (value: string) => {
-    const trimmed = value.replace(/\s+/g, " ").replace(/,\s*,/g, ",").replace(/^,|,$/g, "").trim();
+    const trimmed = value
+      .replace(/\s+/g, " ")
+      .replace(/,\s*,/g, ",")
+      .replace(/^,|,$/g, "")
+      .trim();
     if (trimmed && !out.includes(trimmed)) out.push(trimmed);
   };
 
@@ -35,10 +41,15 @@ function buildFallbacks(query: string): string[] {
     add(parts.slice(0, n).join(", "));
   }
 
+  // Country hint helps Nominatim for Armenian/Russian addresses.
+  if (/երևան|ереван|yerevan/i.test(query) && !/armenia|հայաստան|армения/i.test(query)) {
+    add(`${parts[0] || query}, Armenia`);
+  }
+
   return out;
 }
 
-async function nominatimSearch(q: string): Promise<{ lat: number; lng: number } | null> {
+async function nominatimSearch(q: string): Promise<Coords | null> {
   const url = new URL("https://nominatim.openstreetmap.org/search");
   url.searchParams.set("format", "json");
   url.searchParams.set("limit", "1");
@@ -49,7 +60,7 @@ async function nominatimSearch(q: string): Promise<{ lat: number; lng: number } 
       Accept: "application/json",
       "User-Agent": "ComfortWebsite/2.0 (https://comfort.am; maps)",
     },
-    next: { revalidate: 86400 },
+    cache: "no-store",
   });
 
   if (!res.ok) return null;
@@ -70,10 +81,9 @@ export async function GET(request: NextRequest) {
   }
 
   const cacheKey = q.toLowerCase();
-  if (cache.has(cacheKey)) {
-    const hit = cache.get(cacheKey) ?? null;
-    if (!hit) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    return NextResponse.json(hit, {
+  const cached = successCache.get(cacheKey);
+  if (cached) {
+    return NextResponse.json(cached, {
       headers: { "Cache-Control": "public, max-age=86400" },
     });
   }
@@ -87,14 +97,13 @@ export async function GET(request: NextRequest) {
       }
       const coords = await nominatimSearch(variants[i]!);
       if (coords) {
-        cache.set(cacheKey, coords);
+        successCache.set(cacheKey, coords);
         return NextResponse.json(coords, {
           headers: { "Cache-Control": "public, max-age=86400" },
         });
       }
     }
 
-    cache.set(cacheKey, null);
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   } catch {
     return NextResponse.json({ error: "Geocoder failed" }, { status: 502 });

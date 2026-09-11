@@ -137,20 +137,7 @@ export function BrandMap({
     };
   }, [coords, zoom, interactive]);
 
-  if (failed) {
-    return (
-      <div
-        role="img"
-        aria-label={title}
-        className={cn(
-          "relative flex items-center justify-center overflow-hidden bg-[#E7DFD9] text-sm text-[#5A6270]",
-          className,
-        )}
-      >
-        Map unavailable
-      </div>
-    );
-  }
+  if (failed) return null;
 
   return (
     <div
