@@ -64,7 +64,7 @@ type BuildPageMetadataInput = {
   path?: string;
   title: string;
   description: string;
-  /** When true, title is used as-is (no "%s · Comfort" template). */
+  /** When true, title is used as-is (no "%s | Comfort" template). */
   absoluteTitle?: boolean;
   images?: string | string[];
   keywords?: string | string[];
@@ -77,7 +77,7 @@ type BuildPageMetadataInput = {
 
 /**
  * Shared page metadata: canonical, hreflang, Open Graph, Twitter.
- * Pass titles without the brand suffix — the root template adds "· Comfort".
+ * Pass titles without the brand suffix - the root template adds "| Comfort".
  */
 export function buildPageMetadata({
   locale,

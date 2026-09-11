@@ -39,7 +39,7 @@ export function mediaList(value: unknown): string[] {
       try {
         return mediaList(JSON.parse(trimmed) as unknown);
       } catch {
-        /* fall through — treat as a plain URL */
+        /* fall through - treat as a plain URL */
       }
     }
     return [trimmed];
@@ -120,7 +120,7 @@ export function isImageMedia(value: string | null | undefined): boolean {
   return /^https?:\/\//i.test(trimmed);
 }
 
-/** Safe src for next/image — empty or invalid values crash URL parsing. */
+/** Safe src for next/image - empty or invalid values crash URL parsing. */
 export function mediaSrc(value: string | null | undefined, fallback = FALLBACK_MEDIA) {
   if (typeof value !== "string") return fallback;
   let src = value.trim();
@@ -141,7 +141,7 @@ export function mediaSrc(value: string | null | undefined, fallback = FALLBACK_M
 
   if (src.startsWith("uploads/")) src = `/${src}`;
 
-  // Legacy stub asset is nearly blank — use the real photo instead.
+  // Legacy stub asset is nearly blank - use the real photo instead.
   if (src === "/products/plinth.png" || src.endsWith("/products/plinth.png")) {
     return fallback;
   }

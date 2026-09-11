@@ -60,7 +60,7 @@ export default function AdminPartnersPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={row.logo} alt="" className="h-10 w-16 object-contain" />
                 ) : (
-                  "—"
+                  "-"
                 ),
             },
             { key: "title", header: t("partnerTitle"), render: (row) => getLocalized(row.title, locale) },
@@ -68,7 +68,7 @@ export default function AdminPartnersPage() {
             {
               key: "websiteUrl",
               header: t("websiteUrl"),
-              render: (row) => row.websiteUrl || "—",
+              render: (row) => row.websiteUrl || "-",
             },
           ]}
         />

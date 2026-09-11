@@ -10,8 +10,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Premium architectural interiors`,
-    template: `%s · ${SITE_NAME}`,
+    default: `${SITE_NAME} - Premium architectural interiors`,
+    template: `%s | ${SITE_NAME}`,
   },
   description:
     "Premium baseboards, 3D wall panels, moldings and profiles for modern architecture in Armenia.",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Premium architectural interiors`,
+    title: `${SITE_NAME} - Premium architectural interiors`,
     description:
       "Premium baseboards, 3D wall panels, moldings and profiles for modern architecture in Armenia.",
     url: SITE_URL,
@@ -50,13 +50,13 @@ export const metadata: Metadata = {
         url: DEFAULT_OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: `${SITE_NAME} — architectural interiors`,
+        alt: `${SITE_NAME} - architectural interiors`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — Premium architectural interiors`,
+    title: `${SITE_NAME} - Premium architectural interiors`,
     description:
       "Premium baseboards, 3D wall panels, moldings and profiles for modern architecture.",
     images: [DEFAULT_OG_IMAGE],

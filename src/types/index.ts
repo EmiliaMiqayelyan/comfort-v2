@@ -94,7 +94,7 @@ export interface ContactSettings {
 export interface HeroSettings {
   /** Ordered hero slider images (local `/uploads/...` or absolute URLs). */
   images: string[];
-  /** @deprecated Prefer `images[0]` — kept for older payloads. */
+  /** @deprecated Prefer `images[0]` - kept for older payloads. */
   image?: string;
 }
 

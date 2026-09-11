@@ -102,19 +102,19 @@ export function ProductConfigurator({ className }: { className?: string }) {
               collections.find((c) => c.id === collectionId)!.name,
               locale,
             )
-          : "—",
+          : "-",
       },
       {
         label: t("model"),
         value: selectedProduct
           ? getLocalized(selectedProduct.name, locale)
-          : "—",
+          : "-",
       },
       {
         label: t("color"),
         value: selectedColor
           ? getLocalized(selectedColor.name, locale)
-          : "—",
+          : "-",
       },
       {
         label: t("finish"),

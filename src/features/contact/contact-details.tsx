@@ -90,7 +90,6 @@ export function ContactDetails() {
                       embedUrl={room.mapEmbedUrl}
                       className="h-44 w-full"
                       interactive={false}
-                      showDirections={false}
                       zoom={17}
                     />
                   </div>

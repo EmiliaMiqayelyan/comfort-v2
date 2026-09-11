@@ -10,7 +10,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const lenisRef = useRef<LenisRef>(null);
 
   // Lenis owns document scroll, so Next.js default scroll-to-top on navigation
-  // does not stick — reset explicitly whenever the route changes.
+  // does not stick - reset explicitly whenever the route changes.
   useEffect(() => {
     if (isAdmin) return;
 
@@ -25,7 +25,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     return () => cancelAnimationFrame(frame);
   }, [pathname, isAdmin]);
 
-  // Admin uses its own pane scrolling — Lenis on the document causes double scrollbars.
+  // Admin uses its own pane scrolling - Lenis on the document causes double scrollbars.
   if (isAdmin) {
     return <>{children}</>;
   }

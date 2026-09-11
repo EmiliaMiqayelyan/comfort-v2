@@ -1,4 +1,4 @@
-# Comfort — Premium Architectural Interiors
+# Comfort - Premium Architectural Interiors
 
 
 Enterprise-grade multilingual website for [Comfort](https://comfort.am): baseboards, 3D wall panels, moldings, and profiles.
@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — middleware redirects to `/en`.
+Open [http://localhost:3000](http://localhost:3000) - middleware redirects to `/en`.
 
 ```bash
 npm run build

@@ -3,7 +3,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${SITE_NAME} — Premium architectural interiors`,
+    name: `${SITE_NAME} - Premium architectural interiors`,
     short_name: SITE_NAME,
     description:
       "Premium baseboards, 3D wall panels, moldings and profiles for modern architecture.",

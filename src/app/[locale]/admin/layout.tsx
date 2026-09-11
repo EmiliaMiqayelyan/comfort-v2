@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   title: {
     default: "Admin",
-    template: "%s · Comfort Admin",
+    template: "%s | Comfort Admin",
   },
 };
 
