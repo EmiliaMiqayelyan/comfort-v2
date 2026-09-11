@@ -64,7 +64,7 @@ export function CollectionsGrid() {
             <Reveal key={collection.id} delay={i * 0.06}>
               <Link
                 href={`/collections/${collection.slug}`}
-                className="catalog-panel catalog-shadow group relative flex flex-col overflow-hidden rounded-3xl border transition hover:-translate-y-0.5"
+                className="catalog-panel catalog-shadow group relative flex flex-col overflow-hidden rounded-3xl transition hover:-translate-y-0.5"
               >
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#ecece8]">
                   <Image
