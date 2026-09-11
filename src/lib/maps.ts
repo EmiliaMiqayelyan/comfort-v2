@@ -1,12 +1,18 @@
 /**
- * Map helpers — OpenFreeMap + MapLibre with Comfort brand styling.
+ * Map helpers — Leaflet + Carto light tiles, tinted to Comfort brand.
  * Legacy Google Maps embed URLs are still accepted as location hints
  * (query/`q` param), then geocoded for the interactive map.
  */
 
-export const COMFORT_MAP_STYLE = "/map-styles/comfort.json";
-
 export const COMFORT_MAP_MARKER = "#203E4B";
+
+/** Light greyscale basemap (no API key) — tinted to Comfort sand in CSS. */
+export const COMFORT_TILE_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+
+export const COMFORT_TILE_ATTR =
+  "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ";
+
 
 export type MapCoords = {
   lat: number;
@@ -74,34 +80,21 @@ export function coordsFromMapUrl(url: string | undefined | null): MapCoords | nu
 
 const geocodeCache = new Map<string, MapCoords | null>();
 
-/** Geocode a place name via OpenStreetMap Nominatim (browser-friendly). */
+/** Geocode via same-origin API (Nominatim, server-side). */
 export async function geocodeLocation(query: string): Promise<MapCoords | null> {
   const key = query.trim().toLowerCase();
   if (!key) return null;
   if (geocodeCache.has(key)) return geocodeCache.get(key) ?? null;
 
   try {
-    const url = new URL("https://nominatim.openstreetmap.org/search");
-    url.searchParams.set("format", "json");
-    url.searchParams.set("limit", "1");
-    url.searchParams.set("q", query.trim());
-
-    const res = await fetch(url.toString(), {
-      headers: { Accept: "application/json" },
-    });
+    const res = await fetch(`/api/geocode?q=${encodeURIComponent(query.trim())}`);
     if (!res.ok) {
       geocodeCache.set(key, null);
       return null;
     }
 
-    const data = (await res.json()) as Array<{ lat: string; lon: string }>;
-    const hit = data[0];
-    if (!hit) {
-      geocodeCache.set(key, null);
-      return null;
-    }
-
-    const coords = { lat: Number(hit.lat), lng: Number(hit.lon) };
+    const data = (await res.json()) as { lat?: number; lng?: number };
+    const coords = { lat: Number(data.lat), lng: Number(data.lng) };
     if (!Number.isFinite(coords.lat) || !Number.isFinite(coords.lng)) {
       geocodeCache.set(key, null);
       return null;

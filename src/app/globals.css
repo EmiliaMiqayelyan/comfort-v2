@@ -463,29 +463,55 @@ html.admin-scroll-lock body {
   opacity: 0.35;
 }
 
-/* Comfort branded MapLibre controls */
-.maplibregl-ctrl-group {
+/* Comfort branded Leaflet map */
+.comfort-brand-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #e7dfd9;
+  font: inherit;
+}
+
+/* Warm sand tint over Carto light tiles */
+.comfort-brand-map .leaflet-tile-pane {
+  filter: sepia(0.22) saturate(0.75) hue-rotate(345deg) brightness(1.03) contrast(0.96);
+}
+
+.comfort-brand-map .leaflet-bar {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.comfort-brand-map .leaflet-control-zoom a {
+  width: 30px !important;
+  height: 30px !important;
+  line-height: 30px !important;
   border: 1px solid color-mix(in srgb, var(--border) 80%, transparent) !important;
   border-radius: 5px !important;
-  box-shadow: none !important;
-  overflow: hidden;
+  color: #203e4b !important;
   background: color-mix(in srgb, var(--card) 92%, transparent) !important;
+  box-shadow: none !important;
 }
 
-.maplibregl-ctrl-group button {
-  background-color: transparent !important;
+.comfort-brand-map .leaflet-control-zoom a:hover {
+  background: #e7dfd9 !important;
 }
 
-.maplibregl-ctrl-group button + button {
-  border-top-color: color-mix(in srgb, var(--border) 70%, transparent) !important;
+.comfort-brand-map .leaflet-control-zoom-in {
+  margin-bottom: 4px !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
 }
 
-.maplibregl-ctrl-attrib {
+.comfort-brand-map .leaflet-control-attribution {
   background: color-mix(in srgb, #e7dfd9 88%, transparent) !important;
   color: #5a6270 !important;
   font-size: 10px !important;
 }
 
-.maplibregl-ctrl-attrib a {
+.comfort-brand-map .leaflet-control-attribution a {
   color: #203e4b !important;
+}
+
+.comfort-map-marker {
+  background: transparent !important;
+  border: none !important;
 }

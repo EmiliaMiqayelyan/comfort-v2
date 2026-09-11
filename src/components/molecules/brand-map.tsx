@@ -1,52 +1,50 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import "maplibre-gl/dist/maplibre-gl.css";
+import type { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
+import "leaflet/dist/leaflet.css";
 import {
   COMFORT_MAP_MARKER,
-  COMFORT_MAP_STYLE,
+  COMFORT_TILE_ATTR,
+  COMFORT_TILE_URL,
   resolveMapCoords,
   type MapCoords,
 } from "@/lib/maps";
 import { cn } from "@/lib/utils";
 
-/** Served from public/ — Turbopack cannot bundle MapLibre's worker correctly. */
-const MAPLIBRE_WORKER_URL = "/maplibre/maplibre-gl-worker.mjs";
-
-let workerConfigured = false;
-
-async function loadMapLibre() {
-  const maplibregl = await import("maplibre-gl");
-  if (!workerConfigured) {
-    maplibregl.setWorkerUrl(MAPLIBRE_WORKER_URL);
-    workerConfigured = true;
-  }
-  return maplibregl;
-}
-
 type BrandMapProps = {
   address?: string | null;
   embedUrl?: string | null;
   className?: string;
-  /** MapLibre zoom level (default 15). */
+  /** Leaflet zoom level (default 15). */
   zoom?: number;
   /** Allow pan/zoom (default true). */
   interactive?: boolean;
   title?: string;
 };
 
-function MarkerElement() {
-  const el = document.createElement("div");
-  el.setAttribute("aria-hidden", "true");
-  el.style.cssText = [
-    "width:18px",
-    "height:18px",
-    "border-radius:9999px",
-    `background:${COMFORT_MAP_MARKER}`,
-    "border:2.5px solid #E7DFD9",
-    "box-shadow:0 4px 14px rgba(44,51,62,0.35)",
-  ].join(";");
-  return el;
+function createBrandIcon(L: {
+  divIcon: (options: {
+    className?: string;
+    html?: string;
+    iconSize?: [number, number];
+    iconAnchor?: [number, number];
+  }) => import("leaflet").DivIcon;
+}) {
+  return L.divIcon({
+    className: "comfort-map-marker",
+    html: `<span style="
+      display:block;
+      width:16px;
+      height:16px;
+      border-radius:9999px;
+      background:${COMFORT_MAP_MARKER};
+      border:2.5px solid #E7DFD9;
+      box-shadow:0 4px 14px rgba(44,51,62,0.35);
+    "></span>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
 }
 
 export function BrandMap({
@@ -84,20 +82,28 @@ export function BrandMap({
     if (!coords || !containerRef.current) return;
 
     let cancelled = false;
-    let map: import("maplibre-gl").Map | undefined;
-    let marker: import("maplibre-gl").Marker | undefined;
+    let map: LeafletMap | undefined;
+    let marker: LeafletMarker | undefined;
 
     (async () => {
-      const maplibregl = await loadMapLibre();
+      const leafletMod = await import("leaflet");
+      const L = leafletMod.default ?? leafletMod;
       if (cancelled || !containerRef.current) return;
 
-      const instance = new maplibregl.Map({
-        container: containerRef.current,
-        style: COMFORT_MAP_STYLE,
-        center: [coords.lng, coords.lat],
+      // Leaflet mutates the container; guard against remount reuse.
+      containerRef.current.innerHTML = "";
+
+      const instance = L.map(containerRef.current, {
+        center: [coords.lat, coords.lng],
         zoom,
-        interactive,
-        attributionControl: { compact: true },
+        zoomControl: interactive,
+        attributionControl: true,
+        dragging: interactive,
+        scrollWheelZoom: interactive,
+        doubleClickZoom: interactive,
+        boxZoom: interactive,
+        keyboard: interactive,
+        touchZoom: interactive,
       });
 
       if (cancelled) {
@@ -107,31 +113,20 @@ export function BrandMap({
 
       map = instance;
 
-      if (!interactive) {
-        instance.scrollZoom.disable();
-        instance.boxZoom.disable();
-        instance.dragRotate.disable();
-        instance.dragPan.disable();
-        instance.keyboard.disable();
-        instance.doubleClickZoom.disable();
-        instance.touchZoomRotate.disable();
-      } else {
-        instance.addControl(
-          new maplibregl.NavigationControl({ showCompass: false }),
-          "top-right",
-        );
-      }
+      L.tileLayer(COMFORT_TILE_URL, {
+        attribution: COMFORT_TILE_ATTR,
+        maxZoom: 16,
+      }).addTo(instance);
 
-      marker = new maplibregl.Marker({ element: MarkerElement() })
-        .setLngLat([coords.lng, coords.lat])
-        .addTo(instance);
+      marker = L.marker([coords.lat, coords.lng], {
+        icon: createBrandIcon(L),
+        interactive: false,
+        keyboard: false,
+      }).addTo(instance);
 
-      instance.on("load", () => {
-        if (!cancelled) instance.resize();
-      });
-
-      instance.on("error", () => {
-        /* Style/tile errors are non-fatal; keep the shell visible. */
+      // Fix grey tiles when the container was sized after mount.
+      requestAnimationFrame(() => {
+        if (!cancelled) instance.invalidateSize();
       });
     })();
 
@@ -142,18 +137,31 @@ export function BrandMap({
     };
   }, [coords, zoom, interactive]);
 
-  if (failed) return null;
+  if (failed) {
+    return (
+      <div
+        role="img"
+        aria-label={title}
+        className={cn(
+          "relative flex items-center justify-center overflow-hidden bg-[#E7DFD9] text-sm text-[#5A6270]",
+          className,
+        )}
+      >
+        Map unavailable
+      </div>
+    );
+  }
 
   return (
     <div
       role="img"
       aria-label={title}
-      className={cn("relative overflow-hidden bg-[#E7DFD9]", className)}
+      className={cn("comfort-brand-map relative overflow-hidden bg-[#E7DFD9]", className)}
     >
       {!coords && (
         <div className="absolute inset-0 animate-pulse bg-[#DED6CE]" aria-hidden />
       )}
-      <div ref={containerRef} className="absolute inset-0 h-full w-full" />
+      <div ref={containerRef} className="absolute inset-0 z-0 h-full w-full" />
     </div>
   );
 }
