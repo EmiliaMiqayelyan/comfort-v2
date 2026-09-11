@@ -39,17 +39,15 @@ function createBrandIcon(L: {
 }) {
   return L.divIcon({
     className: "comfort-map-marker",
-    html: `<span class="comfort-map-marker-dot" style="
-      display:block;
-      width:18px;
-      height:18px;
-      border-radius:9999px;
-      background:${COMFORT_MAP_MARKER};
-      border:2.5px solid #E7DFD9;
-      box-shadow:0 4px 14px rgba(44,51,62,0.35);
-    "></span>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
+    html: `
+      <span class="comfort-map-marker-pulse" aria-hidden="true"></span>
+      <svg class="comfort-map-marker-pin" width="28" height="36" viewBox="0 0 28 36" aria-hidden="true">
+        <path d="M14 1.5C7.1 1.5 1.5 7.1 1.5 14c0 8.9 10.2 18.6 12.1 20.3a0.9 0.9 0 0 0 1.2 0C16.7 32.6 26.5 22.9 26.5 14 26.5 7.1 20.9 1.5 14 1.5z" fill="${COMFORT_MAP_MARKER}" stroke="#F7F3EF" stroke-width="2.5"/>
+        <circle cx="14" cy="14" r="4.5" fill="#F7F3EF"/>
+      </svg>
+    `,
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
   });
 }
 

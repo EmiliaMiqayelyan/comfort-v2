@@ -169,7 +169,7 @@ export function ContactBanner() {
                   address={address}
                   embedUrl={settings?.mapEmbedUrl}
                   className="h-52 w-full sm:h-60 lg:h-full lg:min-h-[280px]"
-                  zoom={14}
+                  zoom={16}
                 />
               </div>
             )}

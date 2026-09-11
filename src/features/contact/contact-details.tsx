@@ -90,7 +90,8 @@ export function ContactDetails() {
                       embedUrl={room.mapEmbedUrl}
                       className="h-44 w-full"
                       interactive={false}
-                      zoom={14}
+                      showDirections={false}
+                      zoom={17}
                     />
                   </div>
                 )}
@@ -181,7 +182,7 @@ export function ContactMap() {
           address={address}
           embedUrl={settings?.mapEmbedUrl}
           className="h-72 w-full md:h-[28rem]"
-          zoom={15}
+          zoom={16}
         />
       </div>
     </div>

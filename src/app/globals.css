@@ -471,9 +471,9 @@ html.admin-scroll-lock body {
   font: inherit;
 }
 
-/* Warm sand tint over Carto light tiles */
+/* Warm sand tint — keep street contrast readable */
 .comfort-brand-map .leaflet-tile-pane {
-  filter: sepia(0.22) saturate(0.75) hue-rotate(345deg) brightness(1.03) contrast(0.96);
+  filter: sepia(0.1) saturate(0.92) hue-rotate(352deg) brightness(0.97) contrast(1.12);
 }
 
 .comfort-brand-map .leaflet-bar {
@@ -514,8 +514,40 @@ html.admin-scroll-lock body {
 .comfort-map-marker {
   background: transparent !important;
   border: none !important;
+  overflow: visible !important;
 }
 
-.comfort-map-marker-dot {
-  margin: 0;
+.comfort-map-marker-pin {
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(32, 62, 75, 0.45));
+  position: relative;
+  z-index: 1;
+}
+
+.comfort-map-marker-pulse {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, #203e4b 35%, transparent);
+  animation: comfort-map-pulse 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes comfort-map-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
 }
