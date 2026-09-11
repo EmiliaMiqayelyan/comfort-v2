@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { cn, FALLBACK_MEDIA, mediaSrc } from "@/lib/utils";
 
@@ -54,24 +53,15 @@ export function CatalogCard({
         />
       </div>
 
-      <div className="flex flex-1 items-center justify-between gap-4 px-5 py-5 md:px-6 md:py-6">
-        <div className="min-w-0">
-          <h3 className="text-[17px] font-bold leading-[1.25] tracking-tight text-foreground md:text-[18px]">
-            {title}
-          </h3>
-          {description ? (
-            <p className="mt-1.5 line-clamp-2 text-[13px] leading-[1.45] text-muted-foreground">
-              {description}
-            </p>
-          ) : null}
-        </div>
-
-        <span
-          aria-hidden
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-colors group-hover:opacity-90"
-        >
-          <ArrowRight className="h-[15px] w-[15px]" strokeWidth={2} />
-        </span>
+      <div className="flex flex-1 flex-col justify-center px-5 py-5 md:px-6 md:py-6">
+        <h3 className="text-[17px] font-bold leading-[1.25] tracking-tight text-foreground md:text-[18px]">
+          {title}
+        </h3>
+        {description ? (
+          <p className="mt-1.5 line-clamp-2 text-[13px] leading-[1.45] text-muted-foreground">
+            {description}
+          </p>
+        ) : null}
       </div>
     </Link>
   );

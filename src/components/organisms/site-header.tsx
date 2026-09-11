@@ -2,7 +2,7 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useTranslations } from "next-intl";
-import { Menu, Search, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, usePathname } from "@/i18n/routing";
@@ -110,15 +110,6 @@ export function SiteHeader() {
           </div>
 
           <ThemeToggle inverted={!solid} />
-
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t("search")}
-            className={cn("hidden sm:inline-flex", !solid && "text-white hover:bg-white/10")}
-          >
-            <Search />
-          </Button>
 
           <Button
             asChild

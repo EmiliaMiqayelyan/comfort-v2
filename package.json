@@ -2,7 +2,7 @@
   "name": "comfort",
   "version": "1.0.0",
   "private": true,
-  "description": "Comfort — Premium architectural interior products",
+  "description": "Comfort | Premium architectural interior products",
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:api": "npm run dev --prefix server",
