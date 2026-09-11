@@ -53,7 +53,7 @@ export function CategoryDetailContent({
 
         <div className="min-w-0">
           {!isLeaf && (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 lg:gap-6">
               {children.map((child) => (
                 <CatalogCard
                   key={child.id}
@@ -67,7 +67,10 @@ export function CategoryDetailContent({
           )}
 
           {isLeaf && directProducts.length > 0 && (
-            <ProductCardGrid products={directProducts} />
+            <ProductCardGrid
+              products={directProducts}
+              className="lg:grid-cols-2 xl:grid-cols-3"
+            />
           )}
 
           {isLeaf && directProducts.length === 0 && (

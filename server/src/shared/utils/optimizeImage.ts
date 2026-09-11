@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import sharp from 'sharp';
+import { generateId } from './uuid';
 
 /** Longest edge for catalog stills - enough for retina product/detail views. */
 const MAX_EDGE = 2560;
@@ -25,6 +26,10 @@ export type OptimizedUpload = {
 /**
  * Normalize raster uploads with sharp: EXIF rotate, max 2560px edge, WebP @ 85.
  * Leaves SVG / GIF / non-images unchanged. On failure, returns the original file.
+ *
+ * Reads the multer file into memory and writes a new `.webp` name. Sharp cannot
+ * read/write the same path, and on Windows the input file stays locked if we try
+ * to replace it in place (which previously deleted the asset after a 201).
  */
 export async function optimizeUploadedImage(
   file: Express.Multer.File,
@@ -41,11 +46,12 @@ export async function optimizeUploadedImage(
     return base;
   }
 
-  const outName = `${path.parse(file.filename).name}.webp`;
+  const outName = `${generateId()}.webp`;
   const outPath = path.join(path.dirname(file.path), outName);
 
   try {
-    const info = await sharp(file.path, { failOn: 'none' })
+    const input = await fs.readFile(file.path);
+    const info = await sharp(input, { failOn: 'none' })
       .rotate()
       .resize({
         width: MAX_EDGE,
@@ -56,9 +62,7 @@ export async function optimizeUploadedImage(
       .webp({ quality: WEBP_QUALITY, effort: 4 })
       .toFile(outPath);
 
-    if (outPath !== file.path) {
-      await fs.unlink(file.path).catch(() => undefined);
-    }
+    await fs.unlink(file.path).catch(() => undefined);
 
     const originalBase = file.originalname.replace(/\.[^.]+$/, '') || 'image';
     return {

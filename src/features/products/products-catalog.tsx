@@ -29,7 +29,7 @@ export function ProductsCatalog() {
           <CategoryTreeNav categories={categories} expandAll />
         </aside>
 
-        <div className="min-w-0 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="min-w-0 grid gap-5 sm:grid-cols-2 xl:grid-cols-3 lg:gap-6">
           {roots.map((category, i) => (
             <Reveal key={category.id} delay={i * 0.08}>
               <CatalogCard

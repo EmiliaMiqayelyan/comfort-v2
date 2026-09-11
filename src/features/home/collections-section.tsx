@@ -39,7 +39,7 @@ export function CollectionsSection() {
         </Reveal>
 
         {!showSlider ? (
-          <Reveal className="mx-auto max-w-md sm:mx-0 sm:max-w-sm">
+          <Reveal className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             <CollectionCard collection={collections[0]} />
           </Reveal>
         ) : (
@@ -48,12 +48,12 @@ export function CollectionsSection() {
               <Swiper
                 modules={[Navigation, Pagination]}
                 spaceBetween={20}
-                slidesPerView={1.15}
+                slidesPerView={1}
                 watchOverflow
                 pagination={{ clickable: true }}
                 breakpoints={{
-                  640: { slidesPerView: 2.15, spaceBetween: 20 },
-                  1024: { slidesPerView: 3.25, spaceBetween: 24 },
+                  640: { slidesPerView: 2, spaceBetween: 20 },
+                  1024: { slidesPerView: 4, spaceBetween: 24 },
                 }}
                 onBeforeInit={(swiper) => {
                   const navigation = swiper.params.navigation;

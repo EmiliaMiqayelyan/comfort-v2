@@ -1,3 +1,4 @@
+import fs from 'fs';
 import express from 'express';
 import cors from 'cors';
 import { config } from './config/config';
@@ -7,6 +8,8 @@ import { UPLOADS_DIR } from '../shared/utils/uploadsPath';
 
 export function createApp(): express.Express {
   const app = express();
+
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
   const origins = config.CLIENT_ORIGIN.split(',').map(o => o.trim());
   app.use(cors({ origin: origins, credentials: true }));

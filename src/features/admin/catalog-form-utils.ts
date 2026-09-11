@@ -181,7 +181,8 @@ export function buildCatalogPayload<T extends CatalogFormFields>(form: T) {
   const galleryVariants = asArray<ProductGalleryVariant>(form.galleryVariants)
     .map((variant) => {
       const imageUrl = variant.imageUrl?.trim() || "";
-      const thumbUrl = variant.thumbUrl?.trim() || "";
+      // Prefer explicit thumb; otherwise reuse the main image so a single upload still saves.
+      const thumbUrl = variant.thumbUrl?.trim() || imageUrl;
       return {
         ...variant,
         name: asLocalized(variant.name),
@@ -189,7 +190,7 @@ export function buildCatalogPayload<T extends CatalogFormFields>(form: T) {
         imageUrl,
       };
     })
-    .filter((variant) => variant.imageUrl && variant.thumbUrl);
+    .filter((variant) => variant.imageUrl);
 
   return {
     name,

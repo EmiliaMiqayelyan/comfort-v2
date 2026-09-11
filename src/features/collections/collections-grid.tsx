@@ -1,23 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/molecules/reveal";
-import { getLocalized } from "@/data/catalog";
+import { CollectionCard } from "@/components/molecules/collection-card";
 import {
   useCategories,
   useCollections,
   useProducts,
 } from "@/hooks/use-catalog";
 import { productsInCategory } from "@/lib/category-tree";
-import { firstMedia, mediaSrc } from "@/lib/utils";
 import { CategoryTreeNav } from "@/features/products/category-tree-nav";
 
 export function CollectionsGrid() {
   const t = useTranslations("collections");
-  const locale = useLocale();
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const { data: collections = [] } = useCollections();
   const { data: products = [] } = useProducts();
@@ -59,38 +55,10 @@ export function CollectionsGrid() {
           </p>
         </Reveal>
 
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 lg:gap-6">
           {filtered.map((collection, i) => (
             <Reveal key={collection.id} delay={i * 0.06}>
-              <Link
-                href={`/collections/${collection.slug}`}
-                className="catalog-panel catalog-shadow group relative flex flex-col overflow-hidden rounded-3xl transition hover:-translate-y-0.5"
-              >
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#ecece8]">
-                  <Image
-                    src={mediaSrc(
-                      firstMedia(collection.images) || collection.image,
-                    )}
-                    alt={getLocalized(collection.name, locale)}
-                    fill
-                    quality={95}
-                    className="catalog-cover"
-                    sizes="(max-width: 640px) 100vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-                </div>
-                <div className="flex flex-1 flex-col gap-2 p-6 md:p-8">
-                  <h3 className="display text-xl text-foreground md:text-2xl">
-                    {getLocalized(collection.name, locale)}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {getLocalized(collection.description, locale)}
-                  </p>
-                  <p className="mt-auto pt-4 text-xs uppercase tracking-widest text-muted-foreground">
-                    {t("products", { count: collection.productCount })}
-                  </p>
-                </div>
-              </Link>
+              <CollectionCard collection={collection} />
             </Reveal>
           ))}
         </div>
