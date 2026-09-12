@@ -46,7 +46,7 @@ export function CatalogCard({
           fill
           quality={90}
           unoptimized={isRemote || isUpload}
-          className="object-contain object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           onError={() => {
             if (src !== FALLBACK_MEDIA) setSrc(FALLBACK_MEDIA);
