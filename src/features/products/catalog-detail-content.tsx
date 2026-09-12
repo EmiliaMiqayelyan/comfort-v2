@@ -7,6 +7,7 @@ import { Download, FileText } from "lucide-react";
 import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
 import { Badge } from "@/components/atoms/badge";
 import { Reveal } from "@/components/molecules/reveal";
+import { isValidModelUrl } from "@/lib/product-model";
 import { cn, formatPrice, mediaList, mediaSrc, jsonArray } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
 import type {
@@ -135,7 +136,7 @@ export function CatalogDetailContent({
                     fill
                     quality={95}
                     unoptimized={isRemote || isUpload}
-                    className="object-cover object-center"
+                    className="object-contain object-center"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     priority
                   />
@@ -171,7 +172,7 @@ export function CatalogDetailContent({
                             alt={label}
                             fill
                             unoptimized={thumb.includes("/uploads/") || thumb.startsWith("http")}
-                            className="object-cover"
+                            className="object-contain"
                             sizes="64px"
                           />
                         </button>
@@ -297,22 +298,24 @@ export function CatalogDetailContent({
           )}
         </div>
 
-        <div className="lg:col-start-1 lg:row-start-2">
-          <Reveal delay={0.15}>
-            <div>
-              <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">
-                {t("viewer3d")}
-              </p>
-              <ProductViewer3D
-                key={item.id}
-                modelUrl={item.modelUrl}
-                colors={viewerColors}
-                height={item.height}
-                depth={item.depth}
-              />
-            </div>
-          </Reveal>
-        </div>
+        {isValidModelUrl(item.modelUrl) ? (
+          <div className="lg:col-start-1 lg:row-start-2">
+            <Reveal delay={0.15}>
+              <div>
+                <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">
+                  {t("viewer3d")}
+                </p>
+                <ProductViewer3D
+                  key={item.id}
+                  modelUrl={item.modelUrl}
+                  colors={viewerColors}
+                  height={item.height}
+                  depth={item.depth}
+                />
+              </div>
+            </Reveal>
+          </div>
+        ) : null}
       </div>
 
       {footer}

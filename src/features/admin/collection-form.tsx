@@ -21,12 +21,12 @@ import {
 } from "@/features/admin/form-ui";
 import { FileUploadField } from "@/features/admin/file-upload";
 import { AdminSelect } from "@/features/admin/admin-select";
+import { GalleryVariantsFields } from "@/features/admin/gallery-variants-fields";
 import {
   toCatalogFormFields,
   buildCatalogPayload,
   asArray,
   emptyColor,
-  emptyGalleryVariant,
   emptyTexture,
   emptySpec,
   emptyDownload,
@@ -276,75 +276,10 @@ export function CollectionForm({ collection }: { collection?: Collection }) {
           </Section>
 
           <Section title={t("images")}>
-            <div className="space-y-4">
-              {asArray<ProductGalleryVariant>(form.galleryVariants).map((variant, index) => (
-                <div key={variant.id} className="space-y-3 rounded-xl border border-border p-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <Field label={label("galleryVariantImage", "Մեծ նկար")} required>
-                      <FileUploadField
-                        value={variant.imageUrl ?? ""}
-                        accept="image/*"
-                        label={t("upload")}
-                        onChange={(imageUrl) => {
-                          const galleryVariants = [
-                            ...asArray<ProductGalleryVariant>(form.galleryVariants),
-                          ];
-                          galleryVariants[index] = { ...variant, imageUrl };
-                          update("galleryVariants", galleryVariants);
-                        }}
-                      />
-                    </Field>
-                    <Field label={label("galleryVariantThumb", "Փոքր նկար")} required>
-                      <FileUploadField
-                        value={variant.thumbUrl ?? ""}
-                        accept="image/*"
-                        label={t("upload")}
-                        onChange={(thumbUrl) => {
-                          const galleryVariants = [
-                            ...asArray<ProductGalleryVariant>(form.galleryVariants),
-                          ];
-                          galleryVariants[index] = { ...variant, thumbUrl };
-                          update("galleryVariants", galleryVariants);
-                        }}
-                      />
-                    </Field>
-                  </div>
-                  <div className="flex justify-end">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="text-muted-foreground hover:text-red-600"
-                      disabled={asArray<ProductGalleryVariant>(form.galleryVariants).length <= 1}
-                      onClick={() =>
-                        update(
-                          "galleryVariants",
-                          asArray<ProductGalleryVariant>(form.galleryVariants).filter(
-                            (_, i) => i !== index,
-                          ),
-                        )
-                      }
-                    >
-                      <Trash2 />
-                      {t("delete")}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-xl border-border text-foreground"
-                onClick={() =>
-                  update("galleryVariants", [
-                    ...asArray<ProductGalleryVariant>(form.galleryVariants),
-                    emptyGalleryVariant(),
-                  ])
-                }
-              >
-                <Plus />
-                {t("addImage")}
-              </Button>
-            </div>
+            <GalleryVariantsFields
+              variants={asArray<ProductGalleryVariant>(form.galleryVariants)}
+              onChange={(galleryVariants) => update("galleryVariants", galleryVariants)}
+            />
           </Section>
 
           <Section title={tp("viewer3d")}>

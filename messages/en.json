@@ -427,6 +427,8 @@
     "fileType": "File type",
     "fileSize": "File size",
     "addImage": "Add image",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
     "addColor": "Add color",
     "colorImage": "Color image",
     "galleryColors": "Gallery colors",
