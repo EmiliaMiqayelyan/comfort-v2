@@ -127,20 +127,19 @@ export function CatalogDetailContent({
         <div>
           <Reveal>
             <div className="space-y-3">
-              <div className="catalog-panel catalog-shadow overflow-hidden rounded-[5px] border">
-                <div className="relative aspect-[4/3] bg-[#ecece8]">
-                  <Image
-                    key={activeSrc}
-                    src={activeSrc}
-                    alt={getLocalized(item.name, locale)}
-                    fill
-                    quality={95}
-                    unoptimized={isRemote || isUpload}
-                    className="object-contain object-center"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    priority
-                  />
-                </div>
+              <div className="overflow-hidden rounded-[5px] bg-white">
+                <Image
+                  key={activeSrc}
+                  src={activeSrc}
+                  alt={getLocalized(item.name, locale)}
+                  width={1600}
+                  height={1200}
+                  quality={95}
+                  unoptimized={isRemote || isUpload}
+                  className="h-auto w-full"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                />
               </div>
 
               {galleryVariants.length > 0 && (
@@ -159,10 +158,10 @@ export function CatalogDetailContent({
                           title={label}
                           onClick={() => setSelectedVariantId(variant.id)}
                           className={cn(
-                            "relative h-16 w-16 shrink-0 overflow-hidden rounded-[5px] border-2 bg-[#ecece8] transition",
+                            "relative h-16 w-16 shrink-0 overflow-hidden rounded-[5px] bg-white ring-2 transition",
                             isSelected
-                              ? "border-foreground shadow-sm"
-                              : "border-border opacity-80 hover:border-foreground/40 hover:opacity-100",
+                              ? "ring-foreground shadow-sm"
+                              : "ring-transparent opacity-80 hover:ring-foreground/30 hover:opacity-100",
                           )}
                           aria-pressed={isSelected}
                           aria-label={label}
@@ -172,7 +171,7 @@ export function CatalogDetailContent({
                             alt={label}
                             fill
                             unoptimized={thumb.includes("/uploads/") || thumb.startsWith("http")}
-                            className="object-contain"
+                            className="object-contain object-center p-0.5"
                             sizes="64px"
                           />
                         </button>
