@@ -3,17 +3,21 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { cn, FALLBACK_MEDIA, mediaSrc } from "@/lib/utils";
+import { getLocalized } from "@/data/catalog";
+import { cn, FALLBACK_MEDIA, firstMedia, mediaSrc } from "@/lib/utils";
+import type { Collection, Product, ProductCategory } from "@/types";
 
 type CatalogCardProps = {
   href: string;
   image?: string | null;
   title: string;
-  description: string;
+  description?: string;
   className?: string;
 };
 
+/** Shared card UI for products, collections, and categories. */
 export function CatalogCard({
   href,
   image,
@@ -74,5 +78,141 @@ export function CatalogCard({
         </span>
       </div>
     </Link>
+  );
+}
+
+export function ProductCard({
+  product,
+  className,
+}: {
+  product: Product;
+  className?: string;
+}) {
+  const locale = useLocale();
+
+  return (
+    <CatalogCard
+      href={`/products/${product.slug}`}
+      image={firstMedia(product.images)}
+      title={getLocalized(product.name, locale)}
+      description={getLocalized(product.description, locale)}
+      className={className}
+    />
+  );
+}
+
+export function ProductCardGrid({
+  products,
+  className,
+}: {
+  products: Product[];
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6",
+        className,
+      )}
+    >
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  );
+}
+
+export function CollectionCard({
+  collection,
+  className,
+  fromProductSlug,
+}: {
+  collection: Collection;
+  className?: string;
+  /** When set, collection breadcrumb continues from this product. */
+  fromProductSlug?: string;
+}) {
+  const locale = useLocale();
+  const image = firstMedia(collection.images) || collection.image;
+  const href = fromProductSlug
+    ? `/collections/${collection.slug}?from=product&product=${encodeURIComponent(fromProductSlug)}`
+    : `/collections/${collection.slug}`;
+
+  return (
+    <CatalogCard
+      href={href}
+      image={image}
+      title={getLocalized(collection.name, locale)}
+      description={getLocalized(collection.description, locale)}
+      className={className}
+    />
+  );
+}
+
+export function CollectionCardGrid({
+  collections,
+  className,
+  fromProductSlug,
+}: {
+  collections: Collection[];
+  className?: string;
+  fromProductSlug?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6",
+        className,
+      )}
+    >
+      {collections.map((collection) => (
+        <CollectionCard
+          key={collection.id}
+          collection={collection}
+          fromProductSlug={fromProductSlug}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function CategoryCard({
+  category,
+  className,
+}: {
+  category: ProductCategory;
+  className?: string;
+}) {
+  const locale = useLocale();
+
+  return (
+    <CatalogCard
+      href={`/products/${category.slug}`}
+      image={category.image}
+      title={getLocalized(category.name, locale)}
+      description={getLocalized(category.description, locale)}
+      className={className}
+    />
+  );
+}
+
+export function CategoryCardGrid({
+  categories,
+  className,
+}: {
+  categories: ProductCategory[];
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6",
+        className,
+      )}
+    >
+      {categories.map((category) => (
+        <CategoryCard key={category.id} category={category} />
+      ))}
+    </div>
   );
 }

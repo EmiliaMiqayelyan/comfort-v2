@@ -89,7 +89,7 @@ export function CollectionsSection() {
                 ref={prevRef}
                 type="button"
                 aria-label="Previous"
-                className="collections-swiper-nav absolute top-[26%] left-0 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 md:h-14 md:w-14"
+                className="collections-swiper-nav absolute top-[38%] left-0 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 md:h-14 md:w-14"
               >
                 <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
               </button>
@@ -97,7 +97,7 @@ export function CollectionsSection() {
                 ref={nextRef}
                 type="button"
                 aria-label="Next"
-                className="collections-swiper-nav absolute top-[26%] right-0 z-10 flex h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 md:h-14 md:w-14"
+                className="collections-swiper-nav absolute top-[38%] right-0 z-10 flex h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 md:h-14 md:w-14"
               >
                 <ChevronRight className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
               </button>

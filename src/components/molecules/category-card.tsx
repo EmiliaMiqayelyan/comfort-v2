@@ -1,5 +1,5 @@
 export {
   CatalogCard,
-  ProductCard,
-  ProductCardGrid,
+  CategoryCard,
+  CategoryCardGrid,
 } from "@/components/molecules/catalog-card";

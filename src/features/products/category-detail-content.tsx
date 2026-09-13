@@ -2,10 +2,10 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Reveal } from "@/components/molecules/reveal";
+import { CategoryCard } from "@/components/molecules/category-card";
 import { ProductCardGrid } from "@/components/molecules/product-card";
 import { getLocalized } from "@/data/catalog";
 import { useCategories, useProducts } from "@/hooks/use-catalog";
-import { CatalogCard } from "@/components/molecules/catalog-card";
 import { childCategories } from "@/lib/category-tree";
 import { CategoryBreadcrumb } from "@/features/products/category-breadcrumb";
 import { CategoryTreeNav } from "@/features/products/category-tree-nav";
@@ -55,13 +55,7 @@ export function CategoryDetailContent({
           {!isLeaf && (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 lg:gap-6">
               {children.map((child) => (
-                <CatalogCard
-                  key={child.id}
-                  href={`/products/${child.slug}`}
-                  image={child.image}
-                  title={getLocalized(child.name, locale)}
-                  description={getLocalized(child.description, locale)}
-                />
+                <CategoryCard key={child.id} category={child} />
               ))}
             </div>
           )}
