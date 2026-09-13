@@ -1,3 +1,4 @@
+import { asLocalized } from "@/lib/localized";
 import { jsonArray, mediaList } from "@/lib/utils";
 import type {
   Author,
@@ -19,7 +20,7 @@ function normalizeGalleryVariant(
   const thumbUrl = (variant.thumbUrl ?? "").trim() || imageUrl;
   return {
     id: variant.id,
-    name: variant.name,
+    name: asLocalized(variant.name),
     thumbUrl,
     imageUrl,
   };

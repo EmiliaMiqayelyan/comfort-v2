@@ -3,7 +3,7 @@
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/atoms/button";
-import { Field } from "@/features/admin/form-ui";
+import { Field, LocalizedInputs } from "@/features/admin/form-ui";
 import { FileUploadField } from "@/features/admin/file-upload";
 import { emptyGalleryVariant, moveArrayItem } from "@/features/admin/catalog-form-utils";
 import type { ProductGalleryVariant } from "@/types";
@@ -23,6 +23,15 @@ export function GalleryVariantsFields({
     <div className="space-y-4">
       {items.map((variant, index) => (
         <div key={variant.id} className="space-y-3 rounded-xl border border-border p-4">
+          <LocalizedInputs
+            label={t("name")}
+            value={variant.name}
+            onChange={(name) => {
+              const next = [...items];
+              next[index] = { ...variant, name };
+              onChange(next);
+            }}
+          />
           <div className="grid gap-4 md:grid-cols-2">
             <Field label={label("galleryVariantImage", "Մեծ նկար")} required>
               <FileUploadField

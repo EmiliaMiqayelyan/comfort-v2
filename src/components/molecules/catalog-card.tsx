@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { getLocalized } from "@/data/catalog";
-import { cn, FALLBACK_MEDIA, firstMedia, mediaSrc } from "@/lib/utils";
+import { cn, firstMedia, mediaSrc } from "@/lib/utils";
 import type { Collection, Product, ProductCategory } from "@/types";
 
 type CatalogCardProps = {
@@ -25,11 +25,11 @@ export function CatalogCard({
   description,
   className,
 }: CatalogCardProps) {
-  const resolved = mediaSrc(image);
+  const resolved = mediaSrc(image, "");
   const [src, setSrc] = useState(resolved);
 
   useEffect(() => {
-    setSrc(mediaSrc(image));
+    setSrc(mediaSrc(image, ""));
   }, [image]);
 
   const isUpload = src.includes("/uploads/");
@@ -44,18 +44,18 @@ export function CatalogCard({
       )}
     >
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-[#ecece8]">
-        <Image
-          src={src}
-          alt={title}
-          fill
-          quality={90}
-          unoptimized={isRemote || isUpload}
-          className="object-contain object-center"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          onError={() => {
-            if (src !== FALLBACK_MEDIA) setSrc(FALLBACK_MEDIA);
-          }}
-        />
+        {src ? (
+          <Image
+            src={src}
+            alt={title}
+            fill
+            quality={90}
+            unoptimized={isRemote || isUpload}
+            className="object-contain object-center"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            onError={() => setSrc("")}
+          />
+        ) : null}
       </div>
 
       <div className="flex flex-1 items-center justify-between gap-4 px-5 py-5 md:px-6 md:py-6">
@@ -93,7 +93,7 @@ export function ProductCard({
   return (
     <CatalogCard
       href={`/products/${product.slug}`}
-      image={firstMedia(product.images)}
+      image={firstMedia(product.images, "")}
       title={getLocalized(product.name, locale)}
       description={getLocalized(product.description, locale)}
       className={className}
@@ -133,7 +133,7 @@ export function CollectionCard({
   fromProductSlug?: string;
 }) {
   const locale = useLocale();
-  const image = firstMedia(collection.images) || collection.image;
+  const image = firstMedia(collection.images, "") || collection.image || "";
   const href = fromProductSlug
     ? `/collections/${collection.slug}?from=product&product=${encodeURIComponent(fromProductSlug)}`
     : `/collections/${collection.slug}`;

@@ -2,10 +2,12 @@
 
 import { useMemo, useState, useEffect, type ReactNode } from "react";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { Download, FileText } from "lucide-react";
+import { Download, Expand, FileText } from "lucide-react";
 import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
 import { Badge } from "@/components/atoms/badge";
+import { ImageLightbox } from "@/components/molecules/image-lightbox";
 import { Reveal } from "@/components/molecules/reveal";
 import { isValidModelUrl } from "@/lib/product-model";
 import { cn, formatPrice, mediaList, mediaSrc, jsonArray } from "@/lib/utils";
@@ -54,7 +56,9 @@ export type CatalogDetailItem = {
   finish: string;
   modelUrl?: string;
   height: number;
+  width: number;
   depth: number;
+  length: number;
 };
 
 export function CatalogDetailContent({
@@ -73,6 +77,7 @@ export function CatalogDetailContent({
     () => galleryVariants[0]?.id ?? null,
   );
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const specs = jsonArray<ProductSpec>(item.specs);
   const downloads = jsonArray<ProductDownload>(item.downloads);
   const productColors = jsonArray<ProductColor>(item.colors);
@@ -88,13 +93,25 @@ export function CatalogDetailContent({
   }, [selectedVariant, item.images]);
   const isUpload = activeSrc.includes("/uploads/");
   const isRemote = /^https?:\/\//i.test(activeSrc);
-  const variantsLabel = t.has("variants")
-    ? t("variants")
-    : locale === "am"
-      ? "Տարբերակներ"
-      : locale === "ru"
-        ? "Варианты"
-        : "Variants";
+  const baseTitle = getLocalized(item.name, locale);
+  const selectedVariantName = selectedVariant
+    ? getLocalized(selectedVariant.name, locale).trim()
+    : "";
+  const displayTitle = selectedVariantName
+    ? `${baseTitle} - ${selectedVariantName}`
+    : baseTitle;
+  const colorLabel = t.has("galleryColors")
+    ? t("galleryColors")
+    : t.has("colors")
+      ? t("colors")
+      : locale === "am"
+        ? "Գույն"
+        : locale === "ru"
+          ? "Цвет"
+          : "Color";
+  const variantsHeading = selectedVariantName
+    ? `${colorLabel}: ${selectedVariantName}`
+    : colorLabel;
   const description = getLocalized(item.description, locale).trim();
   const { preview: descriptionPreview, isLong: isLongDescription } = useMemo(
     () => buildDescriptionPreview(description),
@@ -114,9 +131,22 @@ export function CatalogDetailContent({
       : locale === "ru"
         ? "Скрыть"
         : "Show less";
+  const openImageLabel =
+    locale === "am"
+      ? `Բացել լրիվ էկրանով - ${displayTitle}`
+      : locale === "ru"
+        ? `Открыть на весь экран - ${displayTitle}`
+        : `Open fullscreen - ${displayTitle}`;
+  const closeLabel =
+    locale === "am" ? "Փակել" : locale === "ru" ? "Закрыть" : "Close";
+  const zoomInLabel =
+    locale === "am" ? "Մեծացնել" : locale === "ru" ? "Увеличить" : "Zoom in";
+  const zoomOutLabel =
+    locale === "am" ? "Փոքրացնել" : locale === "ru" ? "Уменьшить" : "Zoom out";
 
   useEffect(() => {
     setDescriptionExpanded(false);
+    setLightboxOpen(false);
     const firstId = jsonArray<ProductGalleryVariant>(item.galleryVariants)[0]?.id ?? null;
     setSelectedVariantId(firstId);
   }, [item.id, item.galleryVariants]);
@@ -127,28 +157,47 @@ export function CatalogDetailContent({
         <div>
           <Reveal>
             <div className="space-y-3">
-              <div className="overflow-hidden rounded-[5px] bg-white">
-                <Image
-                  key={activeSrc}
-                  src={activeSrc}
-                  alt={getLocalized(item.name, locale)}
-                  width={1600}
-                  height={1200}
-                  quality={95}
-                  unoptimized={isRemote || isUpload}
-                  className="h-auto w-full"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority
-                />
-              </div>
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(true)}
+                className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-[5px] bg-white text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40"
+                aria-label={openImageLabel}
+              >
+                <AnimatePresence mode="sync" initial={false}>
+                  <motion.div
+                    key={activeSrc}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute inset-0"
+                  >
+                    <Image
+                      src={activeSrc}
+                      alt={displayTitle}
+                      fill
+                      quality={95}
+                      unoptimized={isRemote || isUpload}
+                      className="object-contain object-center transition duration-300 group-hover:scale-[1.01]"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      priority
+                    />
+                  </motion.div>
+                </AnimatePresence>
+                <span className="pointer-events-none absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <Expand className="h-4 w-4" aria-hidden />
+                </span>
+              </button>
 
               {galleryVariants.length > 0 && (
                 <div>
-                  <p className="mb-2 text-sm font-medium text-foreground">{variantsLabel}</p>
-                  <div className="flex flex-wrap gap-2">
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    {variantsHeading}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {galleryVariants.map((variant) => {
                       const label =
-                        getLocalized(variant.name, locale) || getLocalized(item.name, locale);
+                        getLocalized(variant.name, locale).trim() || baseTitle;
                       const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
                       const isSelected = selectedVariant?.id === variant.id;
                       return (
@@ -158,10 +207,10 @@ export function CatalogDetailContent({
                           title={label}
                           onClick={() => setSelectedVariantId(variant.id)}
                           className={cn(
-                            "relative h-16 w-16 shrink-0 overflow-hidden rounded-[5px] bg-white ring-2 transition",
+                            "relative h-12 w-12 shrink-0 overflow-hidden rounded-[3px] bg-muted ring-2 ring-offset-1 ring-offset-background transition sm:h-14 sm:w-14",
                             isSelected
-                              ? "ring-foreground shadow-sm"
-                              : "ring-transparent opacity-80 hover:ring-foreground/30 hover:opacity-100",
+                              ? "ring-foreground"
+                              : "ring-transparent opacity-90 hover:ring-foreground/25 hover:opacity-100",
                           )}
                           aria-pressed={isSelected}
                           aria-label={label}
@@ -171,8 +220,8 @@ export function CatalogDetailContent({
                             alt={label}
                             fill
                             unoptimized={thumb.includes("/uploads/") || thumb.startsWith("http")}
-                            className="object-contain object-center p-0.5"
-                            sizes="64px"
+                            className="scale-125 object-cover object-center"
+                            sizes="56px"
                           />
                         </button>
                       );
@@ -189,7 +238,7 @@ export function CatalogDetailContent({
             <div className="space-y-4">
               {badges ? <div className="flex flex-wrap gap-2">{badges}</div> : null}
               <h1 className="display text-3xl text-foreground md:text-4xl lg:text-5xl">
-                {getLocalized(item.name, locale)}
+                {displayTitle}
               </h1>
               {description && (
                 <div className="text-lg leading-relaxed text-muted-foreground">
@@ -246,14 +295,38 @@ export function CatalogDetailContent({
                     </dd>
                   </div>
                 ))}
-                <div className="flex items-center justify-between gap-4 px-6 py-4">
-                  <dt className="text-sm text-muted-foreground">{t("material")}</dt>
-                  <dd className="text-sm font-medium text-foreground">{item.material}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 px-6 py-4">
-                  <dt className="text-sm text-muted-foreground">{t("finish")}</dt>
-                  <dd className="text-sm font-medium text-foreground">{item.finish}</dd>
-                </div>
+                {(
+                  [
+                    { key: "height", label: t("height"), value: item.height },
+                    { key: "width", label: t("width"), value: item.width },
+                    { key: "depth", label: t("depth"), value: item.depth },
+                    { key: "length", label: t("length"), value: item.length },
+                  ] as const
+                )
+                  .filter((row) => Number(row.value) > 0)
+                  .map((row) => (
+                    <div
+                      key={row.key}
+                      className="flex items-center justify-between gap-4 px-6 py-4"
+                    >
+                      <dt className="text-sm text-muted-foreground">{row.label}</dt>
+                      <dd className="text-sm font-medium text-foreground">
+                        {Number(row.value)} mm
+                      </dd>
+                    </div>
+                  ))}
+                {item.material ? (
+                  <div className="flex items-center justify-between gap-4 px-6 py-4">
+                    <dt className="text-sm text-muted-foreground">{t("material")}</dt>
+                    <dd className="text-sm font-medium text-foreground">{item.material}</dd>
+                  </div>
+                ) : null}
+                {item.finish ? (
+                  <div className="flex items-center justify-between gap-4 px-6 py-4">
+                    <dt className="text-sm text-muted-foreground">{t("finish")}</dt>
+                    <dd className="text-sm font-medium text-foreground">{item.finish}</dd>
+                  </div>
+                ) : null}
               </dl>
             </div>
           </Reveal>
@@ -318,6 +391,17 @@ export function CatalogDetailContent({
       </div>
 
       {footer}
+
+      <ImageLightbox
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+        src={activeSrc}
+        alt={displayTitle}
+        unoptimized={isRemote || isUpload}
+        closeLabel={closeLabel}
+        zoomInLabel={zoomInLabel}
+        zoomOutLabel={zoomOutLabel}
+      />
     </>
   );
 }
