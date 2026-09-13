@@ -39,14 +39,14 @@ export function CatalogCard({
         className,
       )}
     >
-      <div className="relative aspect-[5/4] w-full shrink-0 overflow-hidden bg-white">
+      <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-[#ecece8]">
         <Image
           src={src}
           alt={title}
           fill
           quality={90}
           unoptimized={isRemote || isUpload}
-          className="object-contain object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+          className="object-contain object-center"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           onError={() => {
             if (src !== FALLBACK_MEDIA) setSrc(FALLBACK_MEDIA);
