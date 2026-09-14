@@ -160,25 +160,26 @@ export function CatalogDetailContent({
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
-                className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-[5px] bg-white text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40"
+                className="group relative w-full cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40"
                 aria-label={openImageLabel}
               >
-                <AnimatePresence mode="sync" initial={false}>
+                <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={activeSrc}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute inset-0"
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative w-full"
                   >
                     <Image
                       src={activeSrc}
                       alt={displayTitle}
-                      fill
+                      width={1600}
+                      height={1200}
                       quality={95}
                       unoptimized={isRemote || isUpload}
-                      className="object-contain object-center transition duration-300 group-hover:scale-[1.01]"
+                      className="h-auto w-full object-contain object-left transition duration-300 group-hover:scale-[1.01]"
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       priority
                     />

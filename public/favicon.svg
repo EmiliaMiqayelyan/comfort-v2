@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Comfort">
-  <rect width="64" height="64" fill="#0B0B0B"/>
-  <image href="/brand/comfort-logo.png" x="4" y="8" width="56" height="40" preserveAspectRatio="xMidYMid meet"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Comfort">
+  <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAPoAAAD6AG1e1JrAAAC2ElEQVRYhe1UWzCVURT2/j+acQYzOY0QD8XkoBwz5ZroodJDuSVNIdHFNEIjQy4hopQuTJepoZNcIxSSMSUmolyP+73IpXr8mrWmc2ZqPDin0zRN52HNv/691/72t9f61tIRBAF/03S0BARtCQStCIV/pw319fXh6bEDyUkJ6Hj7Bt+W57EwN43y0iKEHTsKa+tNf4ZAcNBhFBc9xOTYIF/6dWmOTd7/ATOTI8o1+ra3vca1nGw4OEg1Q2CtWIzBgW4Gn5kaRXVVOaKjIiGV2iuz4rVnFy5nZ+JdeytnhGKzMtM1Q8DIaA2G5b0YGx6A5cYNynVdXV1IJNawsrL8KT7ydAQTuJiWoh4BZydHft1mO1vYSCSws7VBf08XpsaHIBYbcczJE+GYGJUrU784P4OzMWd4LzwsVEnA1NQEUvstjEW4v5JdkcCN3BzMzU5g6fMsA9U8rUBDXQ37xsbG2Ou1m/2+7k74+/kgwN8P9c+r4b7dlc+np6bwfv6t60qShDXQ28WlWlUJoqMi0dRYh4qyxyiSFaCyvISB3N3dkHczl/2Q4CMrppTO0P7VK1l4UVeL0mIZP4CysGoNiEQiZGdloLmpgcV1704+gyYlxiP1QhL71IqKeNKCQi/0atLMpYw03L2dh7aWZs6ayiI0MDDgNFIG4uNiOY2dHa1wcXbCyGAfk6DUP6upZD80JAg+3vvYr3pShsSEOH554MED6neBSE8P5ubruRXLSh4xeMSp4zAxWQdZwX3I+96zyQofwNdnP1peveSYQ4EBMDQ0hJmZqWYGkSAIcNy2FcsLH7nPSdEKgtSO5CtKQ1NxtZgqESA7FxvDl1CNiZBiPSX5PK+PDvWv2GoaIyD8aFO6bHxEDj9fbx679D87PYadnh4qYalFgIyGDF36ZfETf4fkPXBzdVEZR20CZCQ0moCN9bWwsDBXC+O3CGjKdLQEBG0JBK0Ihf+7Db8DbovN8+7SRqkAAAAASUVORK5CYII=" width="32" height="32"/>
 </svg>
