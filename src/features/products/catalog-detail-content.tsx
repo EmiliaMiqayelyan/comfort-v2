@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState, useEffect, type ReactNode } from "react";
+import { useMemo, useState, useEffect, useRef, type ReactNode } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Download, Expand, FileText } from "lucide-react";
 import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
@@ -21,6 +21,21 @@ import type {
 } from "@/types";
 
 const DESCRIPTION_PREVIEW_CHARS = 130;
+const GALLERY_CROSSFADE = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const };
+
+function preloadImage(src: string) {
+  return new Promise<void>((resolve, reject) => {
+    if (!src) {
+      resolve();
+      return;
+    }
+    const img = new window.Image();
+    img.decoding = "async";
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error(`Failed to preload ${src}`));
+    img.src = src;
+  });
+}
 
 function buildDescriptionPreview(text: string) {
   const normalized = text.replace(/\s+/g, " ").trim();
@@ -73,26 +88,51 @@ export function CatalogDetailContent({
   const t = useTranslations("product");
   const locale = useLocale();
   const galleryVariants = jsonArray<ProductGalleryVariant>(item.galleryVariants);
+  const gallerySlides = useMemo(() => {
+    const variants = jsonArray<ProductGalleryVariant>(item.galleryVariants);
+    if (variants.length > 0) {
+      return variants.map((variant) => {
+        const src = mediaSrc(variant.imageUrl?.trim() || variant.thumbUrl);
+        return {
+          id: variant.id,
+          src,
+          thumb: mediaSrc(variant.thumbUrl || variant.imageUrl),
+          unoptimized: /\/uploads\//.test(src) || /^https?:\/\//i.test(src),
+        };
+      });
+    }
+    const fallback = mediaSrc(mediaList(item.images)[0]);
+    if (!fallback) return [];
+    return [
+      {
+        id: "default",
+        src: fallback,
+        thumb: fallback,
+        unoptimized: /\/uploads\//.test(fallback) || /^https?:\/\//i.test(fallback),
+      },
+    ];
+  }, [item.galleryVariants, item.images]);
+
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    () => galleryVariants[0]?.id ?? null,
+    () => gallerySlides[0]?.id ?? null,
   );
+  const [displayedVariantId, setDisplayedVariantId] = useState<string | null>(
+    () => gallerySlides[0]?.id ?? null,
+  );
+  const [readySrcs, setReadySrcs] = useState<Set<string>>(() => new Set());
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const pendingIdRef = useRef<string | null>(null);
   const specs = jsonArray<ProductSpec>(item.specs);
   const downloads = jsonArray<ProductDownload>(item.downloads);
   const productColors = jsonArray<ProductColor>(item.colors);
   const viewerColors = productColors.filter((color) => color.hex?.trim());
   const selectedVariant =
     galleryVariants.find((variant) => variant.id === selectedVariantId) ?? galleryVariants[0];
-  const activeSrc = useMemo(() => {
-    if (selectedVariant?.imageUrl?.trim() || selectedVariant?.thumbUrl?.trim()) {
-      return mediaSrc(selectedVariant.imageUrl?.trim() || selectedVariant.thumbUrl);
-    }
-    const fallback = mediaList(item.images)[0];
-    return mediaSrc(fallback);
-  }, [selectedVariant, item.images]);
-  const isUpload = activeSrc.includes("/uploads/");
-  const isRemote = /^https?:\/\//i.test(activeSrc);
+  const displayedSlide =
+    gallerySlides.find((slide) => slide.id === displayedVariantId) ?? gallerySlides[0];
+  const activeSrc = displayedSlide?.src ?? "";
+  const activeUnoptimized = displayedSlide?.unoptimized ?? false;
   const baseTitle = getLocalized(item.name, locale);
   const selectedVariantName = selectedVariant
     ? getLocalized(selectedVariant.name, locale).trim()
@@ -144,12 +184,74 @@ export function CatalogDetailContent({
   const zoomOutLabel =
     locale === "am" ? "Փոքրացնել" : locale === "ru" ? "Уменьшить" : "Zoom out";
 
+  const markReady = (src: string) => {
+    setReadySrcs((prev) => {
+      if (prev.has(src)) return prev;
+      const next = new Set(prev);
+      next.add(src);
+      return next;
+    });
+  };
+
+  const selectVariant = (id: string) => {
+    setSelectedVariantId(id);
+    pendingIdRef.current = id;
+    const slide = gallerySlides.find((entry) => entry.id === id);
+    if (!slide) return;
+    if (readySrcs.has(slide.src)) {
+      setDisplayedVariantId(id);
+      pendingIdRef.current = null;
+      return;
+    }
+    void preloadImage(slide.src)
+      .then(() => {
+        markReady(slide.src);
+        if (pendingIdRef.current === id) {
+          setDisplayedVariantId(id);
+          pendingIdRef.current = null;
+        }
+      })
+      .catch(() => {
+        if (pendingIdRef.current === id) {
+          setDisplayedVariantId(id);
+          pendingIdRef.current = null;
+        }
+      });
+  };
+
+  const warmVariant = (id: string) => {
+    const slide = gallerySlides.find((entry) => entry.id === id);
+    if (!slide || readySrcs.has(slide.src)) return;
+    void preloadImage(slide.src)
+      .then(() => markReady(slide.src))
+      .catch(() => undefined);
+  };
+
   useEffect(() => {
     setDescriptionExpanded(false);
     setLightboxOpen(false);
-    const firstId = jsonArray<ProductGalleryVariant>(item.galleryVariants)[0]?.id ?? null;
+    const firstId = gallerySlides[0]?.id ?? null;
     setSelectedVariantId(firstId);
-  }, [item.id, item.galleryVariants]);
+    setDisplayedVariantId(firstId);
+    pendingIdRef.current = null;
+    setReadySrcs(new Set());
+    // Reset only when navigating to a different product.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gallerySlides identity changes with item data
+  }, [item.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    gallerySlides.forEach((slide) => {
+      void preloadImage(slide.src)
+        .then(() => {
+          if (!cancelled) markReady(slide.src);
+        })
+        .catch(() => undefined);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [gallerySlides]);
 
   return (
     <>
@@ -160,32 +262,40 @@ export function CatalogDetailContent({
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
-                className="group relative w-full cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40"
+                className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40"
                 aria-label={openImageLabel}
               >
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={activeSrc}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative w-full"
-                  >
-                    <Image
-                      src={activeSrc}
-                      alt={displayTitle}
-                      width={1600}
-                      height={1200}
-                      quality={95}
-                      unoptimized={isRemote || isUpload}
-                      className="h-auto w-full object-contain object-left transition duration-300 group-hover:scale-[1.01]"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      priority
-                    />
-                  </motion.div>
-                </AnimatePresence>
-                <span className="pointer-events-none absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                {gallerySlides.map((slide, index) => {
+                  const isActive = slide.id === displayedVariantId;
+                  return (
+                    <motion.div
+                      key={slide.id}
+                      initial={false}
+                      animate={{
+                        opacity: isActive ? 1 : 0,
+                        scale: isActive ? 1 : 1.015,
+                      }}
+                      transition={GALLERY_CROSSFADE}
+                      className="absolute inset-0"
+                      style={{ zIndex: isActive ? 1 : 0 }}
+                      aria-hidden={!isActive}
+                    >
+                      <Image
+                        src={slide.src}
+                        alt={displayTitle}
+                        fill
+                        quality={95}
+                        unoptimized={slide.unoptimized}
+                        priority={index === 0}
+                        loading={index === 0 ? undefined : "eager"}
+                        className="object-contain object-left transition duration-300 group-hover:scale-[1.01]"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        onLoadingComplete={() => markReady(slide.src)}
+                      />
+                    </motion.div>
+                  );
+                })}
+                <span className="pointer-events-none absolute bottom-3 right-3 z-[2] flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
                   <Expand className="h-4 w-4" aria-hidden />
                 </span>
               </button>
@@ -206,7 +316,9 @@ export function CatalogDetailContent({
                           key={variant.id}
                           type="button"
                           title={label}
-                          onClick={() => setSelectedVariantId(variant.id)}
+                          onClick={() => selectVariant(variant.id)}
+                          onMouseEnter={() => warmVariant(variant.id)}
+                          onFocus={() => warmVariant(variant.id)}
                           className={cn(
                             "relative h-12 w-12 shrink-0 overflow-hidden rounded-[3px] bg-muted ring-2 ring-offset-1 ring-offset-background transition sm:h-14 sm:w-14",
                             isSelected
@@ -398,7 +510,7 @@ export function CatalogDetailContent({
         onOpenChange={setLightboxOpen}
         src={activeSrc}
         alt={displayTitle}
-        unoptimized={isRemote || isUpload}
+        unoptimized={activeUnoptimized}
         closeLabel={closeLabel}
         zoomInLabel={zoomInLabel}
         zoomOutLabel={zoomOutLabel}
