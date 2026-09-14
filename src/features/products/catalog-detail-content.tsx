@@ -255,14 +255,14 @@ export function CatalogDetailContent({
 
   return (
     <>
-      <div className="grid gap-10 lg:grid-cols-2 lg:grid-rows-[auto_auto] lg:gap-x-16 lg:gap-y-6">
+      <div className="grid gap-8 lg:grid-cols-2 lg:grid-rows-[auto_auto] lg:gap-x-8 lg:gap-y-6">
         <div>
           <Reveal>
             <div className="space-y-3">
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
-                className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40"
+                className="group relative aspect-square w-full cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40"
                 aria-label={openImageLabel}
               >
                 {gallerySlides.map((slide, index) => {

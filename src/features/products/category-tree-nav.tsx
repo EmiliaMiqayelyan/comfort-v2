@@ -200,7 +200,7 @@ export function CategoryTreeNav({
   return (
     <nav
       aria-label={catalogLabel}
-      className="overflow-hidden rounded-[5px] border border-border bg-white lg:sticky lg:top-28"
+      className="catalog-panel overflow-hidden rounded-[5px] border border-border lg:sticky lg:top-28"
     >
       <button
         type="button"
