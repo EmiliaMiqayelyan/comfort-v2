@@ -255,14 +255,14 @@ export function CatalogDetailContent({
 
   return (
     <>
-      <div className="grid gap-8 lg:grid-cols-2 lg:grid-rows-[auto_auto] lg:gap-x-8 lg:gap-y-6">
-        <div>
+      <div className="grid gap-8 lg:grid-cols-[520px_minmax(0,1fr)] lg:grid-rows-[auto_auto] lg:gap-x-5 lg:gap-y-6">
+        <div className="min-w-0">
           <Reveal>
             <div className="space-y-3">
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
-                className="group relative aspect-square w-full cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40"
+                className="group relative aspect-square w-full max-w-[520px] cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40 lg:size-[520px] lg:max-w-none"
                 aria-label={openImageLabel}
               >
                 {gallerySlides.map((slide, index) => {
@@ -289,7 +289,7 @@ export function CatalogDetailContent({
                         priority={index === 0}
                         loading={index === 0 ? undefined : "eager"}
                         className="object-contain object-left transition duration-300 group-hover:scale-[1.01]"
-                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        sizes="(max-width: 1024px) 100vw, 520px"
                         onLoadingComplete={() => markReady(slide.src)}
                       />
                     </motion.div>
