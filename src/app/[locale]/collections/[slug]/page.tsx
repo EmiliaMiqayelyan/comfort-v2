@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CollectionDetailContent } from "@/features/collections/collection-detail-content";
 import { getLocalized } from "@/data/catalog";
 import { loadCollection, loadCollections } from "@/lib/catalog-source";
@@ -24,7 +24,7 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const collection = await loadCollection(slug);
   if (!collection) {
-    return { title: "Collection", robots: { index: false, follow: false } };
+    return { title: "Accessory", robots: { index: false, follow: false } };
   }
 
   const name = getLocalized(collection.name, locale);
@@ -51,6 +51,7 @@ export default async function CollectionDetailPage({
   const collection = await loadCollection(slug);
   if (!collection) notFound();
 
+  const t = await getTranslations({ locale, namespace: "collections" });
   const name = getLocalized(collection.name, locale);
   const description = getLocalized(collection.description, locale);
   const image = firstMedia(collection.images) || collection.image;
@@ -68,7 +69,7 @@ export default async function CollectionDetailPage({
         <BreadcrumbJsonLd
           items={[
             { name: "Comfort", url: siteUrl(locale) },
-            { name: "Collections", url: siteUrl(locale, "/collections") },
+            { name: t("title"), url: siteUrl(locale, "/collections") },
             { name, url },
           ]}
         />

@@ -49,10 +49,10 @@ export function ProductDetailContent({ product }: { product: Product }) {
   const collectionsTitle = tAdmin.has("collections")
     ? tAdmin("collections")
     : locale === "am"
-      ? "Հավաքածուներ"
+      ? "Աքսեսուարներ"
       : locale === "ru"
-        ? "Коллекции"
-        : "Collections";
+        ? "Аксессуары"
+        : "Accessories";
 
   return (
     <div>
