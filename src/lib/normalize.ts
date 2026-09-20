@@ -8,8 +8,11 @@ import type {
   ProductColor,
   ProductDownload,
   ProductGalleryVariant,
+  ProductOption,
+  ProductOptionValue,
   ProductSpec,
   ProductTexture,
+  ProductVariant,
   Project,
 } from "@/types";
 
@@ -72,6 +75,53 @@ function resolveGallery(
   };
 }
 
+function normalizeOptionValue(value: ProductOptionValue): ProductOptionValue {
+  return {
+    id: value.id,
+    label: asLocalized(value.label),
+    value: (value.value ?? "").trim(),
+    hex: value.hex?.trim() || null,
+    swatchUrl: value.swatchUrl?.trim() || null,
+    sortOrder: Number(value.sortOrder) || 0,
+  };
+}
+
+function normalizeOption(option: ProductOption): ProductOption {
+  return {
+    id: option.id,
+    key: (option.key ?? "").trim(),
+    label: asLocalized(option.label),
+    uiType: option.uiType === "swatches" ? "swatches" : "buttons",
+    sortOrder: Number(option.sortOrder) || 0,
+    values: jsonArray<ProductOptionValue>(option.values)
+      .map(normalizeOptionValue)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
+  };
+}
+
+function normalizeVariant(variant: ProductVariant): ProductVariant {
+  const imageUrl = (variant.imageUrl ?? "").trim() || null;
+  const thumbUrl = (variant.thumbUrl ?? "").trim() || imageUrl;
+  return {
+    id: variant.id,
+    sku: (variant.sku ?? "").trim(),
+    optionValueIds: jsonArray<string>(variant.optionValueIds).filter(Boolean),
+    imageUrl,
+    thumbUrl,
+    images: mediaList(variant.images),
+    textureMapUrl: variant.textureMapUrl?.trim() || null,
+    texturePreviewUrl: variant.texturePreviewUrl?.trim() || null,
+    price: variant.price == null ? null : Number(variant.price),
+    availability: variant.availability ?? null,
+    height: variant.height == null ? null : Number(variant.height),
+    width: variant.width == null ? null : Number(variant.width),
+    depth: variant.depth == null ? null : Number(variant.depth),
+    length: variant.length == null ? null : Number(variant.length),
+    isDefault: Boolean(variant.isDefault),
+    sortOrder: Number(variant.sortOrder) || 0,
+  };
+}
+
 export function normalizeProduct(product: Product): Product {
   const colors = jsonArray<ProductColor>(product.colors);
   const images = mediaList(product.images);
@@ -87,10 +137,30 @@ export function normalizeProduct(product: Product): Product {
         ? [product.collectionId]
         : [];
 
+  const options = jsonArray<ProductOption>(product.options)
+    .map(normalizeOption)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  const variants = jsonArray<ProductVariant>(product.variants)
+    .map(normalizeVariant)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+  const defaultVariant =
+    variants.find((variant) => variant.isDefault) ?? variants[0] ?? null;
+  const resolvedImages =
+    variants.length > 0 && defaultVariant?.imageUrl
+      ? [
+          defaultVariant.imageUrl,
+          ...gallery.images.filter((url) => url !== defaultVariant.imageUrl),
+        ]
+      : gallery.images;
+
   return {
     ...product,
     ...gallery,
+    images: resolvedImages,
     colors,
+    options,
+    variants,
     textures: jsonArray<ProductTexture>(product.textures),
     specs: jsonArray<ProductSpec>(product.specs),
     downloads: jsonArray<ProductDownload>(product.downloads),
@@ -100,7 +170,13 @@ export function normalizeProduct(product: Product): Product {
 
 export function normalizeCollection(collection: Collection): Collection {
   const colors = jsonArray<ProductColor>(collection.colors);
-  const images = mediaList(collection.images?.length ? collection.images : collection.image ? [collection.image] : []);
+  const images = mediaList(
+    collection.images?.length
+      ? collection.images
+      : collection.image
+        ? [collection.image]
+        : [],
+  );
   const galleryVariants = jsonArray<ProductGalleryVariant>(collection.galleryVariants).map(
     normalizeGalleryVariant,
   );

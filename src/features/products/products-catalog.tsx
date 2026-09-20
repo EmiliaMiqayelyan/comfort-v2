@@ -22,9 +22,9 @@ export function ProductsCatalog() {
         </h1>
       </Reveal>
 
-      <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="grid items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="min-w-0">
-          <CategoryTreeNav categories={categories} expandAll />
+          <CategoryTreeNav categories={categories} />
         </aside>
 
         <div className="min-w-0 grid gap-5 sm:grid-cols-2 xl:grid-cols-3 lg:gap-6">

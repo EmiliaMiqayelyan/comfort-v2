@@ -45,7 +45,12 @@ export function CategoryForm({
   const [slug, setSlug] = useState(category?.slug ?? "");
   const [image, setImage] = useState(() => {
     const raw = category?.image?.trim() ?? "";
-    return raw === "/products/plinth.jpg" || raw === "/products/plinth.png" ? "" : raw;
+    return raw === "/products/plinth.jpg" ||
+      raw === "/products/plinth.png" ||
+      raw === "/brand/comfort-logo.png" ||
+      raw === "/brand/comfort-logo.svg"
+      ? ""
+      : raw;
   });
   const [parentId, setParentId] = useState(category?.parentId ?? defaultParentId ?? "");
   const [allCategories, setAllCategories] = useState<ProductCategory[]>([]);

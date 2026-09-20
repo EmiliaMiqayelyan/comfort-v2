@@ -9,6 +9,10 @@ import { useCategories, useProducts } from "@/hooks/use-catalog";
 import { childCategories } from "@/lib/category-tree";
 import { CategoryBreadcrumb } from "@/features/products/category-breadcrumb";
 import { CategoryTreeNav } from "@/features/products/category-tree-nav";
+import {
+  ProductFacetFilters,
+  useProductFacetFilter,
+} from "@/features/products/product-facet-filters";
 import type { ProductCategory } from "@/types";
 
 export function CategoryDetailContent({
@@ -24,6 +28,8 @@ export function CategoryDetailContent({
   const directProducts = allProducts.filter(
     (product) => product.categoryId === category.id,
   );
+  const { facets, selected, filtered, setFacet, clearFacets } =
+    useProductFacetFilter(directProducts);
   const isLeaf = children.length === 0;
   const title = getLocalized(category.name, locale);
   const description = getLocalized(category.description, locale);
@@ -43,7 +49,7 @@ export function CategoryDetailContent({
         ) : null}
       </Reveal>
 
-      <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="grid items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="min-w-0">
           <CategoryTreeNav
             categories={categories}
@@ -61,10 +67,32 @@ export function CategoryDetailContent({
           )}
 
           {isLeaf && directProducts.length > 0 && (
-            <ProductCardGrid
-              products={directProducts}
-              className="lg:grid-cols-2 xl:grid-cols-3"
-            />
+            <>
+              <ProductFacetFilters
+                facets={facets}
+                selected={selected}
+                onSelect={setFacet}
+                onClear={clearFacets}
+              />
+              {filtered.length > 0 ? (
+                <ProductCardGrid
+                  products={filtered}
+                  className="lg:grid-cols-2 xl:grid-cols-3"
+                />
+              ) : (
+                <Reveal>
+                  <div className="rounded-[5px] border border-border bg-card p-12 text-center text-muted-foreground">
+                    {tc.has("noFilteredProducts")
+                      ? tc("noFilteredProducts")
+                      : locale === "am"
+                        ? "Այս ֆիլտրերով ապրանքներ չկան։"
+                        : locale === "ru"
+                          ? "Нет товаров по выбранным фильтрам."
+                          : "No products match these filters."}
+                  </div>
+                </Reveal>
+              )}
+            </>
           )}
 
           {isLeaf && directProducts.length === 0 && (

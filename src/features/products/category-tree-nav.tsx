@@ -16,7 +16,7 @@ import type { ProductCategory } from "@/types";
 type CategoryTreeNavProps = {
   categories: ProductCategory[];
   activeCategoryId?: string | null;
-  /** Expand all parent categories (useful on the products index). */
+  /** Expand all parent categories (useful on filter sidebars). */
   expandAll?: boolean;
   /**
    * When set, categories act as filters (buttons) instead of product-page links.

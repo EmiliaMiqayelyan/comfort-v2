@@ -22,7 +22,8 @@ export function slugify(text: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export const FALLBACK_MEDIA = "/products/plinth.jpg";
+/** Brand mark used when a product/category/collection has no image. */
+export const FALLBACK_MEDIA = "/brand/comfort-logo.png";
 
 /**
  * Normalize API media fields that may arrive as a real array, a JSON string,

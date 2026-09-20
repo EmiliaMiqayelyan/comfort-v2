@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { getLocalized } from "@/data/catalog";
-import { cn, firstMedia, mediaSrc } from "@/lib/utils";
+import { cn, FALLBACK_MEDIA, firstMedia, mediaSrc } from "@/lib/utils";
 import type { Collection, Product, ProductCategory } from "@/types";
 
 type CatalogCardProps = {
@@ -17,6 +17,10 @@ type CatalogCardProps = {
   className?: string;
 };
 
+function resolveCatalogImage(image?: string | null) {
+  return mediaSrc(image, FALLBACK_MEDIA);
+}
+
 /** Shared card UI for products, collections, and categories. */
 export function CatalogCard({
   href,
@@ -25,15 +29,16 @@ export function CatalogCard({
   description,
   className,
 }: CatalogCardProps) {
-  const resolved = mediaSrc(image, "");
+  const resolved = resolveCatalogImage(image);
   const [src, setSrc] = useState(resolved);
 
   useEffect(() => {
-    setSrc(mediaSrc(image, ""));
+    setSrc(resolveCatalogImage(image));
   }, [image]);
 
   const isUpload = src.includes("/uploads/");
   const isRemote = /^https?:\/\//i.test(src);
+  const isBrandFallback = src === FALLBACK_MEDIA;
 
   return (
     <Link
@@ -44,18 +49,21 @@ export function CatalogCard({
       )}
     >
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-[#ecece8]">
-        {src ? (
-          <Image
-            src={src}
-            alt={title}
-            fill
-            quality={90}
-            unoptimized={isRemote || isUpload}
-            className="object-contain object-center"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            onError={() => setSrc("")}
-          />
-        ) : null}
+        <Image
+          src={src}
+          alt={title}
+          fill
+          quality={90}
+          unoptimized={isRemote || isUpload || isBrandFallback}
+          className={cn(
+            "object-contain object-center",
+            isBrandFallback && "p-[22%]",
+          )}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          onError={() => {
+            if (src !== FALLBACK_MEDIA) setSrc(FALLBACK_MEDIA);
+          }}
+        />
       </div>
 
       <div className="flex flex-1 items-center justify-between gap-4 px-5 py-5 md:px-6 md:py-6">
@@ -89,13 +97,39 @@ export function ProductCard({
   className?: string;
 }) {
   const locale = useLocale();
+  const defaultVariant =
+    product.variants?.find((variant) => variant.isDefault) ??
+    product.variants?.[0];
+  const image =
+    defaultVariant?.imageUrl ||
+    defaultVariant?.thumbUrl ||
+    firstMedia(product.images);
+  const optionHint = (product.options ?? [])
+    .slice(0, 2)
+    .map((option) => {
+      const values = option.values
+        .map((value) => getLocalized(value.label, locale).trim() || value.value)
+        .filter(Boolean)
+        .slice(0, 4);
+      if (values.length === 0) return "";
+      const label = getLocalized(option.label, locale).trim() || option.key;
+      return `${label}: ${values.join(", ")}`;
+    })
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <CatalogCard
-      href={`/products/${product.slug}`}
-      image={firstMedia(product.images, "")}
+      href={
+        defaultVariant
+          ? `/products/${product.slug}?v=${encodeURIComponent(defaultVariant.id)}`
+          : `/products/${product.slug}`
+      }
+      image={image}
       title={getLocalized(product.name, locale)}
-      description={getLocalized(product.description, locale)}
+      description={
+        optionHint || getLocalized(product.description, locale)
+      }
       className={className}
     />
   );
@@ -133,7 +167,10 @@ export function CollectionCard({
   fromProductSlug?: string;
 }) {
   const locale = useLocale();
-  const image = firstMedia(collection.images, "") || collection.image || "";
+  const image =
+    firstMedia(collection.images, "") ||
+    mediaSrc(collection.image, "") ||
+    FALLBACK_MEDIA;
   const href = fromProductSlug
     ? `/collections/${collection.slug}?from=product&product=${encodeURIComponent(fromProductSlug)}`
     : `/collections/${collection.slug}`;

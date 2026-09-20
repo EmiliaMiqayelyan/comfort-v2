@@ -5,7 +5,9 @@ import { param } from '../../shared/utils/param';
 
 export class ProductController {
   async list(req: Request, res: Response) {
-    const items = await productService.list(req.query as Record<string, string>);
+    const items = await productService.list(
+      req.query as Record<string, string | string[] | undefined>,
+    );
     res.json(items);
   }
 

@@ -38,7 +38,7 @@ export function CollectionsGrid() {
   }, [activeCategoryId, categories, collections, products]);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[280px_minmax(0,1fr)]">
+    <div className="grid items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[280px_minmax(0,1fr)]">
       <aside className="min-w-0">
         <CategoryTreeNav
           categories={categories}

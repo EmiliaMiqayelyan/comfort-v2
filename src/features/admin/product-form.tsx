@@ -29,6 +29,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
+import {
+  ProductVariantMatrixFields,
+} from "@/features/admin/product-variant-matrix-fields";
 import type {
   Collection,
   LocalizedString,
@@ -37,8 +40,11 @@ import type {
   ProductColor,
   ProductDownload,
   ProductGalleryVariant,
+  ProductOption,
+  ProductOptionValue,
   ProductSpec,
   ProductTexture,
+  ProductVariant,
 } from "@/types";
 
 function uid(prefix: string) {
@@ -170,6 +176,44 @@ function toForm(product?: Product): Omit<Product, "id"> {
     url: file.url ?? "",
     size: file.size ?? "",
   }));
+  const options: ProductOption[] = asArray<ProductOption>(product?.options).map(
+    (option, index) => ({
+      ...option,
+      id: option.id || uid("opt"),
+      key: option.key ?? "",
+      label: asLocalized(option.label),
+      uiType: option.uiType === "swatches" ? "swatches" : "buttons",
+      sortOrder: option.sortOrder ?? index,
+      values: asArray<ProductOptionValue>(option.values).map((value, valueIndex) => ({
+        ...value,
+        id: value.id || uid("ov"),
+        label: asLocalized(value.label),
+        value: value.value ?? "",
+        hex: value.hex ?? null,
+        swatchUrl: value.swatchUrl ?? null,
+        sortOrder: value.sortOrder ?? valueIndex,
+      })),
+    }),
+  );
+  const variants = asArray<ProductVariant>(product?.variants).map((variant, index) => ({
+    ...variant,
+    id: variant.id || uid("var"),
+    sku: variant.sku ?? "",
+    optionValueIds: asArray<string>(variant.optionValueIds),
+    imageUrl: variant.imageUrl ?? "",
+    thumbUrl: variant.thumbUrl ?? "",
+    images: asArray<string>(variant.images),
+    textureMapUrl: variant.textureMapUrl ?? "",
+    texturePreviewUrl: variant.texturePreviewUrl ?? "",
+    price: variant.price ?? null,
+    availability: variant.availability ?? null,
+    height: variant.height ?? null,
+    width: variant.width ?? null,
+    depth: variant.depth ?? null,
+    length: variant.length ?? null,
+    isDefault: Boolean(variant.isDefault),
+    sortOrder: variant.sortOrder ?? index,
+  }));
 
   return {
     slug: product?.slug ?? "",
@@ -195,6 +239,8 @@ function toForm(product?: Product): Omit<Product, "id"> {
     finish: product?.finish ?? "Matte",
     colors: colors.length ? colors : [emptyColor()],
     galleryVariants,
+    options,
+    variants,
     textures: textures.length ? textures : [emptyTexture()],
     specs: specs.length ? specs : [emptySpec()],
     downloads,
@@ -295,6 +341,43 @@ export function ProductForm({ product }: { product?: Product }) {
         };
       })
       .filter((variant) => variant.imageUrl && variant.thumbUrl);
+    const options: ProductOption[] = asArray<ProductOption>(form.options)
+      .map((option, index) => ({
+        ...option,
+        key: option.key.trim(),
+        label: asLocalized(option.label),
+        uiType: (option.uiType === "swatches" ? "swatches" : "buttons") as
+          | "buttons"
+          | "swatches",
+        sortOrder: option.sortOrder ?? index,
+        values: asArray<ProductOptionValue>(option.values)
+          .map((value, valueIndex) => ({
+            ...value,
+            label: asLocalized(value.label),
+            value: (value.value ?? "").trim(),
+            hex: value.hex?.trim() || null,
+            swatchUrl: value.swatchUrl?.trim() || null,
+            sortOrder: value.sortOrder ?? valueIndex,
+          }))
+          .filter((value) => value.value || value.label.en.trim()),
+      }))
+      .filter((option) => option.key && option.values.length > 0);
+    const variants = asArray<ProductVariant>(form.variants)
+      .map((variant, index) => ({
+        ...variant,
+        sku: variant.sku.trim(),
+        optionValueIds: asArray<string>(variant.optionValueIds).filter(Boolean),
+        imageUrl: variant.imageUrl?.trim() || null,
+        thumbUrl: variant.thumbUrl?.trim() || null,
+        images: asArray<string>(variant.images).filter(Boolean),
+        textureMapUrl: variant.textureMapUrl?.trim() || null,
+        texturePreviewUrl: variant.texturePreviewUrl?.trim() || null,
+        price: variant.price ?? null,
+        availability: variant.availability ?? null,
+        isDefault: Boolean(variant.isDefault),
+        sortOrder: variant.sortOrder ?? index,
+      }))
+      .filter((variant) => variant.sku);
     const payload: Partial<Product> = {
       ...form,
       name,
@@ -313,6 +396,8 @@ export function ProductForm({ product }: { product?: Product }) {
         }))
         .filter((color) => color.name.en.trim() || color.hex),
       galleryVariants,
+      options,
+      variants,
       textures: asArray<ProductTexture>(form.textures)
         .map((texture) => ({ ...texture, name: asLocalized(texture.name) }))
         .filter((texture) => texture.name.en.trim()),
@@ -490,6 +575,15 @@ export function ProductForm({ product }: { product?: Product }) {
             <GalleryVariantsFields
               variants={asArray<ProductGalleryVariant>(form.galleryVariants)}
               onChange={(galleryVariants) => update("galleryVariants", galleryVariants)}
+            />
+          </Section>
+
+          <Section title={label("variantMatrix", "Variants matrix")}>
+            <ProductVariantMatrixFields
+              options={asArray<ProductOption>(form.options)}
+              variants={asArray<ProductVariant>(form.variants)}
+              onOptionsChange={(options) => update("options", options)}
+              onVariantsChange={(variants) => update("variants", variants)}
             />
           </Section>
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef, type ReactNode } from "react";
+import { Suspense, useMemo, useState, useEffect, useRef, type ReactNode } from "react";
 import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Download, Expand, FileText } from "lucide-react";
@@ -9,15 +10,22 @@ import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
 import { Badge } from "@/components/atoms/badge";
 import { ImageLightbox } from "@/components/molecules/image-lightbox";
 import { Reveal } from "@/components/molecules/reveal";
+import { ProductOptionSelectors } from "@/features/products/product-option-selectors";
 import { isValidModelUrl } from "@/lib/product-model";
-import { cn, formatPrice, mediaList, mediaSrc, jsonArray } from "@/lib/utils";
+import {
+  defaultVariantSelection,
+  findVariantBySelection,
+} from "@/lib/product-variants";
+import { cn, FALLBACK_MEDIA, formatPrice, mediaList, mediaSrc, jsonArray } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
 import type {
   LocalizedString,
   ProductColor,
   ProductDownload,
   ProductGalleryVariant,
+  ProductOption,
   ProductSpec,
+  ProductVariant,
 } from "@/types";
 
 const DESCRIPTION_PREVIEW_CHARS = 130;
@@ -57,13 +65,31 @@ function buildDescriptionPreview(text: string) {
   };
 }
 
+function slideFromSrc(id: string, imageUrl: string, thumbUrl?: string | null) {
+  const src = mediaSrc(imageUrl?.trim() || thumbUrl || "");
+  return {
+    id,
+    src,
+    thumb: mediaSrc(thumbUrl || imageUrl || ""),
+    unoptimized:
+      src === FALLBACK_MEDIA ||
+      /\/uploads\//.test(src) ||
+      /^https?:\/\//i.test(src),
+    isBrandFallback: src === FALLBACK_MEDIA,
+  };
+}
+
 export type CatalogDetailItem = {
   id: string;
+  sku?: string;
   name: LocalizedString;
   description: LocalizedString;
   price: number;
+  availability?: "in_stock" | "limited" | "preorder";
   images: string[];
   galleryVariants?: ProductGalleryVariant[];
+  options?: ProductOption[];
+  variants?: ProductVariant[];
   colors: ProductColor[];
   specs: ProductSpec[];
   downloads: ProductDownload[];
@@ -85,61 +111,148 @@ export function CatalogDetailContent({
   badges?: ReactNode;
   footer?: ReactNode;
 }) {
+  return (
+    <Suspense
+      fallback={
+        <CatalogDetailInner item={item} badges={badges} footer={footer} preferredVariantId={null} />
+      }
+    >
+      <CatalogDetailWithSearch item={item} badges={badges} footer={footer} />
+    </Suspense>
+  );
+}
+
+function CatalogDetailWithSearch({
+  item,
+  badges,
+  footer,
+}: {
+  item: CatalogDetailItem;
+  badges?: ReactNode;
+  footer?: ReactNode;
+}) {
+  const searchParams = useSearchParams();
+  return (
+    <CatalogDetailInner
+      item={item}
+      badges={badges}
+      footer={footer}
+      preferredVariantId={searchParams.get("v")}
+    />
+  );
+}
+
+function CatalogDetailInner({
+  item,
+  badges,
+  footer,
+  preferredVariantId,
+}: {
+  item: CatalogDetailItem;
+  badges?: ReactNode;
+  footer?: ReactNode;
+  preferredVariantId: string | null;
+}) {
   const t = useTranslations("product");
   const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const options = jsonArray<ProductOption>(item.options);
+  const matrixVariants = jsonArray<ProductVariant>(item.variants);
+  const hasMatrix = options.length > 0 && matrixVariants.length > 0;
+
   const galleryVariants = jsonArray<ProductGalleryVariant>(item.galleryVariants);
   const gallerySlides = useMemo(() => {
+    if (hasMatrix) {
+      return matrixVariants
+        .map((variant) => {
+          const imageUrl =
+            variant.imageUrl?.trim() ||
+            variant.thumbUrl?.trim() ||
+            mediaList(variant.images)[0] ||
+            "";
+          if (!imageUrl) return null;
+          return slideFromSrc(
+            variant.id,
+            imageUrl,
+            variant.thumbUrl || imageUrl,
+          );
+        })
+        .filter((slide): slide is NonNullable<typeof slide> => Boolean(slide));
+    }
+
     const variants = jsonArray<ProductGalleryVariant>(item.galleryVariants);
     if (variants.length > 0) {
-      return variants.map((variant) => {
-        const src = mediaSrc(variant.imageUrl?.trim() || variant.thumbUrl);
-        return {
-          id: variant.id,
-          src,
-          thumb: mediaSrc(variant.thumbUrl || variant.imageUrl),
-          unoptimized: /\/uploads\//.test(src) || /^https?:\/\//i.test(src),
-        };
-      });
+      return variants.map((variant) =>
+        slideFromSrc(
+          variant.id,
+          variant.imageUrl?.trim() || variant.thumbUrl || "",
+          variant.thumbUrl || variant.imageUrl,
+        ),
+      );
     }
     const fallback = mediaSrc(mediaList(item.images)[0]);
     if (!fallback) return [];
-    return [
-      {
-        id: "default",
-        src: fallback,
-        thumb: fallback,
-        unoptimized: /\/uploads\//.test(fallback) || /^https?:\/\//i.test(fallback),
-      },
-    ];
-  }, [item.galleryVariants, item.images]);
+    return [slideFromSrc("default", fallback, fallback)];
+  }, [hasMatrix, matrixVariants, item.galleryVariants, item.images]);
+
+  const initialMatrix = useMemo(() => {
+    if (!hasMatrix) {
+      return {
+        variant: null as ProductVariant | null,
+        selectedByOptionId: {} as Record<string, string>,
+      };
+    }
+    return defaultVariantSelection(options, matrixVariants, preferredVariantId);
+    // Seed from URL / product identity only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.id, hasMatrix, preferredVariantId]);
+
+  const [selectedByOptionId, setSelectedByOptionId] = useState<
+    Record<string, string>
+  >(() => initialMatrix.selectedByOptionId);
+  const [activeMatrixVariant, setActiveMatrixVariant] = useState<ProductVariant | null>(
+    () => initialMatrix.variant,
+  );
 
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    () => gallerySlides[0]?.id ?? null,
+    () =>
+      hasMatrix
+        ? initialMatrix.variant?.id ?? gallerySlides[0]?.id ?? null
+        : gallerySlides[0]?.id ?? null,
   );
   const [displayedVariantId, setDisplayedVariantId] = useState<string | null>(
-    () => gallerySlides[0]?.id ?? null,
+    () =>
+      hasMatrix
+        ? initialMatrix.variant?.id ?? gallerySlides[0]?.id ?? null
+        : gallerySlides[0]?.id ?? null,
   );
   const [readySrcs, setReadySrcs] = useState<Set<string>>(() => new Set());
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const pendingIdRef = useRef<string | null>(null);
+
   const specs = jsonArray<ProductSpec>(item.specs);
   const downloads = jsonArray<ProductDownload>(item.downloads);
   const productColors = jsonArray<ProductColor>(item.colors);
   const viewerColors = productColors.filter((color) => color.hex?.trim());
-  const selectedVariant =
-    galleryVariants.find((variant) => variant.id === selectedVariantId) ?? galleryVariants[0];
+  const selectedGalleryVariant =
+    galleryVariants.find((variant) => variant.id === selectedVariantId) ??
+    galleryVariants[0];
   const displayedSlide =
-    gallerySlides.find((slide) => slide.id === displayedVariantId) ?? gallerySlides[0];
+    gallerySlides.find((slide) => slide.id === displayedVariantId) ??
+    gallerySlides[0];
   const activeSrc = displayedSlide?.src ?? "";
   const activeUnoptimized = displayedSlide?.unoptimized ?? false;
   const baseTitle = getLocalized(item.name, locale);
-  const selectedVariantName = selectedVariant
-    ? getLocalized(selectedVariant.name, locale).trim()
+  const selectedVariantName = selectedGalleryVariant
+    ? getLocalized(selectedGalleryVariant.name, locale).trim()
     : "";
-  const displayTitle = selectedVariantName
-    ? `${baseTitle} - ${selectedVariantName}`
-    : baseTitle;
+  const displayTitle =
+    !hasMatrix && selectedVariantName
+      ? `${baseTitle} - ${selectedVariantName}`
+      : baseTitle;
   const colorLabel = t.has("galleryColors")
     ? t("galleryColors")
     : t.has("colors")
@@ -152,6 +265,38 @@ export function CatalogDetailContent({
   const variantsHeading = selectedVariantName
     ? `${colorLabel}: ${selectedVariantName}`
     : colorLabel;
+  const articleLabel =
+    t.has("sku")
+      ? t("sku")
+      : locale === "am"
+        ? "Արտիկուլ"
+        : locale === "ru"
+          ? "Артикул"
+          : "Article";
+  const activeSku = hasMatrix
+    ? activeMatrixVariant?.sku || item.sku || ""
+    : item.sku || "";
+  const activePrice =
+    hasMatrix && activeMatrixVariant?.price != null
+      ? Number(activeMatrixVariant.price)
+      : item.price;
+  const activeHeight =
+    hasMatrix && activeMatrixVariant?.height != null
+      ? Number(activeMatrixVariant.height)
+      : item.height;
+  const activeWidth =
+    hasMatrix && activeMatrixVariant?.width != null
+      ? Number(activeMatrixVariant.width)
+      : item.width;
+  const activeDepth =
+    hasMatrix && activeMatrixVariant?.depth != null
+      ? Number(activeMatrixVariant.depth)
+      : item.depth;
+  const activeLength =
+    hasMatrix && activeMatrixVariant?.length != null
+      ? Number(activeMatrixVariant.length)
+      : item.length;
+
   const description = getLocalized(item.description, locale).trim();
   const { preview: descriptionPreview, isLong: isLongDescription } = useMemo(
     () => buildDescriptionPreview(description),
@@ -193,7 +338,7 @@ export function CatalogDetailContent({
     });
   };
 
-  const selectVariant = (id: string) => {
+  const selectSlide = (id: string) => {
     setSelectedVariantId(id);
     pendingIdRef.current = id;
     const slide = gallerySlides.find((entry) => entry.id === id);
@@ -219,6 +364,34 @@ export function CatalogDetailContent({
       });
   };
 
+  const syncVariantUrl = (variantId: string | null) => {
+    const params = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.search : "",
+    );
+    if (variantId) params.set("v", variantId);
+    else params.delete("v");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
+  const applyMatrixSelection = (nextSelected: Record<string, string>) => {
+    setSelectedByOptionId(nextSelected);
+    const selectedIds = options
+      .map((option) => nextSelected[option.id])
+      .filter(Boolean);
+    const matched =
+      findVariantBySelection(matrixVariants, selectedIds) ??
+      matrixVariants.find((variant) =>
+        selectedIds.every((id) => variant.optionValueIds.includes(id)),
+      ) ??
+      null;
+    setActiveMatrixVariant(matched);
+    if (matched) {
+      selectSlide(matched.id);
+      syncVariantUrl(matched.id);
+    }
+  };
+
   const warmVariant = (id: string) => {
     const slide = gallerySlides.find((entry) => entry.id === id);
     if (!slide || readySrcs.has(slide.src)) return;
@@ -230,13 +403,23 @@ export function CatalogDetailContent({
   useEffect(() => {
     setDescriptionExpanded(false);
     setLightboxOpen(false);
-    const firstId = gallerySlides[0]?.id ?? null;
+    const seeded = hasMatrix
+      ? defaultVariantSelection(options, matrixVariants, preferredVariantId)
+      : {
+          variant: null,
+          selectedByOptionId: {},
+        };
+    setSelectedByOptionId(seeded.selectedByOptionId);
+    setActiveMatrixVariant(seeded.variant);
+    const firstId = hasMatrix
+      ? seeded.variant?.id ?? gallerySlides[0]?.id ?? null
+      : gallerySlides[0]?.id ?? null;
     setSelectedVariantId(firstId);
     setDisplayedVariantId(firstId);
     pendingIdRef.current = null;
     setReadySrcs(new Set());
     // Reset only when navigating to a different product.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- gallerySlides identity changes with item data
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id]);
 
   useEffect(() => {
@@ -262,7 +445,11 @@ export function CatalogDetailContent({
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
-                className="group relative aspect-square w-full max-w-[520px] cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40 lg:size-[520px] lg:max-w-none"
+                className={cn(
+                  "group relative aspect-square w-full max-w-[520px] cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40 lg:size-[520px] lg:max-w-none",
+                  gallerySlides.some((slide) => slide.isBrandFallback) &&
+                    "bg-[#ecece8]",
+                )}
                 aria-label={openImageLabel}
               >
                 {gallerySlides.map((slide, index) => {
@@ -288,7 +475,10 @@ export function CatalogDetailContent({
                         unoptimized={slide.unoptimized}
                         priority={index === 0}
                         loading={index === 0 ? undefined : "eager"}
-                        className="object-contain object-left transition duration-300 group-hover:scale-[1.01]"
+                        className={cn(
+                          "object-contain object-left transition duration-300 group-hover:scale-[1.01]",
+                          slide.isBrandFallback && "object-center p-[22%]",
+                        )}
                         sizes="(max-width: 1024px) 100vw, 520px"
                         onLoadingComplete={() => markReady(slide.src)}
                       />
@@ -300,7 +490,7 @@ export function CatalogDetailContent({
                 </span>
               </button>
 
-              {galleryVariants.length > 0 && (
+              {!hasMatrix && galleryVariants.length > 0 && (
                 <div>
                   <p className="mb-2 text-sm font-medium text-foreground">
                     {variantsHeading}
@@ -310,13 +500,13 @@ export function CatalogDetailContent({
                       const label =
                         getLocalized(variant.name, locale).trim() || baseTitle;
                       const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
-                      const isSelected = selectedVariant?.id === variant.id;
+                      const isSelected = selectedGalleryVariant?.id === variant.id;
                       return (
                         <button
                           key={variant.id}
                           type="button"
                           title={label}
-                          onClick={() => selectVariant(variant.id)}
+                          onClick={() => selectSlide(variant.id)}
                           onMouseEnter={() => warmVariant(variant.id)}
                           onFocus={() => warmVariant(variant.id)}
                           className={cn(
@@ -332,7 +522,9 @@ export function CatalogDetailContent({
                             src={thumb}
                             alt={label}
                             fill
-                            unoptimized={thumb.includes("/uploads/") || thumb.startsWith("http")}
+                            unoptimized={
+                              thumb.includes("/uploads/") || thumb.startsWith("http")
+                            }
                             className="scale-125 object-cover object-center"
                             sizes="56px"
                           />
@@ -382,11 +574,33 @@ export function CatalogDetailContent({
                   )}
                 </div>
               )}
+              {activeSku ? (
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">{articleLabel}:</span>{" "}
+                  {activeSku}
+                </p>
+              ) : null}
               <p className="display text-2xl text-foreground">
-                {formatPrice(item.price, locale)}
+                {formatPrice(activePrice, locale)}
               </p>
             </div>
           </Reveal>
+
+          {hasMatrix ? (
+            <Reveal delay={0.08}>
+              <ProductOptionSelectors
+                options={options}
+                variants={matrixVariants}
+                selectedByOptionId={selectedByOptionId}
+                onSelect={(optionId, valueId) =>
+                  applyMatrixSelection({
+                    ...selectedByOptionId,
+                    [optionId]: valueId,
+                  })
+                }
+              />
+            </Reveal>
+          ) : null}
 
           <Reveal delay={0.15}>
             <div>
@@ -410,10 +624,10 @@ export function CatalogDetailContent({
                 ))}
                 {(
                   [
-                    { key: "height", label: t("height"), value: item.height },
-                    { key: "width", label: t("width"), value: item.width },
-                    { key: "depth", label: t("depth"), value: item.depth },
-                    { key: "length", label: t("length"), value: item.length },
+                    { key: "height", label: t("height"), value: activeHeight },
+                    { key: "width", label: t("width"), value: activeWidth },
+                    { key: "depth", label: t("depth"), value: activeDepth },
+                    { key: "length", label: t("length"), value: activeLength },
                   ] as const
                 )
                   .filter((row) => Number(row.value) > 0)
@@ -494,8 +708,8 @@ export function CatalogDetailContent({
                   key={item.id}
                   modelUrl={item.modelUrl}
                   colors={viewerColors}
-                  height={item.height}
-                  depth={item.depth}
+                  height={activeHeight}
+                  depth={activeDepth}
                 />
               </div>
             </Reveal>

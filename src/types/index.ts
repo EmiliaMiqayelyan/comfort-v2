@@ -151,6 +151,43 @@ export interface ProductDownload {
   size?: string;
 }
 
+export interface ProductOptionValue {
+  id: string;
+  label: LocalizedString;
+  value: string;
+  hex?: string | null;
+  swatchUrl?: string | null;
+  sortOrder?: number;
+}
+
+export interface ProductOption {
+  id: string;
+  key: string;
+  label: LocalizedString;
+  uiType: "buttons" | "swatches";
+  sortOrder?: number;
+  values: ProductOptionValue[];
+}
+
+export interface ProductVariant {
+  id: string;
+  sku: string;
+  optionValueIds: string[];
+  imageUrl?: string | null;
+  thumbUrl?: string | null;
+  images?: string[];
+  textureMapUrl?: string | null;
+  texturePreviewUrl?: string | null;
+  price?: number | null;
+  availability?: "in_stock" | "limited" | "preorder" | null;
+  height?: number | null;
+  width?: number | null;
+  depth?: number | null;
+  length?: number | null;
+  isDefault?: boolean;
+  sortOrder?: number;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -172,6 +209,10 @@ export interface Product {
   colors: ProductColor[];
   /** Color variants for the product gallery image (separate from 3D viewer colors). */
   galleryVariants?: ProductGalleryVariant[];
+  /** Multi-axis option definitions (height, type, color, etc.). */
+  options?: ProductOption[];
+  /** Sellable combos with per-variant article, image, and texture. */
+  variants?: ProductVariant[];
   textures: ProductTexture[];
   specs: ProductSpec[];
   downloads: ProductDownload[];
