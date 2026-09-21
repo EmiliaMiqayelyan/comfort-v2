@@ -101,10 +101,14 @@ export function CategoryForm({
       parentId: parentId || null,
     };
     try {
-      if (isEdit && category) await adminApi.updateCategory(category.id, payload as Partial<ProductCategory>);
-      else await adminApi.createCategory(payload as Partial<ProductCategory>);
-      await queryClient.invalidateQueries({ queryKey: ["categories"] });
-      router.replace("/admin/categories");
+      if (isEdit && category) {
+        await adminApi.updateCategory(category.id, payload as Partial<ProductCategory>);
+        await queryClient.invalidateQueries({ queryKey: ["categories"] });
+      } else {
+        await adminApi.createCategory(payload as Partial<ProductCategory>);
+        await queryClient.invalidateQueries({ queryKey: ["categories"] });
+        router.replace("/admin/categories");
+      }
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setFieldErrors({ slug: slugTakenMsg });

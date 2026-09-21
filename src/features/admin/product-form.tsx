@@ -412,11 +412,12 @@ export function ProductForm({ product }: { product?: Product }) {
     try {
       if (isEdit && product) {
         await adminApi.updateProduct(product.id, payload);
+        await queryClient.invalidateQueries({ queryKey: ["products"] });
       } else {
         await adminApi.createProduct(payload);
+        await queryClient.invalidateQueries({ queryKey: ["products"] });
+        router.replace("/admin/products");
       }
-      await queryClient.invalidateQueries({ queryKey: ["products"] });
-      router.replace("/admin/products");
     } catch {
       setError(t("saveError"));
     } finally {

@@ -16,8 +16,10 @@ import type { ProductCategory } from "@/types";
 type CategoryTreeNavProps = {
   categories: ProductCategory[];
   activeCategoryId?: string | null;
-  /** Expand all parent categories (useful on filter sidebars). */
+  /** Expand every parent category (deep). Prefer `defaultExpandFirst` for filter sidebars. */
   expandAll?: boolean;
+  /** Expand only the first top-level category on load. Nested branches stay collapsed. */
+  defaultExpandFirst?: boolean;
   /**
    * When set, categories act as filters (buttons) instead of product-page links.
    * Pass `null` to clear the selection (e.g. from the catalog header).
@@ -81,12 +83,14 @@ function CategoryBranch({
   categories,
   activeCategoryId,
   defaultOpen = false,
+  expandAll = false,
   onSelect,
 }: {
   category: ProductCategory;
   categories: ProductCategory[];
   activeCategoryId: string;
   defaultOpen?: boolean;
+  expandAll?: boolean;
   onSelect?: (categoryId: string | null) => void;
 }) {
   const locale = useLocale();
@@ -96,7 +100,7 @@ function CategoryBranch({
   const isOnPath =
     Boolean(activeCategoryId) &&
     (isActive || isDescendantOf(activeCategoryId, category.id, categories));
-  const [open, setOpen] = useState(defaultOpen || isOnPath);
+  const [open, setOpen] = useState(defaultOpen || expandAll || isOnPath);
 
   if (!hasChildren) {
     return (
@@ -116,6 +120,11 @@ function CategoryBranch({
     onSelect && "text-left",
   );
 
+  const selectCategory = () => {
+    onSelect?.(isActive ? null : category.id);
+    if (!isActive) setOpen(true);
+  };
+
   return (
     <div className="border-b border-border/60 last:border-b-0">
       <div className="relative flex items-stretch">
@@ -128,7 +137,7 @@ function CategoryBranch({
         {onSelect ? (
           <button
             type="button"
-            onClick={() => onSelect(isActive ? null : category.id)}
+            onClick={selectCategory}
             aria-pressed={isActive}
             className={titleClass}
           >
@@ -172,7 +181,7 @@ function CategoryBranch({
                 category={child}
                 categories={categories}
                 activeCategoryId={activeCategoryId}
-                defaultOpen={defaultOpen}
+                expandAll={expandAll}
                 onSelect={onSelect}
               />
             );
@@ -187,6 +196,7 @@ export function CategoryTreeNav({
   categories,
   activeCategoryId,
   expandAll = false,
+  defaultExpandFirst = false,
   onSelect,
 }: CategoryTreeNavProps) {
   const t = useTranslations("categories");
@@ -200,7 +210,7 @@ export function CategoryTreeNav({
   return (
     <nav
       aria-label={catalogLabel}
-      className="catalog-panel overflow-hidden rounded-[5px] border border-border lg:sticky lg:top-28"
+      className="catalog-panel overflow-hidden rounded-[5px] border border-border"
     >
       <button
         type="button"
@@ -220,13 +230,16 @@ export function CategoryTreeNav({
 
       {!collapsed && (
         <div>
-          {roots.map((root) => (
+          {roots.map((root, index) => (
             <CategoryBranch
               key={root.id}
               category={root}
               categories={categories}
               activeCategoryId={activeId}
-              defaultOpen={expandAll}
+              defaultOpen={
+                expandAll || (defaultExpandFirst && index === 0)
+              }
+              expandAll={expandAll}
               onSelect={onSelect}
             />
           ))}

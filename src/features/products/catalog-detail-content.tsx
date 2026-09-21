@@ -249,10 +249,29 @@ function CatalogDetailInner({
   const selectedVariantName = selectedGalleryVariant
     ? getLocalized(selectedGalleryVariant.name, locale).trim()
     : "";
-  const displayTitle =
-    !hasMatrix && selectedVariantName
+
+  const matrixTitleSuffix = useMemo(() => {
+    if (!hasMatrix) return "";
+    const parts: string[] = [];
+    for (const option of options) {
+      const valueId = selectedByOptionId[option.id];
+      const value = option.values.find((entry) => entry.id === valueId);
+      if (!value) continue;
+      const label =
+        getLocalized(value.label, locale).trim() || value.value.trim();
+      if (label) parts.push(label);
+    }
+    return parts.join(" · ");
+  }, [hasMatrix, options, selectedByOptionId, locale]);
+
+  const displayTitle = hasMatrix
+    ? matrixTitleSuffix
+      ? `${baseTitle} - ${matrixTitleSuffix}`
+      : baseTitle
+    : selectedVariantName
       ? `${baseTitle} - ${selectedVariantName}`
       : baseTitle;
+
   const colorLabel = t.has("galleryColors")
     ? t("galleryColors")
     : t.has("colors")
@@ -280,22 +299,57 @@ function CatalogDetailInner({
     hasMatrix && activeMatrixVariant?.price != null
       ? Number(activeMatrixVariant.price)
       : item.price;
+
+  const dimensionFromOptions = useMemo(() => {
+    const result: Partial<
+      Record<"height" | "width" | "depth" | "length", number>
+    > = {};
+    if (!hasMatrix) return result;
+    for (const option of options) {
+      const key = option.key.trim().toLowerCase();
+      if (
+        key !== "height" &&
+        key !== "width" &&
+        key !== "depth" &&
+        key !== "length"
+      ) {
+        continue;
+      }
+      const valueId = selectedByOptionId[option.id];
+      const value = option.values.find((entry) => entry.id === valueId);
+      if (!value) continue;
+      const parsed = Number.parseFloat(
+        value.value.replace(",", ".").replace(/[^\d.-]/g, ""),
+      );
+      if (Number.isFinite(parsed) && parsed > 0) {
+        result[key] = parsed;
+      }
+    }
+    return result;
+  }, [hasMatrix, options, selectedByOptionId]);
+
   const activeHeight =
     hasMatrix && activeMatrixVariant?.height != null
       ? Number(activeMatrixVariant.height)
-      : item.height;
+      : (dimensionFromOptions.height ?? item.height);
   const activeWidth =
     hasMatrix && activeMatrixVariant?.width != null
       ? Number(activeMatrixVariant.width)
-      : item.width;
+      : (dimensionFromOptions.width ?? item.width);
   const activeDepth =
     hasMatrix && activeMatrixVariant?.depth != null
       ? Number(activeMatrixVariant.depth)
-      : item.depth;
+      : (dimensionFromOptions.depth ?? item.depth);
   const activeLength =
     hasMatrix && activeMatrixVariant?.length != null
       ? Number(activeMatrixVariant.length)
-      : item.length;
+      : (dimensionFromOptions.length ?? item.length);
+
+  const orderedOptions = useMemo(() => {
+    const swatches = options.filter((option) => option.uiType === "swatches");
+    const buttons = options.filter((option) => option.uiType !== "swatches");
+    return [...swatches, ...buttons];
+  }, [options]);
 
   const description = getLocalized(item.description, locale).trim();
   const { preview: descriptionPreview, isLong: isLongDescription } = useMemo(
@@ -534,6 +588,20 @@ function CatalogDetailInner({
                   </div>
                 </div>
               )}
+
+              {hasMatrix ? (
+                <ProductOptionSelectors
+                  options={orderedOptions}
+                  variants={matrixVariants}
+                  selectedByOptionId={selectedByOptionId}
+                  onSelect={(optionId, valueId) =>
+                    applyMatrixSelection({
+                      ...selectedByOptionId,
+                      [optionId]: valueId,
+                    })
+                  }
+                />
+              ) : null}
             </div>
           </Reveal>
         </div>
@@ -585,22 +653,6 @@ function CatalogDetailInner({
               </p>
             </div>
           </Reveal>
-
-          {hasMatrix ? (
-            <Reveal delay={0.08}>
-              <ProductOptionSelectors
-                options={options}
-                variants={matrixVariants}
-                selectedByOptionId={selectedByOptionId}
-                onSelect={(optionId, valueId) =>
-                  applyMatrixSelection({
-                    ...selectedByOptionId,
-                    [optionId]: valueId,
-                  })
-                }
-              />
-            </Reveal>
-          ) : null}
 
           <Reveal delay={0.15}>
             <div>

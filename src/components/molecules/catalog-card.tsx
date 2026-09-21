@@ -68,7 +68,7 @@ export function CatalogCard({
 
       <div className="flex flex-1 items-center justify-between gap-4 px-5 py-5 md:px-6 md:py-6">
         <div className="min-w-0">
-          <h3 className="text-[17px] font-bold leading-[1.25] tracking-tight text-foreground md:text-[18px]">
+          <h3 className="text-[17px] font-bold uppercase leading-[1.25] tracking-tight text-foreground md:text-[18px]">
             {title}
           </h3>
           {description ? (

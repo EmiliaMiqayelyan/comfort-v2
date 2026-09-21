@@ -39,11 +39,11 @@ export function CollectionsGrid() {
 
   return (
     <div className="grid items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[280px_minmax(0,1fr)]">
-      <aside className="min-w-0">
+      <aside className="min-w-0 lg:sticky lg:top-28 lg:self-start lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto">
         <CategoryTreeNav
           categories={categories}
           activeCategoryId={activeCategoryId}
-          expandAll
+          defaultExpandFirst
           onSelect={setActiveCategoryId}
         />
       </aside>
