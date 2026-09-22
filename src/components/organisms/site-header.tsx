@@ -8,28 +8,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Link, usePathname } from "@/i18n/routing";
 import { Button } from "@/components/atoms/button";
 import { BrandLogo } from "@/components/atoms/brand-logo";
+import { HeaderNav } from "@/components/molecules/header-nav";
 import { LocaleSelect } from "@/components/molecules/locale-select";
 import { ThemeToggle } from "@/components/molecules/theme-toggle";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores";
-
-const navKeys = [
-  "products",
-  "collections",
-  "about",
-  "downloads",
-  "calculator",
-  "contact",
-] as const;
-
-const hrefMap: Record<(typeof navKeys)[number], string> = {
-  products: "/products",
-  collections: "/collections",
-  about: "/about",
-  downloads: "/downloads",
-  calculator: "/calculator",
-  contact: "/contact",
-};
 
 const mobileExtra = [
   { key: "production" as const, href: "/production" },
@@ -52,6 +35,7 @@ export function SiteHeader() {
   }, [isHome]);
 
   const solid = scrolled || !isHome;
+  const closeMobile = () => setMobileNavOpen(false);
 
   return (
     <header
@@ -72,22 +56,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Main">
-          {navKeys.map((key) => (
-            <Link
-              key={key}
-              href={hrefMap[key]}
-              className={cn(
-                "text-[15px] tracking-wide transition-colors",
-                solid
-                  ? "text-foreground/90 hover:text-accent"
-                  : "text-white/90 hover:text-white",
-                pathname.startsWith(hrefMap[key]) &&
-                  (solid ? "text-accent" : "text-white font-medium"),
-              )}
-            >
-              {t(key)}
-            </Link>
-          ))}
+          <HeaderNav solid={solid} />
           <a
             href="https://www.comfort.am"
             target="_blank"
@@ -144,22 +113,17 @@ export function SiteHeader() {
             className="glass container-wide mt-3 rounded-3xl p-6 lg:hidden"
           >
             <div className="flex flex-col gap-4">
-              {navKeys.map((key) => (
-                <Link
-                  key={key}
-                  href={hrefMap[key]}
-                  className="text-lg"
-                  onClick={() => setMobileNavOpen(false)}
-                >
-                  {t(key)}
-                </Link>
-              ))}
+              <HeaderNav
+                solid
+                variant="mobile"
+                onNavigate={closeMobile}
+              />
               {mobileExtra.map((item) => (
                 <Link
                   key={item.key}
                   href={item.href}
                   className="text-base text-muted-foreground"
-                  onClick={() => setMobileNavOpen(false)}
+                  onClick={closeMobile}
                 >
                   {t(item.key)}
                 </Link>
@@ -179,7 +143,7 @@ export function SiteHeader() {
               <div className="pt-2">
                 <LocaleSelect
                   className="w-full justify-between rounded-xl px-3"
-                  onChange={() => setMobileNavOpen(false)}
+                  onChange={closeMobile}
                 />
               </div>
             </div>
