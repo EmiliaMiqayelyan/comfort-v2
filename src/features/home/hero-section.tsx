@@ -129,9 +129,9 @@ export function HeroSection() {
               </Button>
               <Button
                 asChild
-                variant="accent"
+                variant="outline"
                 size="lg"
-                className="h-12 w-full px-6 text-base sm:w-auto md:h-13 md:px-8"
+                className="h-12 w-full border-white/80 bg-transparent px-6 text-base text-white hover:bg-white/10 sm:w-auto md:h-13 md:px-8"
               >
                 <Link href="/collections">
                   {t("exploreAccessories")}

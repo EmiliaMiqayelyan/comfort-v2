@@ -34,19 +34,35 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
 
-  const solid = scrolled || !isHome;
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileNavOpen]);
+
+  const solid = scrolled || !isHome || mobileNavOpen;
   const closeMobile = () => setMobileNavOpen(false);
 
   return (
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        solid
-          ? "glass border-b border-border/60 py-3 shadow-soft"
-          : "bg-transparent py-5",
+        mobileNavOpen
+          ? "flex h-dvh max-h-dvh flex-col overflow-hidden glass"
+          : solid
+            ? "glass border-b border-border/60 py-3 shadow-soft"
+            : "bg-transparent py-5",
       )}
     >
-      <div className="container-wide flex items-center justify-between gap-4">
+      <div
+        className={cn(
+          "container-wide flex items-center justify-between gap-4",
+          mobileNavOpen && "shrink-0 border-b border-border/60 py-3",
+        )}
+      >
         <Link href="/" className="shrink-0 transition hover:opacity-90">
           <BrandLogo
             heightClassName="h-12 md:h-14"
@@ -107,13 +123,13 @@ export function SiteHeader() {
       <AnimatePresence>
         {mobileNavOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="glass container-wide mt-3 max-h-[calc(100dvh-5.5rem)] overflow-y-auto overscroll-contain rounded-3xl p-6 lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="min-h-0 w-full flex-1 overflow-y-auto overscroll-contain px-6 py-6 lg:hidden"
             data-lenis-prevent
           >
-            <div className="flex flex-col gap-4">
+            <div className="flex min-h-full flex-col gap-4">
               <HeaderNav
                 solid
                 variant="mobile"
@@ -138,14 +154,9 @@ export function SiteHeader() {
                 {t("oldSite")}
                 <ArrowUpRight className="h-4 w-4" />
               </a>
-              <div className="flex items-center gap-2 pt-2">
+              <div className="mt-auto flex items-center justify-start gap-1 pt-6">
                 <ThemeToggle />
-              </div>
-              <div className="pt-2">
-                <LocaleSelect
-                  className="w-full justify-between rounded-xl px-3"
-                  onChange={closeMobile}
-                />
+                <LocaleSelect onChange={closeMobile} />
               </div>
             </div>
           </motion.div>
