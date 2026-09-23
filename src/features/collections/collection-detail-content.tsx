@@ -2,7 +2,6 @@
 
 import { Suspense, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Badge } from "@/components/atoms/badge";
 import { Reveal } from "@/components/molecules/reveal";
 import { ProductCardGrid } from "@/components/molecules/product-card";
 import { getLocalized } from "@/data/catalog";
@@ -43,11 +42,6 @@ export function CollectionDetailContent({ collection }: { collection: Collection
       </Suspense>
       <CatalogDetailContent
         item={collection}
-        badges={
-          collection.style ? (
-            <Badge className="capitalize">{collection.style}</Badge>
-          ) : null
-        }
         footer={
           collectionProducts.length > 0 ? (
             <section className="mt-24 border-t border-border pt-24">

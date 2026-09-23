@@ -28,7 +28,6 @@ import type {
   ProductVariant,
 } from "@/types";
 
-const DESCRIPTION_PREVIEW_CHARS = 130;
 const GALLERY_CROSSFADE = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const };
 
 function preloadImage(src: string) {
@@ -43,26 +42,6 @@ function preloadImage(src: string) {
     img.onerror = () => reject(new Error(`Failed to preload ${src}`));
     img.src = src;
   });
-}
-
-function buildDescriptionPreview(text: string) {
-  const normalized = text.replace(/\s+/g, " ").trim();
-  if (normalized.length <= DESCRIPTION_PREVIEW_CHARS) {
-    return { preview: normalized, isLong: false };
-  }
-
-  const slice = normalized.slice(0, DESCRIPTION_PREVIEW_CHARS);
-  const breakAt = Math.max(
-    slice.lastIndexOf(" "),
-    slice.lastIndexOf("։"),
-    slice.lastIndexOf("."),
-  );
-  const cut = breakAt > DESCRIPTION_PREVIEW_CHARS * 0.45 ? slice.slice(0, breakAt) : slice;
-
-  return {
-    preview: `${cut.trimEnd()}…`,
-    isLong: true,
-  };
 }
 
 function slideFromSrc(id: string, imageUrl: string, thumbUrl?: string | null) {
@@ -104,38 +83,33 @@ export type CatalogDetailItem = {
 
 export function CatalogDetailContent({
   item,
-  badges,
   footer,
 }: {
   item: CatalogDetailItem;
-  badges?: ReactNode;
   footer?: ReactNode;
 }) {
   return (
     <Suspense
       fallback={
-        <CatalogDetailInner item={item} badges={badges} footer={footer} preferredVariantId={null} />
+        <CatalogDetailInner item={item} footer={footer} preferredVariantId={null} />
       }
     >
-      <CatalogDetailWithSearch item={item} badges={badges} footer={footer} />
+      <CatalogDetailWithSearch item={item} footer={footer} />
     </Suspense>
   );
 }
 
 function CatalogDetailWithSearch({
   item,
-  badges,
   footer,
 }: {
   item: CatalogDetailItem;
-  badges?: ReactNode;
   footer?: ReactNode;
 }) {
   const searchParams = useSearchParams();
   return (
     <CatalogDetailInner
       item={item}
-      badges={badges}
       footer={footer}
       preferredVariantId={searchParams.get("v")}
     />
@@ -144,12 +118,10 @@ function CatalogDetailWithSearch({
 
 function CatalogDetailInner({
   item,
-  badges,
   footer,
   preferredVariantId,
 }: {
   item: CatalogDetailItem;
-  badges?: ReactNode;
   footer?: ReactNode;
   preferredVariantId: string | null;
 }) {
@@ -229,7 +201,6 @@ function CatalogDetailInner({
         : gallerySlides[0]?.id ?? null,
   );
   const [readySrcs, setReadySrcs] = useState<Set<string>>(() => new Set());
-  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const pendingIdRef = useRef<string | null>(null);
 
@@ -352,24 +323,6 @@ function CatalogDetailInner({
   }, [options]);
 
   const description = getLocalized(item.description, locale).trim();
-  const { preview: descriptionPreview, isLong: isLongDescription } = useMemo(
-    () => buildDescriptionPreview(description),
-    [description],
-  );
-  const seeMoreLabel = t.has("seeMore")
-    ? t("seeMore")
-    : locale === "am"
-      ? "Տեսնել ավելին"
-      : locale === "ru"
-        ? "Показать больше"
-        : "See more";
-  const seeLessLabel = t.has("seeLess")
-    ? t("seeLess")
-    : locale === "am"
-      ? "Փակել"
-      : locale === "ru"
-        ? "Скрыть"
-        : "Show less";
   const openImageLabel =
     locale === "am"
       ? `Բացել լրիվ էկրանով - ${displayTitle}`
@@ -455,7 +408,6 @@ function CatalogDetailInner({
   };
 
   useEffect(() => {
-    setDescriptionExpanded(false);
     setLightboxOpen(false);
     const seeded = hasMatrix
       ? defaultVariantSelection(options, matrixVariants, preferredVariantId)
@@ -609,39 +561,9 @@ function CatalogDetailInner({
         <div className="space-y-10 lg:col-start-2 lg:row-span-2">
           <Reveal>
             <div className="space-y-4">
-              {badges ? <div className="flex flex-wrap gap-2">{badges}</div> : null}
               <h1 className="display text-3xl text-foreground md:text-4xl lg:text-5xl">
                 {displayTitle}
               </h1>
-              {description && (
-                <div className="text-lg leading-relaxed text-muted-foreground">
-                  {!descriptionExpanded && isLongDescription ? (
-                    <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                      <span>{descriptionPreview.replace(/…$/, "").trimEnd()}…</span>
-                      <button
-                        type="button"
-                        onClick={() => setDescriptionExpanded(true)}
-                        className="shrink-0 text-sm font-semibold text-accent underline underline-offset-4 hover:text-accent/80"
-                      >
-                        {seeMoreLabel}
-                      </button>
-                    </span>
-                  ) : (
-                    <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                      <span>{description}</span>
-                      {isLongDescription && (
-                        <button
-                          type="button"
-                          onClick={() => setDescriptionExpanded(false)}
-                          className="shrink-0 text-sm font-semibold text-accent underline underline-offset-4 hover:text-accent/80"
-                        >
-                          {seeLessLabel}
-                        </button>
-                      )}
-                    </span>
-                  )}
-                </div>
-              )}
               {activeSku ? (
                 <p className="text-sm text-muted-foreground">
                   <span className="font-medium text-foreground">{articleLabel}:</span>{" "}
@@ -651,62 +573,6 @@ function CatalogDetailInner({
               <p className="display text-2xl text-foreground">
                 {formatPrice(activePrice, locale)}
               </p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.15}>
-            <div>
-              <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
-                {t("specs")}
-              </h2>
-              <dl className="catalog-panel divide-y divide-border rounded-[5px] border">
-                {specs.map((spec) => (
-                  <div
-                    key={spec.key}
-                    className="flex items-center justify-between gap-4 px-6 py-4"
-                  >
-                    <dt className="text-sm text-muted-foreground">
-                      {getLocalized(spec.label, locale)}
-                    </dt>
-                    <dd className="text-sm font-medium text-foreground">
-                      {spec.value}
-                      {spec.unit ? ` ${spec.unit}` : ""}
-                    </dd>
-                  </div>
-                ))}
-                {(
-                  [
-                    { key: "height", label: t("height"), value: activeHeight },
-                    { key: "width", label: t("width"), value: activeWidth },
-                    { key: "depth", label: t("depth"), value: activeDepth },
-                    { key: "length", label: t("length"), value: activeLength },
-                  ] as const
-                )
-                  .filter((row) => Number(row.value) > 0)
-                  .map((row) => (
-                    <div
-                      key={row.key}
-                      className="flex items-center justify-between gap-4 px-6 py-4"
-                    >
-                      <dt className="text-sm text-muted-foreground">{row.label}</dt>
-                      <dd className="text-sm font-medium text-foreground">
-                        {Number(row.value)} mm
-                      </dd>
-                    </div>
-                  ))}
-                {item.material ? (
-                  <div className="flex items-center justify-between gap-4 px-6 py-4">
-                    <dt className="text-sm text-muted-foreground">{t("material")}</dt>
-                    <dd className="text-sm font-medium text-foreground">{item.material}</dd>
-                  </div>
-                ) : null}
-                {item.finish ? (
-                  <div className="flex items-center justify-between gap-4 px-6 py-4">
-                    <dt className="text-sm text-muted-foreground">{t("finish")}</dt>
-                    <dd className="text-sm font-medium text-foreground">{item.finish}</dd>
-                  </div>
-                ) : null}
-              </dl>
             </div>
           </Reveal>
 
@@ -767,6 +633,72 @@ function CatalogDetailInner({
             </Reveal>
           </div>
         ) : null}
+      </div>
+
+      <div className="mt-16 space-y-12 lg:mt-24">
+        {description ? (
+          <Reveal>
+            <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
+              {description}
+            </p>
+          </Reveal>
+        ) : null}
+
+        <Reveal delay={0.1}>
+          <div className="max-w-3xl">
+            <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
+              {t("specs")}
+            </h2>
+            <dl className="catalog-panel divide-y divide-border rounded-[5px] border">
+              {specs.map((spec) => (
+                <div
+                  key={spec.key}
+                  className="flex items-center justify-between gap-4 px-6 py-4"
+                >
+                  <dt className="text-sm text-muted-foreground">
+                    {getLocalized(spec.label, locale)}
+                  </dt>
+                  <dd className="text-sm font-medium text-foreground">
+                    {spec.value}
+                    {spec.unit ? ` ${spec.unit}` : ""}
+                  </dd>
+                </div>
+              ))}
+              {(
+                [
+                  { key: "height", label: t("height"), value: activeHeight },
+                  { key: "width", label: t("width"), value: activeWidth },
+                  { key: "depth", label: t("depth"), value: activeDepth },
+                  { key: "length", label: t("length"), value: activeLength },
+                ] as const
+              )
+                .filter((row) => Number(row.value) > 0)
+                .map((row) => (
+                  <div
+                    key={row.key}
+                    className="flex items-center justify-between gap-4 px-6 py-4"
+                  >
+                    <dt className="text-sm text-muted-foreground">{row.label}</dt>
+                    <dd className="text-sm font-medium text-foreground">
+                      {Number(row.value)} mm
+                    </dd>
+                  </div>
+                ))}
+              {item.material ? (
+                <div className="flex items-center justify-between gap-4 px-6 py-4">
+                  <dt className="text-sm text-muted-foreground">{t("material")}</dt>
+                  <dd className="text-sm font-medium text-foreground">{item.material}</dd>
+                </div>
+              ) : null}
+              {item.finish ? (
+                <div className="flex items-center justify-between gap-4 px-6 py-4">
+                  <dt className="text-sm text-muted-foreground">{t("finish")}</dt>
+                  <dd className="text-sm font-medium text-foreground">{item.finish}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </div>
+        </Reveal>
       </div>
 
       {footer}

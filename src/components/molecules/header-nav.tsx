@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, type ReactNode, type WheelEvent } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode, type WheelEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { Link, usePathname } from "@/i18n/routing";
+import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { getLocalized } from "@/data/catalog";
 import { useCategories, useCollections } from "@/hooks/use-catalog";
 import {
@@ -62,18 +62,58 @@ function DesktopDropdown({
   label,
   href,
   active,
+  wide = false,
   children,
 }: {
   solid: boolean;
   label: string;
   href: string;
   active: boolean;
+  /** Viewport-centered panel, wide enough for subcategory columns. */
+  wide?: boolean;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [wideLayout, setWideLayout] = useState({ left: 0, bridge: 12 });
+  const rootRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const syncWideLayout = () => {
+    const anchor = rootRef.current;
+    const panel = panelRef.current;
+    if (!anchor || !panel) return;
+    const anchorRect = anchor.getBoundingClientRect();
+    const headerBottom =
+      anchor.closest("header")?.getBoundingClientRect().bottom ?? anchorRect.bottom;
+    const width = panel.getBoundingClientRect().width;
+    const idealLeft = Math.max(16, (window.innerWidth - width) / 2);
+    const left = idealLeft - anchorRect.left;
+    const bridge = Math.max(headerBottom - anchorRect.bottom, 8) + 8;
+    setWideLayout((current) =>
+      Math.abs(current.left - left) < 0.5 && Math.abs(current.bridge - bridge) < 0.5
+        ? current
+        : { left, bridge },
+    );
+  };
+
+  useLayoutEffect(() => {
+    if (!open || !wide) return;
+    syncWideLayout();
+    const header = rootRef.current?.closest("header");
+    const observer = new ResizeObserver(() => syncWideLayout());
+    if (header) observer.observe(header);
+    window.addEventListener("resize", syncWideLayout);
+    window.addEventListener("scroll", syncWideLayout, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncWideLayout);
+      window.removeEventListener("scroll", syncWideLayout);
+    };
+  }, [open, wide]);
 
   return (
     <div
+      ref={rootRef}
       className="relative"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
@@ -103,18 +143,25 @@ function DesktopDropdown({
       </Link>
 
       <div
+        ref={panelRef}
         className={cn(
-          "absolute left-1/2 top-full z-50 pt-3 -translate-x-1/2 transition duration-150",
+          "absolute top-full z-50 transition duration-150",
+          wide ? "w-[min(80rem,calc(100vw-2rem))]" : "left-1/2 -translate-x-1/2 pt-3",
           open
-            ? "pointer-events-auto visible translate-y-0 opacity-100"
-            : "pointer-events-none invisible -translate-y-1 opacity-0",
+            ? "pointer-events-auto visible opacity-100"
+            : "pointer-events-none invisible opacity-0",
+          !wide && (open ? "translate-y-0" : "-translate-y-1"),
         )}
+        style={wide ? { left: wideLayout.left, paddingTop: wideLayout.bridge } : undefined}
       >
         <div
           role="menu"
           data-lenis-prevent
           onWheel={stopPageScroll}
-          className="min-w-[16rem] overflow-hidden overscroll-contain rounded-xl border border-black/8 bg-white shadow-[0_16px_48px_rgba(44,51,62,0.12)]"
+          className={cn(
+            "overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-[0_16px_48px_rgba(44,51,62,0.12)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.45)]",
+            !wide && "min-w-[16rem]",
+          )}
         >
           {children}
         </div>
@@ -123,8 +170,42 @@ function DesktopDropdown({
   );
 }
 
-function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
+function ViewAllProductsLink({
+  onNavigate,
+  className,
+}: {
+  onNavigate?: () => void;
+  className?: string;
+}) {
   const t = useTranslations("categories");
+  const router = useRouter();
+
+  return (
+    <Link
+      href="/products"
+      role="menuitem"
+      className={cn("cursor-pointer", className)}
+      onMouseDown={(event) => {
+        if (
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+        onNavigate?.();
+        router.push("/products");
+      }}
+      onClick={onNavigate}
+    >
+      {t("viewAll")}
+    </Link>
+  );
+}
+
+function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
   const locale = useLocale();
   const { data: categories = [] } = useCategories();
   const roots = parentCategories(categories);
@@ -137,28 +218,25 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
 
   if (roots.length === 0) {
     return (
-      <div className="px-4 py-3 text-sm text-muted-foreground">
-        {t("viewAll")}
-      </div>
+      <ViewAllProductsLink
+        onNavigate={onNavigate}
+        className="block px-4 py-3 text-sm font-semibold uppercase tracking-[0.06em] text-popover-foreground transition hover:text-accent"
+      />
     );
   }
 
   return (
     <div
-      className="flex min-w-[30rem] bg-white"
+      className="flex bg-popover text-popover-foreground"
       data-lenis-prevent
       onWheel={stopPageScroll}
     >
-      <ul className="w-60 shrink-0 border-r border-black/6 bg-white py-2.5">
+      <ul className="w-72 shrink-0 border-r border-border bg-foreground/[0.03] py-3">
         <li>
-          <Link
-            href="/products"
-            role="menuitem"
-            onClick={onNavigate}
-            className="mx-2 block rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-black/[0.04] hover:text-accent"
-          >
-            {t("viewAll")}
-          </Link>
+          <ViewAllProductsLink
+            onNavigate={onNavigate}
+            className="mx-2 block rounded-lg px-3 py-2 text-[13px] font-semibold uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
+          />
         </li>
         {roots.map((category) => {
           const hasKids = childCategories(categories, category.id).length > 0;
@@ -172,10 +250,10 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
                 onFocus={() => setActiveId(category.id)}
                 onClick={onNavigate}
                 className={cn(
-                  "mx-2 flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm transition",
+                  "mx-2 flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[13px] uppercase tracking-[0.06em] transition",
                   isActive
-                    ? "bg-accent/8 font-semibold text-accent"
-                    : "text-foreground/75 hover:bg-black/[0.04] hover:text-foreground",
+                    ? "bg-accent/10 font-semibold text-accent"
+                    : "text-popover-foreground/75 hover:bg-foreground/5 hover:text-popover-foreground",
                 )}
               >
                 <span className="leading-snug">
@@ -195,24 +273,63 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </ul>
 
-      <div className="min-w-[16rem] flex-1 bg-white py-2.5">
+      <div className="@container min-w-0 flex-1 px-4 py-4">
         {children.length > 0 ? (
-          <ul className="space-y-0.5">
+          <div className="columns-2 gap-x-8 @min-[560px]:columns-3 @min-[860px]:columns-4">
             {children.map((child) => (
-              <CategoryChildItem
+              <CategoryColumn
                 key={child.id}
                 category={child}
                 categories={categories}
                 onNavigate={onNavigate}
               />
             ))}
-          </ul>
+          </div>
         ) : active ? (
-          <div className="px-4 py-3 text-sm text-foreground/50">
+          <div className="px-2 py-1 text-[13px] uppercase tracking-[0.06em] text-popover-foreground/50">
             {getLocalized(active.name, locale)}
           </div>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+function CategoryColumn({
+  category,
+  categories,
+  onNavigate,
+}: {
+  category: ProductCategory;
+  categories: ProductCategory[];
+  onNavigate?: () => void;
+}) {
+  const locale = useLocale();
+  const nested = childCategories(categories, category.id);
+
+  return (
+    <div className={cn("break-inside-avoid", nested.length > 0 ? "mb-6" : "mb-1")}>
+      <Link
+        href={`/products/${category.slug}`}
+        role="menuitem"
+        onClick={onNavigate}
+        className="block rounded-md px-2 py-1.5 text-[13px] font-semibold uppercase leading-snug tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
+      >
+        {getLocalized(category.name, locale)}
+      </Link>
+      {nested.length > 0 && (
+        <ul className="mt-1">
+          {nested.map((child) => (
+            <CategoryChildItem
+              key={child.id}
+              category={child}
+              categories={categories}
+              onNavigate={onNavigate}
+              depth={1}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -240,16 +357,16 @@ function CategoryChildItem({
         role="menuitem"
         onClick={onNavigate}
         className={cn(
-          "mx-2 block rounded-lg py-2 transition",
-          depth === 0
-            ? "px-3 text-sm font-medium text-foreground/85 hover:bg-black/[0.04] hover:text-accent"
-            : "px-3 pl-5 text-[13px] text-foreground/60 hover:bg-black/[0.04] hover:text-foreground",
+          "block rounded-md py-1.5 uppercase leading-snug tracking-[0.05em] transition hover:bg-foreground/5",
+          depth <= 1
+            ? "px-2 text-[13px] text-popover-foreground/80 hover:text-accent"
+            : "px-2 pl-4 text-[12px] text-popover-foreground/60 hover:text-popover-foreground",
         )}
       >
         {getLocalized(category.name, locale)}
       </Link>
       {hasNested && (
-        <ul className="mb-1.5 ml-3 border-l border-black/6 pl-1">
+        <ul className="mb-1.5 ml-3 border-l border-border pl-1">
           {nested.map((child) => (
             <CategoryChildItem
               key={child.id}
@@ -267,13 +384,12 @@ function CategoryChildItem({
 
 function CollectionsMenu({ onNavigate }: { onNavigate?: () => void }) {
   const t = useTranslations("collections");
-  const tCategories = useTranslations("categories");
   const locale = useLocale();
   const { data: collections = [] } = useCollections();
 
   return (
     <ul
-      className="bg-white py-2.5"
+      className="bg-popover py-2.5 text-popover-foreground"
       data-lenis-prevent
       onWheel={stopPageScroll}
     >
@@ -282,9 +398,9 @@ function CollectionsMenu({ onNavigate }: { onNavigate?: () => void }) {
           href="/collections"
           role="menuitem"
           onClick={onNavigate}
-          className="mx-2 block rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-black/[0.04] hover:text-accent"
+          className="mx-2 block rounded-lg px-3 py-2 text-sm font-semibold uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
         >
-          {tCategories.has("viewAll") ? tCategories("viewAll") : t("title")}
+          {t("viewAll")}
         </Link>
       </li>
       {collections.map((collection) => (
@@ -293,7 +409,7 @@ function CollectionsMenu({ onNavigate }: { onNavigate?: () => void }) {
             href={`/collections/${collection.slug}`}
             role="menuitem"
             onClick={onNavigate}
-            className="mx-2 block rounded-lg px-3 py-2 text-sm text-foreground/75 transition hover:bg-black/[0.04] hover:text-foreground"
+            className="mx-2 block rounded-lg px-3 py-2 text-sm text-popover-foreground/75 transition hover:bg-foreground/5 hover:text-popover-foreground"
           >
             {getLocalized(collection.name, locale)}
           </Link>
@@ -339,9 +455,70 @@ function MobileSubmenu({
   );
 }
 
+function MobileCategoryNode({
+  category,
+  categories,
+  onNavigate,
+  depth = 0,
+}: {
+  category: ProductCategory;
+  categories: ProductCategory[];
+  onNavigate?: () => void;
+  depth?: number;
+}) {
+  const locale = useLocale();
+  const kids = childCategories(categories, category.id);
+  const [open, setOpen] = useState(false);
+  const label = getLocalized(category.name, locale);
+
+  return (
+    <div>
+      <div className="flex items-center gap-1">
+        <Link
+          href={`/products/${category.slug}`}
+          onClick={onNavigate}
+          className={cn(
+            "min-w-0 flex-1 py-1 uppercase leading-snug tracking-[0.05em]",
+            depth === 0
+              ? "text-base text-foreground/90"
+              : "text-sm text-muted-foreground",
+          )}
+        >
+          {label}
+        </Link>
+        {kids.length > 0 && (
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-label={label}
+            onClick={() => setOpen((value) => !value)}
+            className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            <ChevronDown
+              className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
+            />
+          </button>
+        )}
+      </div>
+      {open && kids.length > 0 && (
+        <div className="mt-1 space-y-1 border-l border-border/60 pl-3">
+          {kids.map((child) => (
+            <MobileCategoryNode
+              key={child.id}
+              category={child}
+              categories={categories}
+              onNavigate={onNavigate}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MobileProductsLinks({ onNavigate }: { onNavigate?: () => void }) {
   const t = useTranslations("categories");
-  const locale = useLocale();
   const { data: categories = [] } = useCategories();
   const roots = parentCategories(categories);
 
@@ -349,41 +526,25 @@ function MobileProductsLinks({ onNavigate }: { onNavigate?: () => void }) {
     <>
       <Link
         href="/products"
-        className="block text-base text-muted-foreground"
+        className="block py-1 text-base uppercase tracking-[0.05em] text-muted-foreground"
         onClick={onNavigate}
       >
         {t("viewAll")}
       </Link>
-      {roots.map((category) => {
-        const kids = childCategories(categories, category.id);
-        return (
-          <div key={category.id} className="space-y-2">
-            <Link
-              href={`/products/${category.slug}`}
-              className="block text-base text-foreground/90"
-              onClick={onNavigate}
-            >
-              {getLocalized(category.name, locale)}
-            </Link>
-            {kids.map((child) => (
-              <Link
-                key={child.id}
-                href={`/products/${child.slug}`}
-                className="block pl-3 text-sm text-muted-foreground"
-                onClick={onNavigate}
-              >
-                {getLocalized(child.name, locale)}
-              </Link>
-            ))}
-          </div>
-        );
-      })}
+      {roots.map((category) => (
+        <MobileCategoryNode
+          key={category.id}
+          category={category}
+          categories={categories}
+          onNavigate={onNavigate}
+        />
+      ))}
     </>
   );
 }
 
 function MobileCollectionsLinks({ onNavigate }: { onNavigate?: () => void }) {
-  const t = useTranslations("categories");
+  const t = useTranslations("collections");
   const locale = useLocale();
   const { data: collections = [] } = useCollections();
 
@@ -391,7 +552,7 @@ function MobileCollectionsLinks({ onNavigate }: { onNavigate?: () => void }) {
     <>
       <Link
         href="/collections"
-        className="block text-base text-muted-foreground"
+        className="block py-1 text-base uppercase tracking-[0.05em] text-muted-foreground"
         onClick={onNavigate}
       >
         {t("viewAll")}
@@ -482,6 +643,7 @@ export function HeaderNav({
             label={t(key)}
             href={href}
             active={active}
+            wide={key === "products"}
           >
             {key === "products" ? (
               <ProductsMenu onNavigate={onNavigate} />

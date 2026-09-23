@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
-import { Award, Download, Leaf, Ruler, Shield, ArrowUpRight } from "lucide-react";
+import { Award, Leaf, Ruler, Shield, ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/atoms/button";
 import { Reveal } from "@/components/molecules/reveal";
@@ -115,12 +115,12 @@ export function HeroSection() {
               </p>
             </Reveal>
 
-            <Reveal delay={0.3} className="mt-6 flex flex-col items-start gap-4 sm:mt-8 sm:flex-row sm:flex-wrap">
+            <Reveal delay={0.3} className="mt-6 flex w-full max-w-sm flex-col items-stretch gap-2.5 sm:mt-8 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
               <Button
                 asChild
                 variant="accent"
                 size="lg"
-                className="h-12 px-6 text-base md:h-13 md:px-8"
+                className="h-12 w-full px-6 text-base sm:w-auto md:h-13 md:px-8"
               >
                 <Link href="/products">
                   {t("explore")}
@@ -129,38 +129,15 @@ export function HeroSection() {
               </Button>
               <Button
                 asChild
-                variant="glass"
+                variant="accent"
                 size="lg"
-                className="hidden border-white/25 bg-white/10 text-white hover:bg-white/20 sm:inline-flex"
+                className="h-12 w-full px-6 text-base sm:w-auto md:h-13 md:px-8"
               >
-                <a href="/downloads/catalog.pdf" download>
-                  <Download />
-                  {t("downloadCatalog")}
-                </a>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="hidden border-white/30 bg-transparent text-white hover:bg-white/10 sm:inline-flex"
-              >
-                <Link href="/contact">{t("requestSamples")}</Link>
-              </Button>
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:hidden">
-                <a
-                  href="/downloads/catalog.pdf"
-                  download
-                  className="text-base tracking-wide text-white/90 underline-offset-4 hover:text-white hover:underline"
-                >
-                  {t("downloadCatalog")}
-                </a>
-                <Link
-                  href="/contact"
-                  className="text-base tracking-wide text-white/90 underline-offset-4 hover:text-white hover:underline"
-                >
-                  {t("requestSamples")}
+                <Link href="/collections">
+                  {t("exploreAccessories")}
+                  <ArrowUpRight />
                 </Link>
-              </div>
+              </Button>
             </Reveal>
           </div>
 

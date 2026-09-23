@@ -26,6 +26,7 @@
     "title": "Baseboards. 3D Panels. Moldings.",
     "subtitle": "Modern architectural solutions of exceptional quality for every space.",
     "explore": "Explore products",
+    "exploreAccessories": "Explore accessories",
     "downloadCatalog": "Download catalog",
     "requestSamples": "Request samples",
     "slide": "Slide"
@@ -50,7 +51,8 @@
     "profilesDesc": "Technical profiles with LED and finishing systems.",
     "accessories": "Accessories",
     "accessoriesDesc": "Corners, connectors and installation essentials.",
-    "noProducts": "No products in this category yet."
+    "noProducts": "No products in this category yet.",
+    "results": "{count} results"
   },
   "collections": {
     "title": "Accessories",

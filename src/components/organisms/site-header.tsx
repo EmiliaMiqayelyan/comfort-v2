@@ -110,7 +110,8 @@ export function SiteHeader() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="glass container-wide mt-3 rounded-3xl p-6 lg:hidden"
+            className="glass container-wide mt-3 max-h-[calc(100dvh-5.5rem)] overflow-y-auto overscroll-contain rounded-3xl p-6 lg:hidden"
+            data-lenis-prevent
           >
             <div className="flex flex-col gap-4">
               <HeaderNav

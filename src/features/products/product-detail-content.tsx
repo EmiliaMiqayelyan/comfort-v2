@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Badge } from "@/components/atoms/badge";
 import { Reveal } from "@/components/molecules/reveal";
 import { ProductCardGrid } from "@/components/molecules/product-card";
 import { CollectionCardGrid } from "@/components/molecules/collection-card";
@@ -63,14 +62,6 @@ export function ProductDetailContent({ product }: { product: Product }) {
       />
       <CatalogDetailContent
         item={product}
-        badges={
-          <>
-            {category ? <Badge>{getLocalized(category.name, locale)}</Badge> : null}
-            {linkedCollections.map((collection) => (
-              <Badge key={collection.id}>{getLocalized(collection.name, locale)}</Badge>
-            ))}
-          </>
-        }
         footer={
           <>
             {linkedCollections.length > 0 && (
