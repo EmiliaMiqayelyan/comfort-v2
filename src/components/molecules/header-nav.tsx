@@ -159,7 +159,7 @@ function DesktopDropdown({
           data-lenis-prevent
           onWheel={stopPageScroll}
           className={cn(
-            "overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-[0_16px_48px_rgba(44,51,62,0.12)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.45)]",
+            "overflow-hidden rounded-xl border border-border bg-white text-[#2C333E] shadow-[0_16px_48px_rgba(44,51,62,0.12)] dark:bg-popover dark:text-popover-foreground dark:shadow-[0_16px_48px_rgba(0,0,0,0.45)]",
             !wide && "min-w-[16rem]",
           )}
         >
@@ -227,7 +227,7 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div
-      className="flex bg-popover text-popover-foreground"
+      className="flex bg-white text-[#2C333E] dark:bg-popover dark:text-popover-foreground"
       data-lenis-prevent
       onWheel={stopPageScroll}
     >
@@ -389,7 +389,7 @@ function CollectionsMenu({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <ul
-      className="bg-popover py-2.5 text-popover-foreground"
+      className="bg-white py-2.5 text-[#2C333E] dark:bg-popover dark:text-popover-foreground"
       data-lenis-prevent
       onWheel={stopPageScroll}
     >

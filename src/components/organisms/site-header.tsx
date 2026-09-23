@@ -51,7 +51,7 @@ export function SiteHeader() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
         mobileNavOpen
-          ? "flex h-dvh max-h-dvh flex-col overflow-hidden glass"
+          ? "flex h-dvh max-h-dvh flex-col overflow-hidden bg-white dark:border dark:border-[var(--glass-border)] dark:bg-[var(--glass)] dark:[backdrop-filter:blur(20px)_saturate(140%)]"
           : solid
             ? "glass border-b border-border/60 py-3 shadow-soft"
             : "bg-transparent py-5",
