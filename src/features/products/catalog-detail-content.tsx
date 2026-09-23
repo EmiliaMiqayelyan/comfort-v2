@@ -447,118 +447,57 @@ function CatalogDetailInner({
       <div className="grid gap-8 lg:grid-cols-[520px_minmax(0,1fr)] lg:grid-rows-[auto_auto] lg:gap-x-5 lg:gap-y-6">
         <div className="min-w-0">
           <Reveal>
-            <div className="space-y-3">
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
-                className={cn(
-                  "group relative aspect-square w-full max-w-[520px] cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40 lg:size-[520px] lg:max-w-none",
-                  gallerySlides.some((slide) => slide.isBrandFallback) &&
-                    "bg-[#ecece8]",
-                )}
-                aria-label={openImageLabel}
-              >
-                {gallerySlides.map((slide, index) => {
-                  const isActive = slide.id === displayedVariantId;
-                  return (
-                    <motion.div
-                      key={slide.id}
-                      initial={false}
-                      animate={{
-                        opacity: isActive ? 1 : 0,
-                        scale: isActive ? 1 : 1.015,
-                      }}
-                      transition={GALLERY_CROSSFADE}
-                      className="absolute inset-0"
-                      style={{ zIndex: isActive ? 1 : 0 }}
-                      aria-hidden={!isActive}
-                    >
-                      <Image
-                        src={slide.src}
-                        alt={displayTitle}
-                        fill
-                        quality={95}
-                        unoptimized={slide.unoptimized}
-                        priority={index === 0}
-                        loading={index === 0 ? undefined : "eager"}
-                        className={cn(
-                          "object-contain object-left transition duration-300 group-hover:scale-[1.01]",
-                          slide.isBrandFallback && "object-center p-[22%]",
-                        )}
-                        sizes="(max-width: 1024px) 100vw, 520px"
-                        onLoadingComplete={() => markReady(slide.src)}
-                      />
-                    </motion.div>
-                  );
-                })}
-                <span className="pointer-events-none absolute bottom-3 right-3 z-[2] flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <Expand className="h-4 w-4" aria-hidden />
-                </span>
-              </button>
-
-              {!hasMatrix && galleryVariants.length > 0 && (
-                <div>
-                  <p className="mb-2 text-sm font-medium text-foreground">
-                    {variantsHeading}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {galleryVariants.map((variant) => {
-                      const label =
-                        getLocalized(variant.name, locale).trim() || baseTitle;
-                      const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
-                      const isSelected = selectedGalleryVariant?.id === variant.id;
-                      return (
-                        <button
-                          key={variant.id}
-                          type="button"
-                          title={label}
-                          onClick={() => selectSlide(variant.id)}
-                          onMouseEnter={() => warmVariant(variant.id)}
-                          onFocus={() => warmVariant(variant.id)}
-                          className={cn(
-                            "relative h-12 w-12 shrink-0 overflow-hidden rounded-[3px] bg-muted ring-2 ring-offset-1 ring-offset-background transition sm:h-14 sm:w-14",
-                            isSelected
-                              ? "ring-foreground"
-                              : "ring-transparent opacity-90 hover:ring-foreground/25 hover:opacity-100",
-                          )}
-                          aria-pressed={isSelected}
-                          aria-label={label}
-                        >
-                          <Image
-                            src={thumb}
-                            alt={label}
-                            fill
-                            unoptimized={
-                              thumb.includes("/uploads/") || thumb.startsWith("http")
-                            }
-                            className="scale-125 object-cover object-center"
-                            sizes="56px"
-                          />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              className={cn(
+                "group relative aspect-square w-full max-w-[520px] cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40 lg:size-[520px] lg:max-w-none",
+                gallerySlides.some((slide) => slide.isBrandFallback) &&
+                  "bg-[#ecece8]",
               )}
-
-              {hasMatrix ? (
-                <ProductOptionSelectors
-                  options={orderedOptions}
-                  variants={matrixVariants}
-                  selectedByOptionId={selectedByOptionId}
-                  onSelect={(optionId, valueId) =>
-                    applyMatrixSelection({
-                      ...selectedByOptionId,
-                      [optionId]: valueId,
-                    })
-                  }
-                />
-              ) : null}
-            </div>
+              aria-label={openImageLabel}
+            >
+              {gallerySlides.map((slide, index) => {
+                const isActive = slide.id === displayedVariantId;
+                return (
+                  <motion.div
+                    key={slide.id}
+                    initial={false}
+                    animate={{
+                      opacity: isActive ? 1 : 0,
+                      scale: isActive ? 1 : 1.015,
+                    }}
+                    transition={GALLERY_CROSSFADE}
+                    className="absolute inset-0"
+                    style={{ zIndex: isActive ? 1 : 0 }}
+                    aria-hidden={!isActive}
+                  >
+                    <Image
+                      src={slide.src}
+                      alt={displayTitle}
+                      fill
+                      quality={95}
+                      unoptimized={slide.unoptimized}
+                      priority={index === 0}
+                      loading={index === 0 ? undefined : "eager"}
+                      className={cn(
+                        "object-contain object-left transition duration-300 group-hover:scale-[1.01]",
+                        slide.isBrandFallback && "object-center p-[22%]",
+                      )}
+                      sizes="(max-width: 1024px) 100vw, 520px"
+                      onLoadingComplete={() => markReady(slide.src)}
+                    />
+                  </motion.div>
+                );
+              })}
+              <span className="pointer-events-none absolute bottom-3 right-3 z-[2] flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                <Expand className="h-4 w-4" aria-hidden />
+              </span>
+            </button>
           </Reveal>
         </div>
 
-        <div className="space-y-10 lg:col-start-2 lg:row-span-2">
+        <div className="space-y-6 lg:col-start-2 lg:row-span-2 lg:space-y-8">
           <Reveal>
             <div className="space-y-4">
               <h1 className="display text-3xl text-foreground md:text-4xl lg:text-5xl">
@@ -575,6 +514,69 @@ function CatalogDetailInner({
               </p>
             </div>
           </Reveal>
+
+          {!hasMatrix && galleryVariants.length > 0 ? (
+            <Reveal delay={0.05}>
+              <div>
+                <p className="mb-2 text-sm font-medium text-foreground">
+                  {variantsHeading}
+                </p>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  {galleryVariants.map((variant) => {
+                    const label =
+                      getLocalized(variant.name, locale).trim() || baseTitle;
+                    const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
+                    const isSelected = selectedGalleryVariant?.id === variant.id;
+                    return (
+                      <button
+                        key={variant.id}
+                        type="button"
+                        title={label}
+                        onClick={() => selectSlide(variant.id)}
+                        onMouseEnter={() => warmVariant(variant.id)}
+                        onFocus={() => warmVariant(variant.id)}
+                        className={cn(
+                          "relative h-12 w-12 shrink-0 overflow-hidden rounded-[3px] bg-muted ring-2 ring-offset-1 ring-offset-background transition sm:h-14 sm:w-14",
+                          isSelected
+                            ? "ring-foreground"
+                            : "ring-transparent opacity-90 hover:ring-foreground/25 hover:opacity-100",
+                        )}
+                        aria-pressed={isSelected}
+                        aria-label={label}
+                      >
+                        <Image
+                          src={thumb}
+                          alt={label}
+                          fill
+                          unoptimized={
+                            thumb.includes("/uploads/") || thumb.startsWith("http")
+                          }
+                          className="scale-125 object-cover object-center"
+                          sizes="56px"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </Reveal>
+          ) : null}
+
+          {hasMatrix ? (
+            <Reveal delay={0.05}>
+              <ProductOptionSelectors
+                options={orderedOptions}
+                variants={matrixVariants}
+                selectedByOptionId={selectedByOptionId}
+                onSelect={(optionId, valueId) =>
+                  applyMatrixSelection({
+                    ...selectedByOptionId,
+                    [optionId]: valueId,
+                  })
+                }
+              />
+            </Reveal>
+          ) : null}
 
           {downloads.length > 0 && (
             <Reveal delay={0.2}>
@@ -635,17 +637,27 @@ function CatalogDetailInner({
         ) : null}
       </div>
 
-      <div className="mt-16 space-y-12 lg:mt-24">
+      <div
+        className={cn(
+          "mt-16 grid items-start gap-12 lg:mt-24",
+          description && "md:grid-cols-2 md:gap-x-10 lg:gap-x-16",
+        )}
+      >
         {description ? (
           <Reveal>
-            <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
-              {description}
-            </p>
+            <div>
+              <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
+                {t("description")}
+              </h2>
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            </div>
           </Reveal>
         ) : null}
 
         <Reveal delay={0.1}>
-          <div className="max-w-3xl">
+          <div className={cn(!description && "max-w-3xl")}>
             <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
               {t("specs")}
             </h2>
@@ -653,12 +665,12 @@ function CatalogDetailInner({
               {specs.map((spec) => (
                 <div
                   key={spec.key}
-                  className="flex items-center justify-between gap-4 px-6 py-4"
+                  className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4"
                 >
-                  <dt className="text-sm text-muted-foreground">
+                  <dt className="min-w-0 text-sm text-muted-foreground">
                     {getLocalized(spec.label, locale)}
                   </dt>
-                  <dd className="text-sm font-medium text-foreground">
+                  <dd className="shrink-0 text-right text-sm font-medium text-foreground">
                     {spec.value}
                     {spec.unit ? ` ${spec.unit}` : ""}
                   </dd>
@@ -676,24 +688,24 @@ function CatalogDetailInner({
                 .map((row) => (
                   <div
                     key={row.key}
-                    className="flex items-center justify-between gap-4 px-6 py-4"
+                    className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4"
                   >
-                    <dt className="text-sm text-muted-foreground">{row.label}</dt>
-                    <dd className="text-sm font-medium text-foreground">
+                    <dt className="min-w-0 text-sm text-muted-foreground">{row.label}</dt>
+                    <dd className="shrink-0 text-right text-sm font-medium text-foreground">
                       {Number(row.value)} mm
                     </dd>
                   </div>
                 ))}
               {item.material ? (
-                <div className="flex items-center justify-between gap-4 px-6 py-4">
-                  <dt className="text-sm text-muted-foreground">{t("material")}</dt>
-                  <dd className="text-sm font-medium text-foreground">{item.material}</dd>
+                <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4">
+                  <dt className="min-w-0 text-sm text-muted-foreground">{t("material")}</dt>
+                  <dd className="shrink-0 text-right text-sm font-medium text-foreground">{item.material}</dd>
                 </div>
               ) : null}
               {item.finish ? (
-                <div className="flex items-center justify-between gap-4 px-6 py-4">
-                  <dt className="text-sm text-muted-foreground">{t("finish")}</dt>
-                  <dd className="text-sm font-medium text-foreground">{item.finish}</dd>
+                <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4">
+                  <dt className="min-w-0 text-sm text-muted-foreground">{t("finish")}</dt>
+                  <dd className="shrink-0 text-right text-sm font-medium text-foreground">{item.finish}</dd>
                 </div>
               ) : null}
             </dl>

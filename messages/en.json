@@ -113,6 +113,7 @@
     "usedProducts": "Products used"
   },
   "product": {
+    "description": "Description",
     "specs": "Specifications",
     "downloads": "Downloads",
     "related": "Related products",

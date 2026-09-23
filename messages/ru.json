@@ -113,6 +113,7 @@
     "usedProducts": "Использованные продукты"
   },
   "product": {
+    "description": "Описание",
     "specs": "Характеристики",
     "downloads": "Загрузки",
     "related": "Похожие товары",
