@@ -38,18 +38,20 @@ export function CollectionDetailContent({
       <CatalogDetailContent
         item={collection}
         footer={
-          <section className="mt-24 border-t border-border pt-24">
-            <Reveal>
-              <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
-                {t("title")}
-              </h2>
-            </Reveal>
-            <InfiniteProductGrid
-              filter={{ collection: collection.slug }}
-              initial={initialProducts}
-              path={`/collections/${collection.slug}`}
-            />
-          </section>
+          initialProducts.total > 0 || initialProducts.items.length > 0 ? (
+            <section className="mt-24 border-t border-border pt-24">
+              <Reveal>
+                <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
+                  {t("title")}
+                </h2>
+              </Reveal>
+              <InfiniteProductGrid
+                filter={{ collection: collection.slug }}
+                initial={initialProducts}
+                path={`/collections/${collection.slug}`}
+              />
+            </section>
+          ) : null
         }
       />
     </div>

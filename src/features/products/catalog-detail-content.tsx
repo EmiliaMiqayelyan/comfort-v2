@@ -63,7 +63,7 @@ export type CatalogDetailItem = {
   sku?: string;
   name: LocalizedString;
   description: LocalizedString;
-  price: number;
+  price?: number | null;
   availability?: "in_stock" | "limited" | "preorder";
   images: string[];
   galleryVariants?: ProductGalleryVariant[];
@@ -271,6 +271,8 @@ function CatalogDetailInner({
     hasMatrix && activeMatrixVariant?.price != null
       ? Number(activeMatrixVariant.price)
       : item.price;
+  const hasPrice =
+    activePrice != null && Number.isFinite(Number(activePrice)) && Number(activePrice) > 0;
 
   const dimensionFromOptions = useMemo(() => {
     const result: Partial<
@@ -324,6 +326,18 @@ function CatalogDetailInner({
   }, [options]);
 
   const description = getLocalized(item.description, locale).trim();
+  const dimensionRows = (
+    [
+      { key: "height", label: t("height"), value: activeHeight },
+      { key: "width", label: t("width"), value: activeWidth },
+      { key: "depth", label: t("depth"), value: activeDepth },
+      { key: "length", label: t("length"), value: activeLength },
+    ] as const
+  ).filter((row) => Number(row.value) > 0);
+  const hasMaterial = Boolean(item.material?.trim());
+  const hasFinish = Boolean(item.finish?.trim());
+  const hasSpecs =
+    specs.length > 0 || dimensionRows.length > 0 || hasMaterial || hasFinish;
   const openImageLabel =
     locale === "am"
       ? `Բացել լրիվ էկրանով - ${displayTitle}`
@@ -510,9 +524,11 @@ function CatalogDetailInner({
                   {activeSku}
                 </p>
               ) : null}
-              <p className="display text-2xl text-foreground">
-                {formatPrice(activePrice, locale)}
-              </p>
+              {hasPrice ? (
+                <p className="display text-2xl text-foreground">
+                  {formatPrice(Number(activePrice), locale)}
+                </p>
+              ) : null}
             </div>
           </Reveal>
 
@@ -638,81 +654,76 @@ function CatalogDetailInner({
         ) : null}
       </div>
 
-      <div
-        className={cn(
-          "mt-16 grid items-start gap-12 lg:mt-24",
-          description && "md:grid-cols-2 md:gap-x-10 lg:gap-x-16",
-        )}
-      >
-        {description ? (
-          <Reveal>
-            <div>
-              <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
-                {t("description")}
-              </h2>
-              <p className="text-lg leading-relaxed text-muted-foreground">
-                {description}
-              </p>
-            </div>
-          </Reveal>
-        ) : null}
+      {description || hasSpecs ? (
+        <div
+          className={cn(
+            "mt-16 grid items-start gap-12 lg:mt-24",
+            description && hasSpecs && "md:grid-cols-2 md:gap-x-10 lg:gap-x-16",
+          )}
+        >
+          {description ? (
+            <Reveal>
+              <div>
+                <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
+                  {t("description")}
+                </h2>
+                <p className="text-lg leading-relaxed text-muted-foreground">
+                  {description}
+                </p>
+              </div>
+            </Reveal>
+          ) : null}
 
-        <Reveal delay={0.1}>
-          <div className={cn(!description && "max-w-3xl")}>
-            <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
-              {t("specs")}
-            </h2>
-            <dl className="catalog-panel divide-y divide-border rounded-[5px] border">
-              {specs.map((spec) => (
-                <div
-                  key={spec.key}
-                  className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4"
-                >
-                  <dt className="min-w-0 text-sm text-muted-foreground">
-                    {getLocalized(spec.label, locale)}
-                  </dt>
-                  <dd className="shrink-0 text-right text-sm font-medium text-foreground">
-                    {spec.value}
-                    {spec.unit ? ` ${spec.unit}` : ""}
-                  </dd>
-                </div>
-              ))}
-              {(
-                [
-                  { key: "height", label: t("height"), value: activeHeight },
-                  { key: "width", label: t("width"), value: activeWidth },
-                  { key: "depth", label: t("depth"), value: activeDepth },
-                  { key: "length", label: t("length"), value: activeLength },
-                ] as const
-              )
-                .filter((row) => Number(row.value) > 0)
-                .map((row) => (
-                  <div
-                    key={row.key}
-                    className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4"
-                  >
-                    <dt className="min-w-0 text-sm text-muted-foreground">{row.label}</dt>
-                    <dd className="shrink-0 text-right text-sm font-medium text-foreground">
-                      {Number(row.value)} mm
-                    </dd>
-                  </div>
-                ))}
-              {item.material ? (
-                <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4">
-                  <dt className="min-w-0 text-sm text-muted-foreground">{t("material")}</dt>
-                  <dd className="shrink-0 text-right text-sm font-medium text-foreground">{item.material}</dd>
-                </div>
-              ) : null}
-              {item.finish ? (
-                <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4">
-                  <dt className="min-w-0 text-sm text-muted-foreground">{t("finish")}</dt>
-                  <dd className="shrink-0 text-right text-sm font-medium text-foreground">{item.finish}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </div>
-        </Reveal>
-      </div>
+          {hasSpecs ? (
+            <Reveal delay={0.1}>
+              <div className={cn(!description && "max-w-3xl")}>
+                <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
+                  {t("specs")}
+                </h2>
+                <dl className="catalog-panel divide-y divide-border rounded-[5px] border">
+                  {specs.map((spec) => (
+                    <div
+                      key={spec.key}
+                      className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4"
+                    >
+                      <dt className="min-w-0 text-sm text-muted-foreground">
+                        {getLocalized(spec.label, locale)}
+                      </dt>
+                      <dd className="shrink-0 text-right text-sm font-medium text-foreground">
+                        {spec.value}
+                        {spec.unit ? ` ${spec.unit}` : ""}
+                      </dd>
+                    </div>
+                  ))}
+                  {dimensionRows.map((row) => (
+                    <div
+                      key={row.key}
+                      className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4"
+                    >
+                      <dt className="min-w-0 text-sm text-muted-foreground">{row.label}</dt>
+                      <dd className="shrink-0 text-right text-sm font-medium text-foreground">
+                        {Number(row.value)} mm
+                      </dd>
+                    </div>
+                  ))}
+                  {hasMaterial ? (
+                    <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4">
+                      <dt className="min-w-0 text-sm text-muted-foreground">{t("material")}</dt>
+                      <dd className="shrink-0 text-right text-sm font-medium text-foreground">{item.material}</dd>
+                    </div>
+                  ) : null}
+                  {hasFinish ? (
+                    <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4">
+                      <dt className="min-w-0 text-sm text-muted-foreground">{t("finish")}</dt>
+                      <dd className="shrink-0 text-right text-sm font-medium text-foreground">{item.finish}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+              </div>
+            </Reveal>
+          ) : null}
+        </div>
+      ) : null}
 
       {footer}
 
