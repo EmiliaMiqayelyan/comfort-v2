@@ -28,7 +28,15 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24 || !isHome);
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 24 || !isHome);
+        ticking = false;
+      });
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -49,11 +57,11 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+        "fixed inset-x-0 top-0 z-50 transition-[background-color,padding,box-shadow,border-color] duration-300",
         mobileNavOpen
-          ? "flex h-dvh max-h-dvh flex-col overflow-hidden bg-white dark:border dark:border-[var(--glass-border)] dark:bg-[var(--glass)] dark:[backdrop-filter:blur(20px)_saturate(140%)]"
+          ? "flex h-dvh max-h-dvh flex-col overflow-hidden bg-white dark:border dark:border-[var(--glass-border)] dark:bg-[var(--background)]"
           : solid
-            ? "glass border-b border-border/60 py-3 shadow-soft"
+            ? "glass-nav border-b border-border/60 py-3 shadow-soft"
             : "bg-transparent py-5",
       )}
     >

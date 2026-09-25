@@ -1,5 +1,6 @@
 "use client";
 
+import "lenis/dist/lenis.css";
 import { ReactLenis, type LenisRef } from "lenis/react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { usePathname } from "@/i18n/routing";
@@ -35,9 +36,16 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       ref={lenisRef}
       root
       options={{
-        lerp: 0.08,
-        duration: 1.2,
+        // Snappier than a low lerp so wheel/trackpad feels less “stuck”
+        // on image-heavy catalog pages.
+        lerp: 0.12,
         smoothWheel: true,
+        syncTouch: false,
+        autoRaf: true,
+        autoResize: true,
+        touchMultiplier: 1.5,
+        wheelMultiplier: 1,
+        respectReducedMotion: true,
       }}
     >
       {children}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { useLenis } from "lenis/react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { ProductCardGrid } from "@/components/molecules/product-card";
@@ -33,6 +34,7 @@ export function InfiniteProductGrid({
   const t = useTranslations("collections");
   const tc = useTranslations("categories");
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isPending } =
     useInfiniteProducts(filter, initial);
@@ -44,6 +46,12 @@ export function InfiniteProductGrid({
   const total = data?.pages[0]?.total ?? initial?.total ?? 0;
   const lastPage = data?.pages[data.pages.length - 1] ?? initial;
   const nextPage = lastPage?.hasMore ? lastPage.page + 1 : null;
+
+  // When infinite scroll appends cards, refresh Lenis scroll limits so
+  // wheel inertia does not clamp against a stale document height.
+  useEffect(() => {
+    lenis?.resize();
+  }, [lenis, products.length]);
 
   useEffect(() => {
     const node = sentinelRef.current;

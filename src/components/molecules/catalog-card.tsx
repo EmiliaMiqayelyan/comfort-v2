@@ -44,7 +44,7 @@ export function CatalogCard({
     <Link
       href={href}
       className={cn(
-        "catalog-panel catalog-shadow group flex h-full flex-col overflow-hidden rounded-[5px] transition duration-300 hover:-translate-y-0.5",
+        "catalog-card-item catalog-panel catalog-shadow group flex h-full flex-col overflow-hidden rounded-[5px] transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5",
         className,
       )}
     >
@@ -53,7 +53,9 @@ export function CatalogCard({
           src={src}
           alt={title}
           fill
-          quality={90}
+          quality={75}
+          loading="lazy"
+          decoding="async"
           unoptimized={isRemote || isUpload || isBrandFallback}
           className={cn(
             "object-contain object-center",
