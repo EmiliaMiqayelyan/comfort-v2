@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { ProductsCatalog } from "@/features/products/products-catalog";
+import { loadCategories } from "@/lib/catalog-source";
 import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -27,6 +28,7 @@ export default async function ProductsPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "categories" });
+  const categories = await loadCategories();
 
   return (
     <section className="catalog-surface min-h-screen py-20 md:py-28">
@@ -36,7 +38,7 @@ export default async function ProductsPage({
             {t("title")}
           </h1>
         </Reveal>
-        <ProductsCatalog />
+        <ProductsCatalog initialCategories={categories} />
       </div>
     </section>
   );

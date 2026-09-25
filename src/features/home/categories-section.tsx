@@ -5,13 +5,18 @@ import { Reveal } from "@/components/molecules/reveal";
 import { CategoryCard } from "@/components/molecules/category-card";
 import { useCategories } from "@/hooks/use-catalog";
 import { parentCategories } from "@/lib/category-tree";
+import type { ProductCategory } from "@/types";
 
-export function CategoriesSection() {
+export function CategoriesSection({
+  initialCategories,
+}: {
+  initialCategories?: ProductCategory[];
+}) {
   const t = useTranslations("categories");
-  const { data: categories = [], isLoading } = useCategories();
+  const { data: categories = [], isLoading } = useCategories(initialCategories);
   const parents = parentCategories(categories);
 
-  if (isLoading || parents.length === 0) return null;
+  if ((!initialCategories?.length && isLoading) || parents.length === 0) return null;
 
   return (
     <section className="catalog-surface py-20 md:py-28">

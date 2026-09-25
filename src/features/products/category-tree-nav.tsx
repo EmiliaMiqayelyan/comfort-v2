@@ -40,7 +40,7 @@ function CategoryLabel({
 }) {
   const locale = useLocale();
   const className = cn(
-    "relative block border-b border-border/60 py-3.5 text-sm transition hover:text-foreground",
+    "relative block border-b border-border/60 py-3.5 text-sm uppercase tracking-[0.06em] transition hover:text-foreground",
     depth > 0 ? "pl-8 pr-4" : "px-4",
     isActive
       ? "font-semibold text-foreground"
@@ -113,7 +113,7 @@ function CategoryBranch({
   }
 
   const titleClass = cn(
-    "flex-1 py-3.5 pl-4 pr-2 text-sm transition hover:text-foreground",
+    "flex-1 py-3.5 pl-4 pr-2 text-sm uppercase tracking-[0.06em] transition hover:text-foreground",
     isActive || isOnPath
       ? "font-semibold text-foreground"
       : "font-normal text-foreground/70",

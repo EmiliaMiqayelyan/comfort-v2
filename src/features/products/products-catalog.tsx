@@ -6,10 +6,15 @@ import { CategoryCard } from "@/components/molecules/category-card";
 import { useCategories } from "@/hooks/use-catalog";
 import { parentCategories } from "@/lib/category-tree";
 import { CategoryTreeNav } from "@/features/products/category-tree-nav";
+import type { ProductCategory } from "@/types";
 
-export function ProductsCatalog() {
+export function ProductsCatalog({
+  initialCategories,
+}: {
+  initialCategories?: ProductCategory[];
+}) {
   const t = useTranslations("categories");
-  const { data: categories = [] } = useCategories();
+  const { data: categories = initialCategories ?? [] } = useCategories(initialCategories);
   const roots = parentCategories(categories);
 
   return (

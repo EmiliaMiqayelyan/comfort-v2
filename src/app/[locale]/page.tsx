@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { HomePage } from "@/features/home/home-page";
+import { loadCategories, loadCollections } from "@/lib/catalog-source";
 import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -26,5 +27,9 @@ export default async function Page({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <HomePage />;
+  const [categories, collections] = await Promise.all([
+    loadCategories(),
+    loadCollections(),
+  ]);
+  return <HomePage categories={categories} collections={collections} />;
 }

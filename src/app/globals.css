@@ -437,11 +437,19 @@ html.admin-scroll-lock body {
   transform: scale(1.04);
 }
 
-.collections-swiper .swiper-pagination {
-  bottom: 0 !important;
+.collections-swiper-pagination {
+  position: static;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.collections-swiper .swiper-pagination-bullet {
+.collections-swiper-pagination.swiper-pagination-bullets {
+  bottom: auto;
+}
+
+.collections-swiper-pagination .swiper-pagination-bullet {
   width: 6px;
   height: 6px;
   margin: 0 4px !important;
@@ -453,7 +461,12 @@ html.admin-scroll-lock body {
     background 0.25s ease;
 }
 
-.collections-swiper .swiper-pagination-bullet-active {
+.collections-swiper-pagination .swiper-pagination-bullet-active {
+  width: 22px;
+  background: var(--foreground);
+}
+
+.collections-swiper-pagination .swiper-pagination-bullet-active-main {
   width: 22px;
   background: var(--foreground);
 }

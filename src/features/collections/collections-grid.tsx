@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/molecules/reveal";
-import { CollectionCard } from "@/components/molecules/collection-card";
+import { CollectionCardGrid } from "@/components/molecules/collection-card";
 import {
   useCategories,
   useCollections,
@@ -11,13 +11,23 @@ import {
 } from "@/hooks/use-catalog";
 import { productsInCategory } from "@/lib/category-tree";
 import { CategoryTreeNav } from "@/features/products/category-tree-nav";
+import type { Collection, Product, ProductCategory } from "@/types";
 
-export function CollectionsGrid() {
+export function CollectionsGrid({
+  initialCollections,
+  initialCategories,
+  initialProducts,
+}: {
+  initialCollections?: Collection[];
+  initialCategories?: ProductCategory[];
+  /** Lightweight product list used only for category→collection filtering */
+  initialProducts?: Product[];
+}) {
   const t = useTranslations("collections");
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
-  const { data: collections = [] } = useCollections();
-  const { data: products = [] } = useProducts();
-  const { data: categories = [] } = useCategories();
+  const { data: collections = [] } = useCollections(initialCollections);
+  const { data: products = [] } = useProducts(initialProducts);
+  const { data: categories = [] } = useCategories(initialCategories);
 
   const filtered = useMemo(() => {
     if (!activeCategoryId) return collections;
@@ -55,13 +65,7 @@ export function CollectionsGrid() {
           </p>
         </Reveal>
 
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 lg:gap-6">
-          {filtered.map((collection, i) => (
-            <Reveal key={collection.id} delay={i * 0.06}>
-              <CollectionCard collection={collection} />
-            </Reveal>
-          ))}
-        </div>
+        <CollectionCardGrid collections={filtered} />
       </div>
     </div>
   );

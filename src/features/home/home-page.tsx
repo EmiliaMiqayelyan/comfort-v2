@@ -5,13 +5,20 @@ import { AdvantagesSection } from "./advantages-section";
 import { AboutTeaser } from "./about-teaser";
 import { CatalogCta } from "./catalog-cta";
 import { ContactBanner } from "./contact-banner";
+import type { Collection, ProductCategory } from "@/types";
 
-export function HomePage() {
+export function HomePage({
+  categories,
+  collections,
+}: {
+  categories: ProductCategory[];
+  collections: Collection[];
+}) {
   return (
     <>
       <HeroSection />
-      <CategoriesSection />
-      <CollectionsSection />
+      <CategoriesSection initialCategories={categories} />
+      <CollectionsSection initialCollections={collections} />
       <AdvantagesSection />
       <AboutTeaser />
       <CatalogCta />

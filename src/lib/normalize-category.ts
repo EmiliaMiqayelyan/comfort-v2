@@ -14,7 +14,10 @@ export function normalizeCategory(raw: unknown): ProductCategory {
     name: asLocalized(item.name),
     description: asLocalized(item.description),
     image: mediaSrc(typeof item.image === "string" ? item.image : null, ""),
-    parentId: (item.parentId as string | null | undefined) ?? null,
+    parentId:
+      (item.parentId as string | null | undefined) ??
+      (item.parent_id as string | null | undefined) ??
+      null,
     productCount: Number.isFinite(productCount) ? productCount : 0,
   };
 }

@@ -174,13 +174,14 @@ export function CollectionCard({
   const href = fromProductSlug
     ? `/collections/${collection.slug}?from=product&product=${encodeURIComponent(fromProductSlug)}`
     : `/collections/${collection.slug}`;
+  const description = getLocalized(collection.description, locale).trim();
 
   return (
     <CatalogCard
       href={href}
       image={image}
       title={getLocalized(collection.name, locale)}
-      description={getLocalized(collection.description, locale)}
+      description={description || undefined}
       className={className}
     />
   );

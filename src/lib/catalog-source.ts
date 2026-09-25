@@ -1,4 +1,4 @@
-import { catalogApi } from "@/lib/api";
+import { catalogApi, type PaginatedProducts, type ProductListQuery } from "@/lib/api";
 import {
   normalizeCollection,
   normalizeCollections,
@@ -11,8 +11,33 @@ import {
 import { normalizeCategories, normalizeCategory } from "@/lib/normalize-category";
 import type { BlogPost, Collection, Product, ProductCategory, Project } from "@/types";
 
+export const CATALOG_PAGE_SIZE = 24;
+
 export async function loadProducts(): Promise<Product[]> {
   return normalizeProducts((await catalogApi.products()) ?? []);
+}
+
+export async function loadProductsPage(
+  query: ProductListQuery = {},
+): Promise<PaginatedProducts> {
+  const page = await catalogApi.productsPage({
+    limit: CATALOG_PAGE_SIZE,
+    page: 1,
+    ...query,
+  });
+  if (!page) {
+    return {
+      items: [],
+      total: 0,
+      page: query.page ?? 1,
+      pageSize: query.limit ?? CATALOG_PAGE_SIZE,
+      hasMore: false,
+    };
+  }
+  return {
+    ...page,
+    items: normalizeProducts(page.items ?? []),
+  };
 }
 
 export async function loadProduct(slug: string): Promise<Product | undefined> {

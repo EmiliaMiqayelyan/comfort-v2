@@ -297,6 +297,24 @@ async function productIdsMatchingOptions(
   ];
 }
 
+function parsePositiveInt(value: string | string[] | undefined, fallback: number) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const parsed = Number.parseInt(raw ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const listOrder = [
+  ['createdAt', 'DESC'],
+  [{ model: ProductOption, as: 'options' }, 'sortOrder', 'ASC'],
+  [
+    { model: ProductOption, as: 'options' },
+    { model: ProductOptionValue, as: 'values' },
+    'sortOrder',
+    'ASC',
+  ],
+  [{ model: ProductVariant, as: 'variants' }, 'sortOrder', 'ASC'],
+] as const;
+
 export class ProductService {
   async list(query: Record<string, string | string[] | undefined>) {
     const where: Record<string, unknown> = {};
@@ -358,23 +376,42 @@ export class ProductService {
       };
     }
 
-    const products = await Product.findAll({
-      where,
-      include: matrixInclude,
-      order: [
-        ['createdAt', 'DESC'],
-        [{ model: ProductOption, as: 'options' }, 'sortOrder', 'ASC'],
-        [
-          { model: ProductOption, as: 'options' },
-          { model: ProductOptionValue, as: 'values' },
-          'sortOrder',
-          'ASC',
-        ],
-        [{ model: ProductVariant, as: 'variants' }, 'sortOrder', 'ASC'],
-      ],
-    });
+    const wantsPagination =
+      query.page !== undefined ||
+      query.limit !== undefined ||
+      query.paginated === 'true';
 
-    return products.map(attachProduct);
+    if (!wantsPagination) {
+      const products = await Product.findAll({
+        where,
+        include: matrixInclude,
+        order: listOrder as never,
+      });
+      return products.map(attachProduct);
+    }
+
+    const page = parsePositiveInt(query.page, 1);
+    const pageSize = Math.min(parsePositiveInt(query.limit, 24), 48);
+    const offset = (page - 1) * pageSize;
+
+    const [total, rows] = await Promise.all([
+      Product.count({ where }),
+      Product.findAll({
+        where,
+        include: matrixInclude,
+        order: listOrder as never,
+        limit: pageSize,
+        offset,
+      }),
+    ]);
+
+    return {
+      items: rows.map(attachProduct),
+      total,
+      page,
+      pageSize,
+      hasMore: offset + rows.length < total,
+    };
   }
 
   async getBySlugOrId(slugOrId: string) {

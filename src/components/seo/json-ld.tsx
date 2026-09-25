@@ -201,3 +201,30 @@ export function CollectionPageJsonLd({
 
   return <JsonLd data={data} />;
 }
+
+export function ItemListJsonLd({
+  name,
+  url,
+  items,
+}: {
+  name: string;
+  url: string;
+  items: Array<{ name: string; url: string; image?: string }>;
+}) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    url,
+    numberOfItems: items.length,
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: item.url,
+      name: item.name,
+      ...(item.image ? { image: item.image } : {}),
+    })),
+  };
+
+  return <JsonLd data={data} />;
+}

@@ -52,7 +52,12 @@
     "accessories": "Աքսեսուարներ",
     "accessoriesDesc": "Անկյուններ, միացումներ և մոնտաժման լուծումներ։",
     "noProducts": "Այս կատեգորիայում դեռ ապրանքներ չկան։",
-    "results": "{count} արդյունք"
+    "results": "{count} արդյունք",
+    "noFilteredProducts": "Այս ֆիլտրերով ապրանքներ չկան։",
+    "filters": "Ֆիլտրեր",
+    "clearFilters": "Մաքրել",
+    "loadMore": "Ավելին",
+    "loadingMore": "Բեռնվում է…"
   },
   "collections": {
     "title": "Աքսեսուարներ",
@@ -70,7 +75,8 @@
     "availability": "Առկայություն",
     "reset": "Վերակայել",
     "results": "{count} արդյունք",
-    "loadMore": "Ավելին"
+    "loadMore": "Ավելին",
+    "loadingMore": "Բեռնվում է…"
   },
   "advantages": {
     "title": "Ինչու Comfort",

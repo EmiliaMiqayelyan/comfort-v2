@@ -12,7 +12,7 @@ type FacetOption = {
   values: Array<{ value: string; label: string }>;
 };
 
-function collectFacets(products: Product[], locale: string): FacetOption[] {
+export function collectFacets(products: Product[], locale: string): FacetOption[] {
   const byKey = new Map<
     string,
     { label: string; values: Map<string, string> }

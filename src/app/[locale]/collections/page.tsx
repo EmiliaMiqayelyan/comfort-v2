@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { CollectionsGrid } from "@/features/collections/collections-grid";
+import { loadCategories, loadCollections, loadProducts } from "@/lib/catalog-source";
 import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -27,6 +28,11 @@ export default async function CollectionsPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "collections" });
+  const [collections, categories, products] = await Promise.all([
+    loadCollections(),
+    loadCategories(),
+    loadProducts(),
+  ]);
 
   return (
     <section className="catalog-surface min-h-screen py-20 md:py-28">
@@ -36,7 +42,11 @@ export default async function CollectionsPage({
             {t("title")}
           </h1>
         </Reveal>
-        <CollectionsGrid />
+        <CollectionsGrid
+          initialCollections={collections}
+          initialCategories={categories}
+          initialProducts={products}
+        />
       </div>
     </section>
   );

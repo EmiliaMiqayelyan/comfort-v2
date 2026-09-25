@@ -1,38 +1,64 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Reveal } from "@/components/molecules/reveal";
 import { CategoryCard } from "@/components/molecules/category-card";
-import { ProductCardGrid } from "@/components/molecules/product-card";
+import { InfiniteProductGrid } from "@/components/molecules/infinite-product-grid";
 import { getLocalized } from "@/data/catalog";
-import { useCategories, useProducts } from "@/hooks/use-catalog";
+import { useCategories } from "@/hooks/use-catalog";
 import { childCategories } from "@/lib/category-tree";
 import { CategoryBreadcrumb } from "@/features/products/category-breadcrumb";
 import { CategoryTreeNav } from "@/features/products/category-tree-nav";
 import {
   ProductFacetFilters,
-  useProductFacetFilter,
+  collectFacets,
 } from "@/features/products/product-facet-filters";
+import type { PaginatedProducts } from "@/lib/api";
 import type { ProductCategory } from "@/types";
 
 export function CategoryDetailContent({
   category,
+  initialCategories,
+  initialProducts,
 }: {
   category: ProductCategory;
+  initialCategories: ProductCategory[];
+  initialProducts: PaginatedProducts;
 }) {
   const locale = useLocale();
   const tc = useTranslations("categories");
-  const { data: allProducts = [] } = useProducts();
-  const { data: categories = [] } = useCategories();
+  const { data: categories = initialCategories } = useCategories(initialCategories);
   const children = childCategories(categories, category.id);
-  const directProducts = allProducts.filter(
-    (product) => product.categoryId === category.id,
-  );
-  const { facets, selected, filtered, setFacet, clearFacets } =
-    useProductFacetFilter(directProducts);
   const isLeaf = children.length === 0;
   const title = getLocalized(category.name, locale);
   const description = getLocalized(category.description, locale);
+
+  const [selected, setSelected] = useState<Record<string, string>>({});
+  const options = useMemo(
+    () =>
+      Object.entries(selected)
+        .filter(([, value]) => Boolean(value))
+        .map(([key, value]) => ({ key, value })),
+    [selected],
+  );
+
+  const facets = useMemo(
+    () => collectFacets(initialProducts.items, locale),
+    [initialProducts.items, locale],
+  );
+
+  const setFacet = (key: string, value: string) => {
+    setSelected((prev) => {
+      const next = { ...prev };
+      if (!value || next[key] === value) delete next[key];
+      else next[key] = value;
+      return next;
+    });
+  };
+
+  const clearFacets = () => setSelected({});
+  const filterKey = options.map((o) => `${o.key}:${o.value}`).sort().join("|");
 
   return (
     <div>
@@ -66,7 +92,7 @@ export function CategoryDetailContent({
             </div>
           )}
 
-          {isLeaf && directProducts.length > 0 && (
+          {isLeaf && (
             <>
               <ProductFacetFilters
                 facets={facets}
@@ -74,35 +100,25 @@ export function CategoryDetailContent({
                 onSelect={setFacet}
                 onClear={clearFacets}
               />
-              {filtered.length > 0 ? (
-                <ProductCardGrid
-                  products={filtered}
-                  className="lg:grid-cols-2 xl:grid-cols-3"
-                />
-              ) : (
-                <Reveal>
-                  <div className="rounded-[5px] border border-border bg-card p-12 text-center text-muted-foreground">
-                    {tc.has("noFilteredProducts")
+              <InfiniteProductGrid
+                key={filterKey || "all"}
+                filter={{ category: category.slug, options }}
+                initial={options.length === 0 ? initialProducts : null}
+                path={`/products/${category.slug}`}
+                className="lg:grid-cols-2 xl:grid-cols-3"
+                emptyLabel={
+                  options.length > 0
+                    ? tc.has("noFilteredProducts")
                       ? tc("noFilteredProducts")
                       : locale === "am"
                         ? "Այս ֆիլտրերով ապրանքներ չկան։"
                         : locale === "ru"
                           ? "Нет товаров по выбранным фильтрам."
-                          : "No products match these filters."}
-                  </div>
-                </Reveal>
-              )}
+                          : "No products match these filters."
+                    : undefined
+                }
+              />
             </>
-          )}
-
-          {isLeaf && directProducts.length === 0 && (
-            <Reveal>
-              <div className="rounded-[5px] border border-border bg-card p-12 text-center text-muted-foreground">
-                {tc.has("noProducts")
-                  ? tc("noProducts")
-                  : "Այս կատեգորիայում դեռ ապրանքներ չկան։"}
-              </div>
-            </Reveal>
           )}
         </div>
       </div>

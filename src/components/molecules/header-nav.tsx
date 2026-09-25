@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { getLocalized } from "@/data/catalog";
-import { useCategories, useCollections } from "@/hooks/use-catalog";
+import { useCategories } from "@/hooks/use-catalog";
 import {
   childCategories,
   parentCategories,
@@ -38,7 +38,7 @@ export const hrefMap: Record<NavKey, string> = {
   contact: "/contact",
 };
 
-const submenuKeys = new Set<NavKey>(["products", "collections"]);
+const submenuKeys = new Set<NavKey>(["products"]);
 
 type HeaderNavProps = {
   solid: boolean;
@@ -382,43 +382,6 @@ function CategoryChildItem({
   );
 }
 
-function CollectionsMenu({ onNavigate }: { onNavigate?: () => void }) {
-  const t = useTranslations("collections");
-  const locale = useLocale();
-  const { data: collections = [] } = useCollections();
-
-  return (
-    <ul
-      className="bg-white py-2.5 text-[#2C333E] dark:bg-popover dark:text-popover-foreground"
-      data-lenis-prevent
-      onWheel={stopPageScroll}
-    >
-      <li>
-        <Link
-          href="/collections"
-          role="menuitem"
-          onClick={onNavigate}
-          className="mx-2 block rounded-lg px-3 py-2 text-sm font-semibold uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
-        >
-          {t("viewAll")}
-        </Link>
-      </li>
-      {collections.map((collection) => (
-        <li key={collection.id}>
-          <Link
-            href={`/collections/${collection.slug}`}
-            role="menuitem"
-            onClick={onNavigate}
-            className="mx-2 block rounded-lg px-3 py-2 text-sm text-popover-foreground/75 transition hover:bg-foreground/5 hover:text-popover-foreground"
-          >
-            {getLocalized(collection.name, locale)}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 function MobileSubmenu({
   label,
   href,
@@ -543,34 +506,6 @@ function MobileProductsLinks({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function MobileCollectionsLinks({ onNavigate }: { onNavigate?: () => void }) {
-  const t = useTranslations("collections");
-  const locale = useLocale();
-  const { data: collections = [] } = useCollections();
-
-  return (
-    <>
-      <Link
-        href="/collections"
-        className="block py-1 text-base uppercase tracking-[0.05em] text-muted-foreground"
-        onClick={onNavigate}
-      >
-        {t("viewAll")}
-      </Link>
-      {collections.map((collection) => (
-        <Link
-          key={collection.id}
-          href={`/collections/${collection.slug}`}
-          className="block text-base text-foreground/90"
-          onClick={onNavigate}
-        >
-          {getLocalized(collection.name, locale)}
-        </Link>
-      ))}
-    </>
-  );
-}
-
 export function HeaderNav({
   solid,
   onNavigate,
@@ -603,11 +538,7 @@ export function HeaderNav({
               href={hrefMap[key]}
               onNavigate={onNavigate}
             >
-              {key === "products" ? (
-                <MobileProductsLinks onNavigate={onNavigate} />
-              ) : (
-                <MobileCollectionsLinks onNavigate={onNavigate} />
-              )}
+              <MobileProductsLinks onNavigate={onNavigate} />
             </MobileSubmenu>
           );
         })}
@@ -643,13 +574,9 @@ export function HeaderNav({
             label={t(key)}
             href={href}
             active={active}
-            wide={key === "products"}
+            wide
           >
-            {key === "products" ? (
-              <ProductsMenu onNavigate={onNavigate} />
-            ) : (
-              <CollectionsMenu onNavigate={onNavigate} />
-            )}
+            <ProductsMenu onNavigate={onNavigate} />
           </DesktopDropdown>
         );
       })}

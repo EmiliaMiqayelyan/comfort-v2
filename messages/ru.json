@@ -52,7 +52,12 @@
     "accessories": "Аксессуары",
     "accessoriesDesc": "Углы, соединители и монтажные решения.",
     "noProducts": "В этой категории пока нет товаров.",
-    "results": "{count} результатов"
+    "results": "{count} результатов",
+    "noFilteredProducts": "Нет товаров по выбранным фильтрам.",
+    "filters": "Фильтры",
+    "clearFilters": "Сбросить",
+    "loadMore": "Загрузить ещё",
+    "loadingMore": "Загрузка…"
   },
   "collections": {
     "title": "Аксессуары",
@@ -70,7 +75,8 @@
     "availability": "Наличие",
     "reset": "Сбросить",
     "results": "{count} результатов",
-    "loadMore": "Загрузить ещё"
+    "loadMore": "Загрузить ещё",
+    "loadingMore": "Загрузка…"
   },
   "advantages": {
     "title": "Почему Comfort",

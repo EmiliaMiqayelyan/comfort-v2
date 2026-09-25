@@ -1,30 +1,25 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Reveal } from "@/components/molecules/reveal";
-import { ProductCardGrid } from "@/components/molecules/product-card";
+import { InfiniteProductGrid } from "@/components/molecules/infinite-product-grid";
 import { getLocalized } from "@/data/catalog";
-import { useProducts } from "@/hooks/use-catalog";
 import { CollectionBreadcrumb } from "@/features/collections/collection-breadcrumb";
 import { CatalogDetailContent } from "@/features/products/catalog-detail-content";
+import type { PaginatedProducts } from "@/lib/api";
 import type { Collection } from "@/types";
 
-export function CollectionDetailContent({ collection }: { collection: Collection }) {
+export function CollectionDetailContent({
+  collection,
+  initialProducts,
+}: {
+  collection: Collection;
+  initialProducts: PaginatedProducts;
+}) {
   const t = useTranslations("collections");
   const locale = useLocale();
-  const { data: allProducts = [] } = useProducts();
   const collectionName = getLocalized(collection.name, locale);
-
-  const collectionProducts = useMemo(
-    () =>
-      allProducts.filter(
-        (product) =>
-          product.collectionIds?.includes(collection.id) ||
-          product.collectionId === collection.id,
-      ),
-    [allProducts, collection.id],
-  );
 
   return (
     <div>
@@ -43,16 +38,18 @@ export function CollectionDetailContent({ collection }: { collection: Collection
       <CatalogDetailContent
         item={collection}
         footer={
-          collectionProducts.length > 0 ? (
-            <section className="mt-24 border-t border-border pt-24">
-              <Reveal>
-                <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
-                  {t("title")}
-                </h2>
-              </Reveal>
-              <ProductCardGrid products={collectionProducts} />
-            </section>
-          ) : null
+          <section className="mt-24 border-t border-border pt-24">
+            <Reveal>
+              <h2 className="display mb-12 text-2xl text-foreground md:text-3xl">
+                {t("title")}
+              </h2>
+            </Reveal>
+            <InfiniteProductGrid
+              filter={{ collection: collection.slug }}
+              initial={initialProducts}
+              path={`/collections/${collection.slug}`}
+            />
+          </section>
         }
       />
     </div>

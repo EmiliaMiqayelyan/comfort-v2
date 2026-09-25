@@ -44,9 +44,32 @@ function getToken() {
   }
 }
 
+type ApiFetchInit = RequestInit & {
+  next?: { revalidate?: number | false; tags?: string[] };
+};
+
+/** Public catalog GETs are cached on the server; auth/mutations stay fresh. */
+function resolveFetchCache(init: ApiFetchInit, hasAuth: boolean) {
+  const method = (init.method ?? "GET").toUpperCase();
+  const isGet = method === "GET" || method === "HEAD";
+  const onServer = typeof window === "undefined";
+
+  if (init.cache || init.next) {
+    return { cache: init.cache, next: init.next };
+  }
+
+  if (!isGet || hasAuth || !onServer) {
+    return { cache: "no-store" as RequestCache };
+  }
+
+  return {
+    next: { revalidate: 120, tags: ["catalog"] as string[] },
+  };
+}
+
 export async function apiFetch<T>(
   path: string,
-  init: RequestInit = {},
+  init: ApiFetchInit = {},
 ): Promise<T> {
   const headers = new Headers(init.headers);
   const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
@@ -56,10 +79,14 @@ export async function apiFetch<T>(
   const token = getToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
+  const { cache, next } = resolveFetchCache(init, Boolean(token));
+  const { next: _omitNext, cache: _omitCache, ...rest } = init;
+
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    ...init,
+    ...rest,
     headers,
-    cache: init.cache ?? "no-store",
+    ...(cache ? { cache } : {}),
+    ...(next ? { next } : {}),
   });
 
   if (response.status === 204) return undefined as T;
@@ -93,8 +120,49 @@ export async function apiGet<T>(path: string): Promise<T | null> {
   }
 }
 
+export type ProductListQuery = {
+  page?: number;
+  limit?: number;
+  category?: string;
+  collection?: string;
+  q?: string;
+  featured?: boolean;
+  /** `key:value` pairs forwarded as repeated `option` query params */
+  options?: Array<{ key: string; value: string }>;
+};
+
+export type PaginatedProducts = {
+  items: Product[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+};
+
+function productsQueryString(query: ProductListQuery = {}) {
+  const params = new URLSearchParams();
+  if (query.page != null) params.set("page", String(query.page));
+  if (query.limit != null) params.set("limit", String(query.limit));
+  if (query.category) params.set("category", query.category);
+  if (query.collection) params.set("collection", query.collection);
+  if (query.q) params.set("q", query.q);
+  if (query.featured) params.set("featured", "true");
+  for (const option of query.options ?? []) {
+    if (option.key && option.value) {
+      params.append("option", `${option.key}:${option.value}`);
+    }
+  }
+  if (query.page != null || query.limit != null) {
+    params.set("paginated", "true");
+  }
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
+}
+
 export const catalogApi = {
   products: () => apiGet<Product[]>("/products"),
+  productsPage: (query: ProductListQuery = {}) =>
+    apiGet<PaginatedProducts>(`/products${productsQueryString({ limit: 24, page: 1, ...query })}`),
   product: (slug: string) => apiGet<Product>(`/products/${slug}`),
   categories: () => apiGet<ProductCategory[]>("/categories"),
   category: (slug: string) => apiGet<ProductCategory>(`/categories/${slug}`),

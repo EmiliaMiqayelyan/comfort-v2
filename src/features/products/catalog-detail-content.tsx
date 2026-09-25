@@ -239,7 +239,7 @@ function CatalogDetailInner({
     ? matrixTitleSuffix
       ? `${baseTitle} - ${matrixTitleSuffix}`
       : baseTitle
-    : selectedVariantName
+    : selectedVariantName && selectedVariantName.length <= 48
       ? `${baseTitle} - ${selectedVariantName}`
       : baseTitle;
 
@@ -252,9 +252,10 @@ function CatalogDetailInner({
         : locale === "ru"
           ? "Цвет"
           : "Color";
-  const variantsHeading = selectedVariantName
-    ? `${colorLabel}: ${selectedVariantName}`
-    : colorLabel;
+  const variantsHeading =
+    selectedVariantName && selectedVariantName.length <= 48
+      ? `${colorLabel}: ${selectedVariantName}`
+      : colorLabel;
   const articleLabel =
     t.has("sku")
       ? t("sku")

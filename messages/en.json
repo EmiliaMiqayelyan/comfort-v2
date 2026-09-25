@@ -52,7 +52,12 @@
     "accessories": "Accessories",
     "accessoriesDesc": "Corners, connectors and installation essentials.",
     "noProducts": "No products in this category yet.",
-    "results": "{count} results"
+    "results": "{count} results",
+    "noFilteredProducts": "No products match these filters.",
+    "filters": "Filters",
+    "clearFilters": "Clear",
+    "loadMore": "Load more",
+    "loadingMore": "Loading…"
   },
   "collections": {
     "title": "Accessories",
@@ -70,7 +75,8 @@
     "availability": "Availability",
     "reset": "Reset filters",
     "results": "{count} results",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "loadingMore": "Loading…"
   },
   "advantages": {
     "title": "Why Comfort",
