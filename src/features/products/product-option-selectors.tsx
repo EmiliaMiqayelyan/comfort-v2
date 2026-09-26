@@ -98,10 +98,7 @@ export function ProductOptionSelectors({
                                 src={swatch}
                                 alt={label}
                                 fill
-                                unoptimized={
-                                  swatch.includes("/uploads/") ||
-                                  swatch.startsWith("http")
-                                }
+                                unoptimized={swatch.startsWith("http")}
                                 className="object-cover object-center"
                                 sizes="56px"
                               />

@@ -33,7 +33,8 @@ export function SiteHeader() {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        setScrolled(window.scrollY > 24 || !isHome);
+        const next = window.scrollY > 24 || !isHome;
+        setScrolled((prev) => (prev === next ? prev : next));
         ticking = false;
       });
     };

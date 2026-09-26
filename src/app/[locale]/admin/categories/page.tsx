@@ -55,6 +55,8 @@ export default function AdminCategoriesPage() {
         <CategoryTreeTable
           items={items}
           localeName={(item) => getLocalized(item.name, locale)}
+          imageHeader={t("images")}
+          noImageLabel={t.has("noImage") ? t("noImage") : "No image"}
           structureHeader={t("name")}
           slugHeader="Slug"
           productsHeader={t("products")}

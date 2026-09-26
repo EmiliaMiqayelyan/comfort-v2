@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronRight, CornerDownRight, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, CornerDownRight, ImageOff, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,25 @@ import {
   childCategories,
 } from "@/lib/category-tree";
 import type { ProductCategory } from "@/types";
+
+const STUB_CATEGORY_IMAGES = new Set([
+  "/products/plinth.jpg",
+  "/products/plinth.png",
+  "/brand/comfort-logo.png",
+  "/brand/comfort-logo.svg",
+]);
+
+function categoryImageSrc(image: string | null | undefined) {
+  const src = image?.trim() ?? "";
+  if (!src || STUB_CATEGORY_IMAGES.has(src)) return null;
+  if (src.endsWith("/products/plinth.png") || src.endsWith("/products/plinth.jpg")) {
+    return null;
+  }
+  if (src.endsWith("/brand/comfort-logo.png") || src.endsWith("/brand/comfort-logo.svg")) {
+    return null;
+  }
+  return src;
+}
 
 type CategoryTreeTableProps = {
   items: ProductCategory[];
@@ -25,6 +44,8 @@ type CategoryTreeTableProps = {
   expandAllLabel: string;
   collapseAllLabel: string;
   hiddenChildrenLabel: (count: number) => string;
+  imageHeader?: string;
+  noImageLabel?: string;
   slugHeader?: string;
   productsHeader: string;
   structureHeader: string;
@@ -62,6 +83,8 @@ export function CategoryTreeTable({
   expandAllLabel,
   collapseAllLabel,
   hiddenChildrenLabel,
+  imageHeader = "Image",
+  noImageLabel = "No image",
   slugHeader = "Slug",
   productsHeader,
   structureHeader,
@@ -132,9 +155,10 @@ export function CategoryTreeTable({
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="w-full min-w-[840px] text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-[#203E4B] text-white">
+                <th className="px-5 py-3.5 font-medium">{imageHeader}</th>
                 <th className="px-5 py-3.5 font-medium">{structureHeader}</th>
                 <th className="px-5 py-3.5 font-medium">{slugHeader}</th>
                 <th className="px-5 py-3.5 font-medium">{productsHeader}</th>
@@ -151,6 +175,7 @@ export function CategoryTreeTable({
                 const hasChildren = parentsWithChildren.has(category.id);
                 const isCollapsed = collapsedSet.has(category.id);
                 const hiddenCount = isCollapsed ? descendantCount(category.id, items) : 0;
+                const imageSrc = categoryImageSrc(category.image);
 
                 return (
                   <tr
@@ -160,6 +185,29 @@ export function CategoryTreeTable({
                       depth > 0 && "bg-muted/20",
                     )}
                   >
+                    <td className="px-5 py-4">
+                      {imageSrc ? (
+                        <div className="h-12 w-12 overflow-hidden rounded-[5px] border border-border bg-muted/40">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={imageSrc}
+                            alt={name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="flex h-12 w-12 flex-col items-center justify-center gap-0.5 rounded-[5px] border border-dashed border-amber-500/50 bg-amber-500/10 text-amber-800 dark:text-amber-300"
+                          title={noImageLabel}
+                          aria-label={noImageLabel}
+                        >
+                          <ImageOff className="h-4 w-4" />
+                          <span className="max-w-full truncate px-0.5 text-[8px] leading-none">
+                            {noImageLabel}
+                          </span>
+                        </div>
+                      )}
+                    </td>
                     <td className="px-5 py-4">
                       <div
                         className="flex items-start gap-2"

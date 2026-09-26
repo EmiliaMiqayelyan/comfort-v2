@@ -3,7 +3,6 @@
 import { Suspense, useMemo, useState, useEffect, useRef, type ReactNode } from "react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Download, Expand, FileText } from "lucide-react";
 import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
@@ -28,8 +27,6 @@ import type {
   ProductVariant,
 } from "@/types";
 
-const GALLERY_CROSSFADE = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const };
-
 function preloadImage(src: string) {
   return new Promise<void>((resolve, reject) => {
     if (!src) {
@@ -50,10 +47,9 @@ function slideFromSrc(id: string, imageUrl: string, thumbUrl?: string | null) {
     id,
     src,
     thumb: mediaSrc(thumbUrl || imageUrl || ""),
-    unoptimized:
-      src === FALLBACK_MEDIA ||
-      /\/uploads\//.test(src) ||
-      /^https?:\/\//i.test(src),
+    // Optimize same-origin /uploads via Next image pipeline; skip only
+    // external absolute URLs and the brand fallback asset.
+    unoptimized: src === FALLBACK_MEDIA || /^https?:\/\//i.test(src),
     isBrandFallback: src === FALLBACK_MEDIA,
   };
 }
@@ -475,34 +471,30 @@ function CatalogDetailInner({
               {gallerySlides.map((slide, index) => {
                 const isActive = slide.id === displayedVariantId;
                 return (
-                  <motion.div
+                  <div
                     key={slide.id}
-                    initial={false}
-                    animate={{
-                      opacity: isActive ? 1 : 0,
-                      scale: isActive ? 1 : 1.015,
-                    }}
-                    transition={GALLERY_CROSSFADE}
-                    className="absolute inset-0"
-                    style={{ zIndex: isActive ? 1 : 0 }}
+                    className={cn(
+                      "absolute inset-0 transition-opacity duration-300 ease-out",
+                      isActive ? "z-[1] opacity-100" : "z-0 opacity-0",
+                    )}
                     aria-hidden={!isActive}
                   >
                     <Image
                       src={slide.src}
                       alt={displayTitle}
                       fill
-                      quality={95}
+                      quality={80}
                       unoptimized={slide.unoptimized}
                       priority={index === 0}
-                      loading={index === 0 ? undefined : "eager"}
+                      loading={index === 0 ? undefined : "lazy"}
                       className={cn(
-                        "relative z-[1] object-contain object-left transition duration-300 group-hover:scale-[1.01]",
+                        "object-contain object-left",
                         slide.isBrandFallback && "object-center p-[22%]",
                       )}
                       sizes="(max-width: 1024px) 100vw, 520px"
                       onLoadingComplete={() => markReady(slide.src)}
                     />
-                  </motion.div>
+                  </div>
                 );
               })}
               <span className="pointer-events-none absolute bottom-3 right-3 z-[2] flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">

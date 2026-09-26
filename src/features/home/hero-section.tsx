@@ -75,7 +75,7 @@ export function HeroSection() {
                   alt=""
                   fill
                   priority={i === 0}
-                  unoptimized={slide.startsWith("http") || slide.includes("/uploads/")}
+                  unoptimized={slide.startsWith("data:") || slide.startsWith("blob:")}
                   className="object-cover object-center"
                   sizes="100vw"
                 />

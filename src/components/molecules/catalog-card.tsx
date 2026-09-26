@@ -36,9 +36,11 @@ export function CatalogCard({
     setSrc(resolveCatalogImage(image));
   }, [image]);
 
-  const isUpload = src.includes("/uploads/");
   const isRemote = /^https?:\/\//i.test(src);
   const isBrandFallback = src === FALLBACK_MEDIA;
+  // Same-origin /uploads go through Next image optimizer (webp + resize).
+  // Only skip optimizer for external URLs and the tiny brand fallback asset.
+  const skipOptimizer = isRemote || isBrandFallback;
 
   return (
     <Link
@@ -56,12 +58,12 @@ export function CatalogCard({
           quality={75}
           loading="lazy"
           decoding="async"
-          unoptimized={isRemote || isUpload || isBrandFallback}
+          unoptimized={skipOptimizer}
           className={cn(
-            "relative z-[1] object-contain object-center",
+            "object-contain object-center",
             isBrandFallback && "p-[22%]",
           )}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 280px"
           onError={() => {
             if (src !== FALLBACK_MEDIA) setSrc(FALLBACK_MEDIA);
           }}

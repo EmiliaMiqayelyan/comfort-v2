@@ -427,6 +427,7 @@
     "description": "Description",
     "dimensions": "Dimensions",
     "images": "Images",
+    "noImage": "No image",
     "width": "Width",
     "price": "Price",
     "featured": "Featured product",

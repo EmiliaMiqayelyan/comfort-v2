@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Pagination } from "swiper/modules";
@@ -22,16 +22,27 @@ export function CollectionsSection({
   const t = useTranslations("collections");
   const { data: collections = [], isLoading } = useCollections(initialCollections);
   const swiperRef = useRef<SwiperClass | null>(null);
-  const [atStart, setAtStart] = useState(true);
-  const [atEnd, setAtEnd] = useState(false);
+  const prevBtnRef = useRef<HTMLButtonElement>(null);
+  const nextBtnRef = useRef<HTMLButtonElement>(null);
 
   if ((!initialCollections?.length && isLoading) || collections.length === 0) return null;
 
   const showSlider = collections.length > 1;
 
+  /** Update nav affordance via DOM — avoids React re-render on every slide. */
   const syncNav = (swiper: SwiperClass) => {
-    setAtStart(swiper.isBeginning);
-    setAtEnd(swiper.isEnd);
+    const prev = prevBtnRef.current;
+    const next = nextBtnRef.current;
+    if (prev) {
+      prev.disabled = swiper.isBeginning;
+      prev.classList.toggle("pointer-events-none", swiper.isBeginning);
+      prev.classList.toggle("opacity-35", swiper.isBeginning);
+    }
+    if (next) {
+      next.disabled = swiper.isEnd;
+      next.classList.toggle("pointer-events-none", swiper.isEnd);
+      next.classList.toggle("opacity-35", swiper.isEnd);
+    }
   };
 
   return (
@@ -55,68 +66,69 @@ export function CollectionsSection({
             <CollectionCard collection={collections[0]} />
           </Reveal>
         ) : (
-          <Reveal>
-            <div className="collections-swiper relative">
-              <Swiper
-                modules={[Pagination]}
-                spaceBetween={20}
-                slidesPerView={1}
-                watchOverflow
-                pagination={{
-                  clickable: true,
-                  el: ".collections-swiper-pagination",
-                  dynamicBullets: true,
-                }}
-                breakpoints={{
-                  640: { slidesPerView: 2, spaceBetween: 20 },
-                  1024: { slidesPerView: 4, spaceBetween: 24 },
-                }}
-                onSwiper={(swiper) => {
-                  swiperRef.current = swiper;
-                  syncNav(swiper);
-                }}
-                onSlideChange={syncNav}
-                onResize={syncNav}
-                onBreakpoint={syncNav}
-              >
-                {collections.map((collection) => (
-                  <SwiperSlide key={collection.id} className="!h-auto min-w-0">
-                    <CollectionCard
-                      collection={collection}
-                      className="h-full w-full"
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+          <div className="collections-swiper relative">
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={20}
+              slidesPerView={1}
+              watchOverflow
+              speed={350}
+              // Native scroll-snap path — much smoother on trackpads/touch than
+              // JS-driven transforms while painting image-heavy slides.
+              cssMode
+              resistanceRatio={0}
+              pagination={{
+                clickable: true,
+                el: ".collections-swiper-pagination",
+                dynamicBullets: true,
+              }}
+              breakpoints={{
+                640: { slidesPerView: 2, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 24 },
+              }}
+              onSwiper={(swiper) => {
+                swiperRef.current = swiper;
+                syncNav(swiper);
+              }}
+              onSlideChange={syncNav}
+              onResize={syncNav}
+              onBreakpoint={syncNav}
+            >
+              {collections.map((collection) => (
+                <SwiperSlide key={collection.id} className="!h-auto min-w-0">
+                  <CollectionCard
+                    collection={collection}
+                    className="h-full w-full"
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
 
-              <div className="collections-swiper-pagination mt-8" />
+            <div className="collections-swiper-pagination mt-8" />
 
-              <button
-                type="button"
-                aria-label="Previous"
-                disabled={atStart}
-                onClick={() => swiperRef.current?.slidePrev()}
-                className={cn(
-                  "collections-swiper-nav absolute top-[38%] left-0 z-10 hidden h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 sm:flex md:h-14 md:w-14",
-                  atStart && "pointer-events-none opacity-35",
-                )}
-              >
-                <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
-              </button>
-              <button
-                type="button"
-                aria-label="Next"
-                disabled={atEnd}
-                onClick={() => swiperRef.current?.slideNext()}
-                className={cn(
-                  "collections-swiper-nav absolute top-[38%] right-0 z-10 hidden h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 sm:flex md:h-14 md:w-14",
-                  atEnd && "pointer-events-none opacity-35",
-                )}
-              >
-                <ChevronRight className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
-              </button>
-            </div>
-          </Reveal>
+            <button
+              ref={prevBtnRef}
+              type="button"
+              aria-label="Previous"
+              onClick={() => swiperRef.current?.slidePrev()}
+              className={cn(
+                "collections-swiper-nav absolute top-[38%] left-0 z-10 hidden h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 sm:flex md:h-14 md:w-14",
+              )}
+            >
+              <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
+            </button>
+            <button
+              ref={nextBtnRef}
+              type="button"
+              aria-label="Next"
+              onClick={() => swiperRef.current?.slideNext()}
+              className={cn(
+                "collections-swiper-nav absolute top-[38%] right-0 z-10 hidden h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 sm:flex md:h-14 md:w-14",
+              )}
+            >
+              <ChevronRight className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} />
+            </button>
+          </div>
         )}
       </div>
     </section>
