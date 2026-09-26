@@ -67,7 +67,7 @@ export function SiteHeader() {
     >
       <div
         className={cn(
-          "container-wide flex items-center justify-between gap-4",
+          "container-wide flex items-center justify-between gap-4 px-4 md:px-8",
           mobileNavOpen && "shrink-0 border-b border-border/60 py-3",
         )}
       >
@@ -135,7 +135,6 @@ export function SiteHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="min-h-0 w-full flex-1 overflow-y-auto overscroll-contain px-6 py-6 lg:hidden"
-            data-lenis-prevent
           >
             <div className="flex min-h-full flex-col gap-4">
               <HeaderNav

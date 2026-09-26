@@ -46,7 +46,7 @@ export function LocaleShell({
   return (
     <>
       {header}
-      <main id="main-content" className="min-h-screen">
+      <main id="main-content" className="min-h-screen overflow-x-clip">
         {children}
       </main>
       {footer}

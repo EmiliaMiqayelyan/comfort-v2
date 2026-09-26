@@ -496,7 +496,7 @@ function CatalogDetailInner({
                       priority={index === 0}
                       loading={index === 0 ? undefined : "eager"}
                       className={cn(
-                        "object-contain object-left transition duration-300 group-hover:scale-[1.01]",
+                        "relative z-[1] object-contain object-left transition duration-300 group-hover:scale-[1.01]",
                         slide.isBrandFallback && "object-center p-[22%]",
                       )}
                       sizes="(max-width: 1024px) 100vw, 520px"

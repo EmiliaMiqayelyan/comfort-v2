@@ -23,7 +23,7 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-border bg-comfort-ink text-comfort-sand">
-      <div className="container-wide grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
+      <div className="container-wide grid gap-12 px-4 py-16 md:grid-cols-2 md:px-8 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <div className="mb-5">
             <BrandLogo heightClassName="h-14" inverted />
@@ -91,7 +91,7 @@ export function SiteFooter() {
       </div>
 
       <Separator className="bg-white/10" />
-      <div className="container-wide flex flex-col gap-2 py-6 text-xs text-comfort-sand/65 sm:flex-row sm:items-center sm:justify-between">
+      <div className="container-wide flex flex-col gap-2 px-4 py-6 text-xs text-comfort-sand/65 sm:flex-row sm:items-center sm:justify-between md:px-8">
         <p>
           © {new Date().getFullYear()} Comfort. {t("rights")}
         </p>

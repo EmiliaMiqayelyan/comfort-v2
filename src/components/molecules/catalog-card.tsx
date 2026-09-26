@@ -44,7 +44,7 @@ export function CatalogCard({
     <Link
       href={href}
       className={cn(
-        "catalog-card-item catalog-panel catalog-shadow group flex h-full flex-col overflow-hidden rounded-[5px] transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5",
+        "catalog-card-item catalog-panel catalog-shadow group flex h-full w-full min-w-0 flex-col overflow-hidden rounded-[5px] transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5",
         className,
       )}
     >
@@ -58,7 +58,7 @@ export function CatalogCard({
           decoding="async"
           unoptimized={isRemote || isUpload || isBrandFallback}
           className={cn(
-            "object-contain object-center",
+            "relative z-[1] object-contain object-center",
             isBrandFallback && "p-[22%]",
           )}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -70,7 +70,7 @@ export function CatalogCard({
 
       <div className="flex flex-1 items-center justify-between gap-4 px-5 py-5 md:px-6 md:py-6">
         <div className="min-w-0">
-          <h3 className="text-[17px] font-bold uppercase leading-[1.25] tracking-tight text-foreground md:text-[18px]">
+          <h3 className="break-words text-[17px] font-bold uppercase leading-[1.25] tracking-tight text-foreground md:text-[18px]">
             {title}
           </h3>
           {description ? (
@@ -147,7 +147,7 @@ export function ProductCardGrid({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6",
+        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 *:min-w-0",
         className,
       )}
     >
@@ -201,7 +201,7 @@ export function CollectionCardGrid({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6",
+        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 *:min-w-0",
         className,
       )}
     >
@@ -246,7 +246,7 @@ export function CategoryCardGrid({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6",
+        "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 *:min-w-0",
         className,
       )}
     >

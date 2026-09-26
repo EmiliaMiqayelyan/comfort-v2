@@ -13,7 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ProductCategory } from "@/types";
 
-/** Keep wheel/touch scroll inside the panel; Lenis otherwise scrolls the page. */
+/** Keep wheel scroll inside nested overflow panels. */
 function stopPageScroll(event: WheelEvent<HTMLElement>) {
   event.stopPropagation();
 }
@@ -156,7 +156,6 @@ function DesktopDropdown({
       >
         <div
           role="menu"
-          data-lenis-prevent
           onWheel={stopPageScroll}
           className={cn(
             "overflow-hidden rounded-xl border border-border bg-white text-[#2C333E] shadow-[0_16px_48px_rgba(44,51,62,0.12)] dark:bg-popover dark:text-popover-foreground dark:shadow-[0_16px_48px_rgba(0,0,0,0.45)]",
@@ -228,7 +227,6 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div
       className="flex bg-white text-[#2C333E] dark:bg-popover dark:text-popover-foreground"
-      data-lenis-prevent
       onWheel={stopPageScroll}
     >
       <ul className="w-72 shrink-0 border-r border-border bg-foreground/[0.03] py-3">

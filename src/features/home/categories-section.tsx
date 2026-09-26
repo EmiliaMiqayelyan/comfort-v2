@@ -27,9 +27,9 @@ export function CategoriesSection({
           </h2>
         </Reveal>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {parents.map((category, i) => (
-            <Reveal key={category.id} delay={i * 0.08}>
+            <Reveal key={category.id} delay={i * 0.08} className="min-w-0">
               <CategoryCard category={category} />
             </Reveal>
           ))}

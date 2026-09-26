@@ -18,7 +18,7 @@ export function BrandLogo({
       src="/brand/comfort-logo.svg"
       alt="comfort"
       className={cn(
-        "w-auto object-contain object-left",
+        "h-auto max-w-[9.5rem] object-contain object-left md:max-w-[11rem]",
         heightClassName,
         inverted && "brightness-0 invert",
         className,

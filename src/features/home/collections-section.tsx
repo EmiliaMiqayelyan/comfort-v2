@@ -80,10 +80,10 @@ export function CollectionsSection({
                 onBreakpoint={syncNav}
               >
                 {collections.map((collection) => (
-                  <SwiperSlide key={collection.id} className="!h-auto">
+                  <SwiperSlide key={collection.id} className="!h-auto min-w-0">
                     <CollectionCard
                       collection={collection}
-                      className="h-full"
+                      className="h-full w-full"
                     />
                   </SwiperSlide>
                 ))}
@@ -97,7 +97,7 @@ export function CollectionsSection({
                 disabled={atStart}
                 onClick={() => swiperRef.current?.slidePrev()}
                 className={cn(
-                  "collections-swiper-nav absolute top-[38%] left-0 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 md:h-14 md:w-14",
+                  "collections-swiper-nav absolute top-[38%] left-0 z-10 hidden h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 sm:flex md:h-14 md:w-14",
                   atStart && "pointer-events-none opacity-35",
                 )}
               >
@@ -109,7 +109,7 @@ export function CollectionsSection({
                 disabled={atEnd}
                 onClick={() => swiperRef.current?.slideNext()}
                 className={cn(
-                  "collections-swiper-nav absolute top-[38%] right-0 z-10 flex h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 md:h-14 md:w-14",
+                  "collections-swiper-nav absolute top-[38%] right-0 z-10 hidden h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-foreground shadow-[0_8px_24px_rgba(17,24,39,0.12)] transition hover:bg-white/95 sm:flex md:h-14 md:w-14",
                   atEnd && "pointer-events-none opacity-35",
                 )}
               >

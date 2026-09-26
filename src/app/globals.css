@@ -237,6 +237,7 @@
 
 html {
   scroll-behavior: auto;
+  overflow-x: clip;
 }
 
 body {
@@ -244,6 +245,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-comfort-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 ::selection {
@@ -269,9 +271,12 @@ body {
   background: color-mix(in srgb, var(--background) 92%, transparent);
 }
 
+/* Height-only placeholder: a single `auto 420px` value applies to BOTH
+   axes and forces ~420px card width, which overflows mobile viewports. */
 .catalog-card-item {
   content-visibility: auto;
-  contain-intrinsic-size: auto 420px;
+  contain-intrinsic-width: none;
+  contain-intrinsic-height: auto 420px;
 }
 
 .shadow-soft {
