@@ -60,18 +60,28 @@ function resolveGallery(
   images: string[],
   colors: ProductColor[],
   galleryVariants: ProductGalleryVariant[],
+  inventFromImages = true,
 ) {
-  const resolvedGallery =
-    galleryVariants.length > 0
-      ? galleryVariants
-      : legacyGalleryFromColors(colors).length > 0
-        ? legacyGalleryFromColors(colors)
-        : legacyGalleryFromImages(images);
+  if (galleryVariants.length > 0) {
+    const validGallery = galleryVariants.filter(
+      (variant) => variant.imageUrl || variant.thumbUrl,
+    );
+    return { images, galleryVariants: validGallery };
+  }
 
-  const validGallery = resolvedGallery.filter((variant) => variant.imageUrl || variant.thumbUrl);
+  const fromColors = legacyGalleryFromColors(colors);
+  if (fromColors.length > 0) {
+    return { images, galleryVariants: fromColors };
+  }
+
+  if (!inventFromImages) {
+    return { images, galleryVariants: [] };
+  }
+
+  const fromImages = legacyGalleryFromImages(images);
   return {
-    images: validGallery.length > 0 ? validGallery.map((v) => v.imageUrl || v.thumbUrl) : images,
-    galleryVariants: validGallery,
+    images,
+    galleryVariants: fromImages.filter((variant) => variant.imageUrl || variant.thumbUrl),
   };
 }
 
@@ -180,7 +190,7 @@ export function normalizeCollection(collection: Collection): Collection {
   const galleryVariants = jsonArray<ProductGalleryVariant>(collection.galleryVariants).map(
     normalizeGalleryVariant,
   );
-  const gallery = resolveGallery(images, colors, galleryVariants);
+  const gallery = resolveGallery(images, colors, galleryVariants, false);
   const raw = collection as Collection & { product_count?: number };
 
   return {

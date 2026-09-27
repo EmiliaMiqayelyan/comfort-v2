@@ -8,14 +8,14 @@
  *   /var/www/comfort/server/uploads/legacy/...  (copied image files)
  *
  * Mapping:
- *   productName_*  -> L1 parent Category
- *   subName_*      -> L2 Category (when present)
- *   nestedName_*   -> L3 Category when subName exists (navbar needs this level);
- *                     L2 when subName is empty (Suspended ceilings / Ribbons / Windowsill)
- *   leaf           -> Product under deepest category; title = nested or sub name (no duplication)
- *   accessories images only -> Collection: mock title from product name; images only
- *   colorCodes CSV -> split into per-swatch names
- *   images: prefer AM, then EN, then RU, then generic (deduped)
+ *   productName_*  -> L1 category
+ *   subName_*      -> L2 category when present
+ *   nestedName_*   -> L2 only when subName is empty (ceilings / ribbons / windowsill);
+ *                     otherwise product title, never a category
+ *   accessories    -> collection: mocked title, images only (no colors / gallery variants)
+ *   colorsImages   -> product galleryVariants in source order, empty names
+ *   colorCodes     -> not imported
+ *   images         -> AM shots, else EN, else RU; then generic; montages last
  *
  * Read-only vs old VPS: this script only reads local JSON + local legacy images.
  */
@@ -136,102 +136,74 @@ function parentCoverFallback(parentKey) {
   return firstExistingUrl(candidates[parentKey] || []);
 }
 
-/** Prefer AM gallery, then EN/RU/generic; keep order, dedupe. */
-function pickImages(leaf) {
-  const buckets = [
-    asArray(leaf.images_am),
-    asArray(leaf.generic_image),
-    asArray(leaf.images_en),
-    asArray(leaf.images_ru),
-    asArray(leaf.montagesImages_am),
-    asArray(leaf.montagesImages_en),
-    asArray(leaf.montagesImages_ru),
-  ];
+function urlsFrom(rels) {
   const out = [];
   const seen = new Set();
-  for (const bucket of buckets) {
-    for (const rel of bucket) {
-      const url = toPublicUrl(rel);
+  for (const rel of asArray(rels)) {
+    const url = toPublicUrl(rel);
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    out.push(url);
+  }
+  return out;
+}
+
+function mergeUnique(groups) {
+  const out = [];
+  const seen = new Set();
+  for (const group of groups) {
+    for (const url of group) {
       if (!url || seen.has(url)) continue;
       seen.add(url);
       out.push(url);
     }
   }
   return out;
+}
+
+/** One locale gallery (AM, else EN, else RU), then generic, montages last. */
+function pickImages(leaf) {
+  const shots = asArray(leaf.images_am).length
+    ? urlsFrom(leaf.images_am)
+    : asArray(leaf.images_en).length
+      ? urlsFrom(leaf.images_en)
+      : urlsFrom(leaf.images_ru);
+  const montages = asArray(leaf.montagesImages_am).length
+    ? urlsFrom(leaf.montagesImages_am)
+    : asArray(leaf.montagesImages_en).length
+      ? urlsFrom(leaf.montagesImages_en)
+      : urlsFrom(leaf.montagesImages_ru);
+  return mergeUnique([shots, urlsFrom(leaf.generic_image), montages]);
 }
 
 function pickAccessoryImages(leaf) {
-  const buckets = [
-    asArray(leaf.accessoriesImages_am),
-    asArray(leaf.accessoriesImages_en),
-    asArray(leaf.accessoriesImages_ru),
-    asArray(leaf.fittingsImages),
-    asArray(leaf.fittingsMoreImages),
-  ];
-  const out = [];
-  const seen = new Set();
-  for (const bucket of buckets) {
-    for (const rel of bucket) {
-      const url = toPublicUrl(rel);
-      if (!url || seen.has(url)) continue;
-      seen.add(url);
-      out.push(url);
-    }
-  }
-  return out;
+  const shots = asArray(leaf.accessoriesImages_am).length
+    ? urlsFrom(leaf.accessoriesImages_am)
+    : asArray(leaf.accessoriesImages_en).length
+      ? urlsFrom(leaf.accessoriesImages_en)
+      : urlsFrom(leaf.accessoriesImages_ru);
+  return mergeUnique([
+    shots,
+    urlsFrom(leaf.fittingsImages),
+    urlsFrom(leaf.fittingsMoreImages),
+  ]);
 }
 
-function expandColorCodes(raw, imageCount) {
-  const items = asArray(raw).map((item) => String(item).trim()).filter(Boolean);
-
-  const splitCsv = (value) =>
-    value
-      .split(",")
-      .map((part) => part.trim())
-      .filter(Boolean);
-
-  let codes = [];
-  if (items.length === 0) {
-    codes = [];
-  } else if (items.length === 1 && items[0].includes(",")) {
-    codes = splitCsv(items[0]);
-  } else if (
-    items.length > 1 &&
-    items.every((item) => item === items[0]) &&
-    items[0].includes(",")
-  ) {
-    // Same CSV repeated once per image — keep a single split list.
-    codes = splitCsv(items[0]);
-  } else {
-    codes = items.flatMap((item) => (item.includes(",") ? splitCsv(item) : [item]));
-  }
-
-  const n = Math.max(imageCount, 0);
-  if (n <= 0) return codes;
-  return Array.from({ length: n }, (_, i) => codes[i] || `Color ${i + 1}`);
-}
-
-function buildColors(leaf) {
-  const images = asArray(leaf.colorsImages);
-  const codes = expandColorCodes(leaf.colorCodes, images.length);
-  const n = Math.max(images.length, codes.length);
-  const colors = [];
-  const galleryVariants = [];
-  for (let i = 0; i < n; i += 1) {
-    const code = (codes[i] || `Color ${i + 1}`).toString();
-    const imgUrl = toPublicUrl(images[i]) || "";
-    const id = uuid();
-    colors.push({ id, name: loc(code, code, code), hex: "#cccccc" });
-    if (imgUrl) {
-      galleryVariants.push({
+/** Texture swatches from colorsImages only. Names stay empty (colorCodes are unreliable). */
+function buildGalleryVariants(leaf) {
+  const emptyName = loc("", "", "");
+  return asArray(leaf.colorsImages)
+    .map((rel) => {
+      const imgUrl = toPublicUrl(rel);
+      if (!imgUrl) return null;
+      return {
         id: uuid(),
-        name: loc(code, code, code),
+        name: emptyName,
         thumbUrl: imgUrl,
         imageUrl: imgUrl,
-      });
-    }
-  }
-  return { colors, galleryVariants };
+      };
+    })
+    .filter(Boolean);
 }
 
 function parsePrice(raw) {
@@ -391,19 +363,9 @@ async function main() {
 
         let category;
         let productName;
-        if (hasSubName && hasNestedName) {
-          // L2 = sub section, L3 = nested subcategory (needed for navbar columns)
-          const l2 = await ensureChild(parent, subName, filteredImage);
-          const leaf0 = asArray(nested.subNestedCategories)[0];
-          const nestedCover =
-            firstExistingUrl(leaf0?.generic_image) ||
-            firstExistingUrl(leaf0?.images_am) ||
-            filteredImage;
-          category = await ensureChild(l2, nestedName, nestedCover);
-          productName = nestedName;
-        } else if (hasSubName) {
+        if (hasSubName) {
           category = await ensureChild(parent, subName, filteredImage);
-          productName = subName;
+          productName = hasNestedName ? nestedName : subName;
         } else if (hasNestedName) {
           // Empty subName => nested entries are the visible subcategories
           emptySubPromoted += 1;
@@ -428,7 +390,7 @@ async function main() {
           const images = pickImages(leaf);
           if (!images.length) skippedNoImages += 1;
 
-          const { colors, galleryVariants } = buildColors(leaf);
+          const galleryVariants = buildGalleryVariants(leaf);
           const specs = [];
           if (leaf.montage_en || leaf.montage_am || leaf.montage_ru) {
             specs.push({
@@ -513,7 +475,7 @@ async function main() {
               category.id,
               collectionId,
               JSON.stringify(images),
-              JSON.stringify(colors),
+              JSON.stringify([]),
               JSON.stringify(galleryVariants),
               JSON.stringify([]),
               JSON.stringify(specs),

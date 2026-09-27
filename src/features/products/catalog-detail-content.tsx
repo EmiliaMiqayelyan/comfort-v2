@@ -27,20 +27,6 @@ import type {
   ProductVariant,
 } from "@/types";
 
-function preloadImage(src: string) {
-  return new Promise<void>((resolve, reject) => {
-    if (!src) {
-      resolve();
-      return;
-    }
-    const img = new window.Image();
-    img.decoding = "async";
-    img.onload = () => resolve();
-    img.onerror = () => reject(new Error(`Failed to preload ${src}`));
-    img.src = src;
-  });
-}
-
 function slideFromSrc(id: string, imageUrl: string, thumbUrl?: string | null) {
   const src = mediaSrc(imageUrl?.trim() || thumbUrl || "");
   return {
@@ -196,9 +182,9 @@ function CatalogDetailInner({
         ? initialMatrix.variant?.id ?? gallerySlides[0]?.id ?? null
         : gallerySlides[0]?.id ?? null,
   );
-  const [readySrcs, setReadySrcs] = useState<Set<string>>(() => new Set());
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const pendingIdRef = useRef<string | null>(null);
+  const loadedSrcsRef = useRef<Set<string>>(new Set());
 
   const specs = jsonArray<ProductSpec>(item.specs);
   const downloads = jsonArray<ProductDownload>(item.downloads);
@@ -239,30 +225,6 @@ function CatalogDetailInner({
       ? `${baseTitle} - ${selectedVariantName}`
       : baseTitle;
 
-  const colorLabel = t.has("galleryColors")
-    ? t("galleryColors")
-    : t.has("colors")
-      ? t("colors")
-      : locale === "am"
-        ? "Գույն"
-        : locale === "ru"
-          ? "Цвет"
-          : "Color";
-  const variantsHeading =
-    selectedVariantName && selectedVariantName.length <= 48
-      ? `${colorLabel}: ${selectedVariantName}`
-      : colorLabel;
-  const articleLabel =
-    t.has("sku")
-      ? t("sku")
-      : locale === "am"
-        ? "Արտիկուլ"
-        : locale === "ru"
-          ? "Артикул"
-          : "Article";
-  const activeSku = hasMatrix
-    ? activeMatrixVariant?.sku || item.sku || ""
-    : item.sku || "";
   const activePrice =
     hasMatrix && activeMatrixVariant?.price != null
       ? Number(activeMatrixVariant.price)
@@ -347,39 +309,23 @@ function CatalogDetailInner({
   const zoomOutLabel =
     locale === "am" ? "Փոքրացնել" : locale === "ru" ? "Уменьшить" : "Zoom out";
 
-  const markReady = (src: string) => {
-    setReadySrcs((prev) => {
-      if (prev.has(src)) return prev;
-      const next = new Set(prev);
-      next.add(src);
-      return next;
-    });
-  };
-
   const selectSlide = (id: string) => {
     setSelectedVariantId(id);
-    pendingIdRef.current = id;
     const slide = gallerySlides.find((entry) => entry.id === id);
-    if (!slide) return;
-    if (readySrcs.has(slide.src)) {
-      setDisplayedVariantId(id);
+    if (!slide || loadedSrcsRef.current.has(slide.src)) {
       pendingIdRef.current = null;
+      setDisplayedVariantId(id);
       return;
     }
-    void preloadImage(slide.src)
-      .then(() => {
-        markReady(slide.src);
-        if (pendingIdRef.current === id) {
-          setDisplayedVariantId(id);
-          pendingIdRef.current = null;
-        }
-      })
-      .catch(() => {
-        if (pendingIdRef.current === id) {
-          setDisplayedVariantId(id);
-          pendingIdRef.current = null;
-        }
-      });
+    pendingIdRef.current = id;
+  };
+
+  const handleSlideLoad = (id: string, src: string) => {
+    loadedSrcsRef.current.add(src);
+    if (pendingIdRef.current === id) {
+      setDisplayedVariantId(id);
+      pendingIdRef.current = null;
+    }
   };
 
   const syncVariantUrl = (variantId: string | null) => {
@@ -410,14 +356,6 @@ function CatalogDetailInner({
     }
   };
 
-  const warmVariant = (id: string) => {
-    const slide = gallerySlides.find((entry) => entry.id === id);
-    if (!slide || readySrcs.has(slide.src)) return;
-    void preloadImage(slide.src)
-      .then(() => markReady(slide.src))
-      .catch(() => undefined);
-  };
-
   useEffect(() => {
     setLightboxOpen(false);
     const seeded = hasMatrix
@@ -434,24 +372,10 @@ function CatalogDetailInner({
     setSelectedVariantId(firstId);
     setDisplayedVariantId(firstId);
     pendingIdRef.current = null;
-    setReadySrcs(new Set());
+    loadedSrcsRef.current = new Set();
     // Reset only when navigating to a different product.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id]);
-
-  useEffect(() => {
-    let cancelled = false;
-    gallerySlides.forEach((slide) => {
-      void preloadImage(slide.src)
-        .then(() => {
-          if (!cancelled) markReady(slide.src);
-        })
-        .catch(() => undefined);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [gallerySlides]);
 
   return (
     <>
@@ -469,15 +393,18 @@ function CatalogDetailInner({
               aria-label={openImageLabel}
             >
               {gallerySlides.map((slide, index) => {
-                const isActive = slide.id === displayedVariantId;
+                const isSelected = slide.id === selectedVariantId;
+                const isVisible =
+                  isSelected || slide.id === displayedVariantId;
                 return (
                   <div
                     key={slide.id}
                     className={cn(
-                      "absolute inset-0 transition-opacity duration-300 ease-out",
-                      isActive ? "z-[1] opacity-100" : "z-0 opacity-0",
+                      "absolute inset-0",
+                      isSelected ? "z-[1]" : "z-0",
+                      isVisible ? "opacity-100" : "opacity-0",
                     )}
-                    aria-hidden={!isActive}
+                    aria-hidden={!isSelected}
                   >
                     <Image
                       src={slide.src}
@@ -486,13 +413,13 @@ function CatalogDetailInner({
                       quality={80}
                       unoptimized={slide.unoptimized}
                       priority={index === 0}
-                      loading={index === 0 ? undefined : "lazy"}
+                      loading={index === 0 ? undefined : "eager"}
                       className={cn(
                         "object-contain object-left",
                         slide.isBrandFallback && "object-center p-[22%]",
                       )}
                       sizes="(max-width: 1024px) 100vw, 520px"
-                      onLoadingComplete={() => markReady(slide.src)}
+                      onLoad={() => handleSlideLoad(slide.id, slide.src)}
                     />
                   </div>
                 );
@@ -510,12 +437,6 @@ function CatalogDetailInner({
               <h1 className="display text-3xl text-foreground md:text-4xl lg:text-5xl">
                 {displayTitle}
               </h1>
-              {activeSku ? (
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">{articleLabel}:</span>{" "}
-                  {activeSku}
-                </p>
-              ) : null}
               {hasPrice ? (
                 <p className="display text-2xl text-foreground">
                   {formatPrice(Number(activePrice), locale)}
@@ -526,47 +447,40 @@ function CatalogDetailInner({
 
           {!hasMatrix && galleryVariants.length > 0 ? (
             <Reveal delay={0.05}>
-              <div>
-                <p className="mb-2 text-sm font-medium text-foreground">
-                  {variantsHeading}
-                </p>
-                <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                  {galleryVariants.map((variant) => {
-                    const label =
-                      getLocalized(variant.name, locale).trim() || baseTitle;
-                    const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
-                    const isSelected = selectedGalleryVariant?.id === variant.id;
-                    return (
-                      <button
-                        key={variant.id}
-                        type="button"
-                        title={label}
-                        onClick={() => selectSlide(variant.id)}
-                        onMouseEnter={() => warmVariant(variant.id)}
-                        onFocus={() => warmVariant(variant.id)}
-                        className={cn(
-                          "relative h-12 w-12 shrink-0 overflow-hidden rounded-[3px] bg-muted ring-2 ring-offset-1 ring-offset-background transition sm:h-14 sm:w-14",
-                          isSelected
-                            ? "ring-foreground"
-                            : "ring-transparent opacity-90 hover:ring-foreground/25 hover:opacity-100",
-                        )}
-                        aria-pressed={isSelected}
-                        aria-label={label}
-                      >
-                        <Image
-                          src={thumb}
-                          alt={label}
-                          fill
-                          unoptimized={
-                            thumb.includes("/uploads/") || thumb.startsWith("http")
-                          }
-                          className="scale-125 object-cover object-center"
-                          sizes="56px"
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                {galleryVariants.map((variant) => {
+                  const label =
+                    getLocalized(variant.name, locale).trim() || baseTitle;
+                  const thumb = mediaSrc(variant.thumbUrl || variant.imageUrl);
+                  const isSelected = selectedGalleryVariant?.id === variant.id;
+                  return (
+                    <button
+                      key={variant.id}
+                      type="button"
+                      title={label}
+                      onClick={() => selectSlide(variant.id)}
+                      className={cn(
+                        "relative h-12 w-12 shrink-0 overflow-hidden rounded-[3px] bg-muted ring-2 ring-offset-1 ring-offset-background transition sm:h-14 sm:w-14",
+                        isSelected
+                          ? "ring-foreground"
+                          : "ring-transparent opacity-90 hover:ring-foreground/25 hover:opacity-100",
+                      )}
+                      aria-pressed={isSelected}
+                      aria-label={label}
+                    >
+                      <Image
+                        src={thumb}
+                        alt={label}
+                        fill
+                        unoptimized={
+                          thumb.includes("/uploads/") || thumb.startsWith("http")
+                        }
+                        className="scale-125 object-cover object-center"
+                        sizes="56px"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             </Reveal>
           ) : null}
@@ -649,7 +563,7 @@ function CatalogDetailInner({
       {description || hasSpecs ? (
         <div
           className={cn(
-            "mt-16 grid items-start gap-12 lg:mt-24",
+            "mt-8 grid items-start gap-12",
             description && hasSpecs && "md:grid-cols-2 md:gap-x-10 lg:gap-x-16",
           )}
         >
