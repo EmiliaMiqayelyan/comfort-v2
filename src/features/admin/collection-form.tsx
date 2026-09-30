@@ -275,7 +275,7 @@ export function CollectionForm({ collection }: { collection?: Collection }) {
             </div>
           </Section>
 
-          <Section title={t("images")}>
+          <Section title={t("images")} collapsible defaultOpen={false}>
             <GalleryVariantsFields
               variants={asArray<ProductGalleryVariant>(form.galleryVariants)}
               onChange={(galleryVariants) => update("galleryVariants", galleryVariants)}
@@ -377,7 +377,7 @@ export function CollectionForm({ collection }: { collection?: Collection }) {
             </div>
           </Section>
 
-          <Section title={t("textures")}>
+          <Section title={t("textures")} collapsible defaultOpen={false}>
             <div className="space-y-6">
               {form.textures.map((texture, index) => (
                 <div key={texture.id} className="space-y-3 rounded-xl border border-border p-4">

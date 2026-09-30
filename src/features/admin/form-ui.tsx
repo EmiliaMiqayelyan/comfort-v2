@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/atoms/button";
@@ -27,16 +29,42 @@ export function slugify(value: string) {
 export function Section({
   title,
   children,
+  collapsible = false,
+  defaultOpen = true,
 }: {
   title: string;
   children: React.ReactNode;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
 }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const expanded = !collapsible || open;
+
   return (
     <section className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-sm md:p-6">
-      <h2 className="text-sm font-medium uppercase tracking-[0.16em] text-muted-foreground">
-        {title}
-      </h2>
-      {children}
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={expanded}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <h2 className="text-sm font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            {title}
+          </h2>
+          <ChevronDown
+            className={cn(
+              "size-4 shrink-0 text-muted-foreground transition-transform",
+              expanded && "rotate-180",
+            )}
+          />
+        </button>
+      ) : (
+        <h2 className="text-sm font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          {title}
+        </h2>
+      )}
+      {expanded ? children : null}
     </section>
   );
 }

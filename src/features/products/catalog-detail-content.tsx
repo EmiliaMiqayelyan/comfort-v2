@@ -1,6 +1,14 @@
 "use client";
 
-import { Suspense, useMemo, useState, useEffect, useRef, type ReactNode } from "react";
+import {
+  Suspense,
+  useMemo,
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type ReactNode,
+} from "react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -26,6 +34,87 @@ import type {
   ProductSpec,
   ProductVariant,
 } from "@/types";
+
+function ProductPageTitle({ title }: { title: string }) {
+  const ref = useRef<HTMLHeadingElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const fit = () => {
+      el.style.display = "";
+      el.style.webkitLineClamp = "";
+      el.style.webkitBoxOrient = "";
+      el.style.fontSize = "";
+
+      const desktop = window.matchMedia("(min-width: 1024px)").matches;
+      if (!desktop) return;
+
+      const maxPx = Number.parseFloat(getComputedStyle(el).fontSize);
+      if (!Number.isFinite(maxPx) || maxPx <= 0) return;
+
+      // Slot height matches one line at the large size. Shrink until the
+      // full title fits there, so the color swatches stay put.
+      const minPx = maxPx * 0.5;
+      const overflows = () => el.scrollHeight > el.clientHeight + 2;
+
+      if (!overflows()) return;
+
+      let low = minPx;
+      let high = maxPx;
+      let best = minPx;
+      for (let step = 0; step < 12; step += 1) {
+        const mid = (low + high) / 2;
+        el.style.fontSize = `${mid}px`;
+        if (overflows()) high = mid;
+        else {
+          best = mid;
+          low = mid;
+        }
+      }
+
+      el.style.fontSize = `${best}px`;
+      if (!overflows()) return;
+
+      el.style.display = "-webkit-box";
+      el.style.webkitBoxOrient = "vertical";
+      el.style.webkitLineClamp = "2";
+    };
+
+    fit();
+    const parent = el.parentElement;
+    const observer =
+      parent && typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(fit)
+        : null;
+    observer?.observe(parent ?? el);
+
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    desktopQuery.addEventListener("change", fit);
+
+    let cancelled = false;
+    document.fonts?.ready.then(() => {
+      if (!cancelled) fit();
+    });
+
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+      desktopQuery.removeEventListener("change", fit);
+    };
+  }, [title]);
+
+  return (
+    <h1
+      ref={ref}
+      title={title}
+      className="display break-words leading-[1.15] text-[1.875rem] text-foreground max-lg:line-clamp-2 md:text-[2.25rem] lg:h-[calc(3rem*1.15+2px)] lg:overflow-hidden lg:text-[3rem]"
+    >
+      {title}
+    </h1>
+  );
+}
 
 function slideFromSrc(id: string, imageUrl: string, thumbUrl?: string | null) {
   const src = mediaSrc(imageUrl?.trim() || thumbUrl || "");
@@ -434,9 +523,7 @@ function CatalogDetailInner({
         <div className="space-y-6 lg:col-start-2 lg:row-span-2 lg:space-y-8">
           <Reveal>
             <div className="space-y-4">
-              <h1 className="display text-3xl text-foreground md:text-4xl lg:text-5xl">
-                {displayTitle}
-              </h1>
+              <ProductPageTitle title={displayTitle} />
               {hasPrice ? (
                 <p className="display text-2xl text-foreground">
                   {formatPrice(Number(activePrice), locale)}
