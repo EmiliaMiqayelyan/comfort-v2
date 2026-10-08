@@ -120,6 +120,8 @@
   },
   "product": {
     "description": "Description",
+    "showMore": "Read more",
+    "showLess": "Show less",
     "specs": "Specifications",
     "downloads": "Downloads",
     "related": "Related products",

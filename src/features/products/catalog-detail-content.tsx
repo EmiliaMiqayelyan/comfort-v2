@@ -15,6 +15,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { Download, Expand, FileText } from "lucide-react";
 import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
 import { Badge } from "@/components/atoms/badge";
+import { SwatchRow } from "@/components/molecules/chip-swiper";
+import { ExpandableText } from "@/components/molecules/expandable-text";
 import { ImageLightbox } from "@/components/molecules/image-lightbox";
 import { Reveal } from "@/components/molecules/reveal";
 import { ProductOptionSelectors } from "@/features/products/product-option-selectors";
@@ -468,7 +470,7 @@ function CatalogDetailInner({
 
   return (
     <>
-      <div className="grid gap-8 lg:grid-cols-[520px_minmax(0,1fr)] lg:grid-rows-[auto_auto] lg:gap-x-5 lg:gap-y-6">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[520px_minmax(0,1fr)] lg:grid-rows-[auto_auto] lg:gap-x-5 lg:gap-y-6">
         <div className="min-w-0">
           <Reveal>
             <button
@@ -520,7 +522,7 @@ function CatalogDetailInner({
           </Reveal>
         </div>
 
-        <div className="space-y-6 lg:col-start-2 lg:row-span-2 lg:space-y-8">
+        <div className="min-w-0 space-y-6 lg:col-start-2 lg:row-span-2 lg:space-y-8">
           <Reveal>
             <div className="space-y-4">
               <ProductPageTitle title={displayTitle} />
@@ -534,7 +536,14 @@ function CatalogDetailInner({
 
           {!hasMatrix && galleryVariants.length > 0 ? (
             <Reveal delay={0.05}>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              <SwatchRow
+                initialSlide={Math.max(
+                  0,
+                  galleryVariants.findIndex(
+                    (variant) => variant.id === selectedGalleryVariant?.id,
+                  ),
+                )}
+              >
                 {galleryVariants.map((variant) => {
                   const label =
                     getLocalized(variant.name, locale).trim() || baseTitle;
@@ -568,7 +577,7 @@ function CatalogDetailInner({
                     </button>
                   );
                 })}
-              </div>
+              </SwatchRow>
             </Reveal>
           ) : null}
 
@@ -660,9 +669,13 @@ function CatalogDetailInner({
                 <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
                   {t("description")}
                 </h2>
-                <p className="text-lg leading-relaxed text-muted-foreground">
+                <ExpandableText
+                  className="text-lg leading-relaxed text-muted-foreground"
+                  moreLabel={t("showMore")}
+                  lessLabel={t("showLess")}
+                >
                   {description}
-                </p>
+                </ExpandableText>
               </div>
             </Reveal>
           ) : null}

@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
+import { ChipSwiper } from "@/components/molecules/chip-swiper";
 import { getLocalized } from "@/data/catalog";
 import { useCategories, useProducts } from "@/hooks/use-catalog";
 import { categoryBreadcrumbChain } from "@/lib/category-tree";
@@ -34,17 +35,28 @@ export function CollectionBreadcrumb({
     ? categoryBreadcrumbChain(productCategory.id, categories)
     : [];
 
+  const current = (
+    <span key="current" className="flex items-center gap-1.5">
+      <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
+      <span className="font-medium text-foreground">{currentLabel}</span>
+    </span>
+  );
+
   if (fromProduct) {
     return (
       <nav aria-label="Breadcrumb" className="mb-10 text-sm text-muted-foreground">
-        <ol className="flex flex-wrap items-center gap-1.5">
-          <li>
-            <Link href="/products" className="transition hover:text-foreground">
-              {tCategories("title")}
-            </Link>
-          </li>
+        <ChipSwiper
+          wrapperTag="ol"
+          slideTag="li"
+          spaceBetween={6}
+          initialSlide={categoryChain.length + 2}
+          slideClassName="flex items-center gap-1.5 whitespace-nowrap"
+        >
+          <Link key="root" href="/products" className="transition hover:text-foreground">
+            {tCategories("title")}
+          </Link>
           {categoryChain.map((item) => (
-            <li key={item.id} className="flex items-center gap-1.5">
+            <span key={item.id} className="flex items-center gap-1.5">
               <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
               <Link
                 href={`/products/${item.slug}`}
@@ -52,9 +64,9 @@ export function CollectionBreadcrumb({
               >
                 {getLocalized(item.name, locale)}
               </Link>
-            </li>
+            </span>
           ))}
-          <li className="flex items-center gap-1.5">
+          <span key="product" className="flex items-center gap-1.5">
             <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
             <Link
               href={`/products/${fromProduct.slug}`}
@@ -62,29 +74,27 @@ export function CollectionBreadcrumb({
             >
               {getLocalized(fromProduct.name, locale)}
             </Link>
-          </li>
-          <li className="flex items-center gap-1.5">
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
-            <span className="font-medium text-foreground">{currentLabel}</span>
-          </li>
-        </ol>
+          </span>
+          {current}
+        </ChipSwiper>
       </nav>
     );
   }
 
   return (
     <nav aria-label="Breadcrumb" className="mb-10 text-sm text-muted-foreground">
-      <ol className="flex flex-wrap items-center gap-1.5">
-        <li>
-          <Link href="/collections" className="transition hover:text-foreground">
-            {tCollections("title")}
-          </Link>
-        </li>
-        <li className="flex items-center gap-1.5">
-          <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
-          <span className="font-medium text-foreground">{currentLabel}</span>
-        </li>
-      </ol>
+      <ChipSwiper
+        wrapperTag="ol"
+        slideTag="li"
+        spaceBetween={6}
+        initialSlide={1}
+        slideClassName="flex items-center gap-1.5 whitespace-nowrap"
+      >
+        <Link key="root" href="/collections" className="transition hover:text-foreground">
+          {tCollections("title")}
+        </Link>
+        {current}
+      </ChipSwiper>
     </nav>
   );
 }

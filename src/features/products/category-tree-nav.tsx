@@ -201,7 +201,7 @@ export function CategoryTreeNav({
 }: CategoryTreeNavProps) {
   const t = useTranslations("categories");
   const roots = parentCategories(categories);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const activeId = activeCategoryId ?? "";
   const catalogLabel = t.has("catalog") ? t("catalog") : "Catalog";
 
@@ -214,8 +214,12 @@ export function CategoryTreeNav({
     >
       <button
         type="button"
+        aria-expanded={!collapsed}
         onClick={() => setCollapsed((value) => !value)}
-        className="flex w-full items-center justify-between border-b border-border/60 px-4 py-3.5 text-left"
+        className={cn(
+          "flex w-full items-center justify-between px-4 py-3.5 text-left",
+          !collapsed && "border-b border-border/60",
+        )}
       >
         <span className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
           {catalogLabel}

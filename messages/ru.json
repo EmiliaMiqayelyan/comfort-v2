@@ -120,6 +120,8 @@
   },
   "product": {
     "description": "Описание",
+    "showMore": "Читать далее",
+    "showLess": "Свернуть",
     "specs": "Характеристики",
     "downloads": "Загрузки",
     "related": "Похожие товары",

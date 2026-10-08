@@ -3,6 +3,7 @@
 import * as Select from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
 import { useLocale } from "next-intl";
+import { FlagIcon } from "@/components/atoms/flag-icon";
 import { usePathname, useRouter } from "@/i18n/routing";
 import { locales, localeLabels, localeNames, type AppLocale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
@@ -29,13 +30,14 @@ export function LocaleSelect({ className, inverted, onChange }: LocaleSelectProp
       <Select.Trigger
         aria-label="Language"
         className={cn(
-          "inline-flex h-8 shrink-0 items-center gap-1 rounded-full px-2.5 text-sm font-medium outline-none transition",
+          "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-sm font-medium outline-none transition",
           inverted
             ? "text-white/90 hover:bg-white/10 data-[state=open]:bg-white/10"
             : "text-foreground/90 hover:bg-muted data-[state=open]:bg-muted",
           className,
         )}
       >
+        <FlagIcon locale={locale} />
         <Select.Value>{localeNames[locale]}</Select.Value>
         <Select.Icon>
           <ChevronDown
@@ -56,13 +58,14 @@ export function LocaleSelect({ className, inverted, onChange }: LocaleSelectProp
                 key={l}
                 value={l}
                 className={cn(
-                  "relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm",
+                  "relative flex cursor-pointer select-none items-center gap-2.5 rounded-lg py-2 pl-8 pr-3 text-sm",
                   "text-foreground outline-none data-[highlighted]:bg-accent/10 data-[highlighted]:text-accent",
                 )}
               >
                 <Select.ItemIndicator className="absolute left-2 flex items-center">
                   <Check className="h-4 w-4 text-accent" />
                 </Select.ItemIndicator>
+                <FlagIcon locale={l} />
                 <Select.ItemText>{localeLabels[l]}</Select.ItemText>
               </Select.Item>
             ))}

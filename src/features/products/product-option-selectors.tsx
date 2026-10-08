@@ -1,11 +1,23 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { useLocale } from "next-intl";
+import { SwatchRow } from "@/components/molecules/chip-swiper";
 import { getLocalized } from "@/data/catalog";
 import { isOptionValueAvailable } from "@/lib/product-variants";
 import { cn, mediaSrc } from "@/lib/utils";
 import type { ProductOption, ProductVariant } from "@/types";
+
+type ValuesContainerProps = { initialIndex: number; children: ReactNode };
+
+function SwatchValues({ initialIndex, children }: ValuesContainerProps) {
+  return <SwatchRow initialSlide={initialIndex}>{children}</SwatchRow>;
+}
+
+function ButtonRow({ children }: ValuesContainerProps) {
+  return <div className="flex flex-wrap gap-1.5 sm:gap-2">{children}</div>;
+}
 
 export function ProductOptionSelectors({
   options,
@@ -49,12 +61,20 @@ export function ProductOptionSelectors({
                 ? `${optionLabel}: ${selectedLabel}`
                 : optionLabel;
 
+              const isSwatches = option.uiType === "swatches";
+              const ValuesContainer = isSwatches ? SwatchValues : ButtonRow;
+
               return (
                 <div key={option.id}>
                   <p className="mb-2 text-sm font-medium text-foreground">
                     {heading}
                   </p>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  <ValuesContainer
+                    initialIndex={Math.max(
+                      0,
+                      option.values.findIndex((value) => value.id === selectedValueId),
+                    )}
+                  >
                     {option.values.map((value) => {
                       const label =
                         getLocalized(value.label, locale).trim() || value.value;
@@ -70,7 +90,7 @@ export function ProductOptionSelectors({
                         ? mediaSrc(value.swatchUrl)
                         : null;
 
-                      if (option.uiType === "swatches") {
+                      if (isSwatches) {
                         return (
                           <button
                             key={value.id}
@@ -127,7 +147,7 @@ export function ProductOptionSelectors({
                         </button>
                       );
                     })}
-                  </div>
+                  </ValuesContainer>
                 </div>
               );
             })}

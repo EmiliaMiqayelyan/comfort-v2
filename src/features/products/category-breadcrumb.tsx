@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { ChevronRight } from "lucide-react";
+import { ChipSwiper } from "@/components/molecules/chip-swiper";
 import { getLocalized } from "@/data/catalog";
 import { categoryBreadcrumbChain } from "@/lib/category-tree";
 import type { ProductCategory } from "@/types";
@@ -22,21 +23,26 @@ export function CategoryBreadcrumb({
   const chain = category
     ? categoryBreadcrumbChain(category.id, categories)
     : [];
+  const itemCount = 1 + chain.length + (currentLabel ? 1 : 0);
 
   return (
     <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground">
-      <ol className="flex flex-wrap items-center gap-1.5">
-        <li>
-          <Link href="/products" className="transition hover:text-foreground">
-            {t("title")}
-          </Link>
-        </li>
+      <ChipSwiper
+        wrapperTag="ol"
+        slideTag="li"
+        spaceBetween={6}
+        initialSlide={itemCount - 1}
+        slideClassName="flex items-center gap-1.5 whitespace-nowrap"
+      >
+        <Link key="root" href="/products" className="transition hover:text-foreground">
+          {t("title")}
+        </Link>
         {chain.map((item) => {
           const isLastCategory = item.id === category?.id;
           const isCurrent = isLastCategory && !currentLabel;
 
           return (
-            <li key={item.id} className="flex items-center gap-1.5">
+            <span key={item.id} className="flex items-center gap-1.5">
               <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
               {isCurrent ? (
                 <span className="font-medium text-foreground">
@@ -50,16 +56,16 @@ export function CategoryBreadcrumb({
                   {getLocalized(item.name, locale)}
                 </Link>
               )}
-            </li>
+            </span>
           );
         })}
         {currentLabel ? (
-          <li className="flex items-center gap-1.5">
+          <span key="current" className="flex items-center gap-1.5">
             <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
             <span className="font-medium text-foreground">{currentLabel}</span>
-          </li>
+          </span>
         ) : null}
-      </ol>
+      </ChipSwiper>
     </nav>
   );
 }
