@@ -36,7 +36,7 @@ export function AdminSelect({
       <Select.Portal>
         <Select.Content
           className={cn(
-            "z-[100] overflow-hidden rounded-xl border border-border bg-card shadow-2xl",
+            "admin-font z-[100] overflow-hidden rounded-xl border border-border bg-card shadow-2xl",
             "w-[var(--radix-select-trigger-width)] min-w-[12rem]",
           )}
           position="popper"

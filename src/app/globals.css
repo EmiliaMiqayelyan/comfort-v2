@@ -104,13 +104,16 @@
     rgba(44, 51, 62, 0.28) 55%,
     rgba(44, 51, 62, 0.12) 100%
   );
-  --font-comfort-sans: "Bainsley", "Mardoto Regular", "Montserratarm Light", "Noto Sans Armenian", system-ui, sans-serif;
+  --font-comfort-body: "Bainsley", "Mardoto Regular", "Montserratarm Light", "Noto Sans Armenian", system-ui, sans-serif;
   --font-comfort-display: "Arm Hmk's Bebas Neue", "Ofont Ru Bebas Neue", "Bainsley", sans-serif;
+  --font-comfort-sans: var(--font-comfort-display);
 }
 
 /* Force light admin tokens by default; dark overrides below */
 .admin-theme {
   color-scheme: light;
+  --font-comfort-sans: var(--font-comfort-body);
+  font-family: var(--font-comfort-sans);
   --background: #eef1f3;
   --foreground: #2c333e;
   --card: #ffffff;
@@ -159,6 +162,11 @@
   --glass: rgba(20, 26, 33, 0.92);
   --glass-border: rgba(255, 255, 255, 0.08);
   --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* Admin popovers/dialogs portal to <body>, outside `.admin-theme`. */
+.admin-font {
+  font-family: var(--font-comfort-body);
 }
 
 /* Legacy alias */

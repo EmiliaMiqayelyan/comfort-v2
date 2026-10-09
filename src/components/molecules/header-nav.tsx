@@ -53,7 +53,7 @@ function linkTone(solid: boolean, active: boolean) {
       : "text-foreground/90 hover:text-accent";
   }
   return active
-    ? "text-white font-medium"
+    ? "text-white"
     : "text-white/90 hover:text-white";
 }
 
@@ -219,7 +219,7 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
     return (
       <ViewAllProductsLink
         onNavigate={onNavigate}
-        className="block px-4 py-3 text-sm font-semibold uppercase tracking-[0.06em] text-popover-foreground transition hover:text-accent"
+        className="block px-4 py-3 text-sm font-normal uppercase tracking-[0.06em] text-popover-foreground transition hover:text-accent"
       />
     );
   }
@@ -233,7 +233,7 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
         <li>
           <ViewAllProductsLink
             onNavigate={onNavigate}
-            className="mx-2 block rounded-lg px-3 py-2 text-[13px] font-semibold uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
+            className="mx-2 block rounded-lg px-3 py-2 text-[13px] font-normal uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
           />
         </li>
         {roots.map((category) => {

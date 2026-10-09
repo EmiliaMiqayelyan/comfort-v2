@@ -30,7 +30,7 @@ export function LocaleSelect({ className, inverted, onChange }: LocaleSelectProp
       <Select.Trigger
         aria-label="Language"
         className={cn(
-          "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-sm font-medium outline-none transition",
+          "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-sm font-normal outline-none transition",
           inverted
             ? "text-white/90 hover:bg-white/10 data-[state=open]:bg-white/10"
             : "text-foreground/90 hover:bg-muted data-[state=open]:bg-muted",

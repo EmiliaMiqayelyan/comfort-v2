@@ -46,7 +46,7 @@ export function AdminMultiSelect({
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="z-[100] w-[var(--radix-popover-trigger-width)] min-w-[12rem] rounded-xl border border-border bg-card p-1 shadow-2xl"
+          className="admin-font z-[100] w-[var(--radix-popover-trigger-width)] min-w-[12rem] rounded-xl border border-border bg-card p-1 shadow-2xl"
           sideOffset={6}
           align="start"
         >
