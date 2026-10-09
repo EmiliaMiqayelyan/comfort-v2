@@ -66,7 +66,7 @@ export default async function AboutPage({
               <h1 className="display text-4xl text-foreground md:text-5xl">
                 {t("title")}
               </h1>
-              <p className="mt-6 text-base leading-relaxed text-muted-foreground md:text-lg">
+              <p className="mt-6 font-montserratarm text-[13px] leading-relaxed text-muted-foreground md:text-base">
                 {t("body")}
               </p>
             </Reveal>

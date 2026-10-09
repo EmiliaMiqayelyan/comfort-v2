@@ -670,7 +670,7 @@ function CatalogDetailInner({
                   {t("description")}
                 </h2>
                 <ExpandableText
-                  className="text-lg leading-relaxed text-muted-foreground"
+                  className="font-montserratarm text-[13px] leading-relaxed text-muted-foreground md:text-base"
                   moreLabel={t("showMore")}
                   lessLabel={t("showLess")}
                 >

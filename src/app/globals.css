@@ -230,6 +230,7 @@
   --color-comfort-gold: #203E4B;
   --font-sans: var(--font-comfort-sans);
   --font-display: var(--font-comfort-display);
+  --font-montserratarm: "Montserratarm Light", "Noto Sans Armenian", system-ui, sans-serif;
   --radius-sm: 5px;
   --radius-md: 5px;
   --radius-lg: 5px;
