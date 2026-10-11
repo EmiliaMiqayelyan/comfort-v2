@@ -7,6 +7,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Label } from "@/components/atoms/label";
+import { AppSelect } from "@/components/molecules/app-select";
 import { cn, formatPrice } from "@/lib/utils";
 import { getLocalized } from "@/data/catalog";
 import { useCollections, useProducts } from "@/hooks/use-catalog";
@@ -191,42 +192,39 @@ export function ProductConfigurator({ className }: { className?: string }) {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_1fr] xl:gap-12">
         <aside className="glass space-y-6 rounded-3xl p-6 shadow-soft">
           <OptionGroup label={t("collection")}>
-            <select
+            <AppSelect
               id="config-collection"
+              ariaLabel={t("collection")}
               value={collectionId ?? ""}
-              onChange={(e) => {
-                const nextCollection = e.target.value;
+              onValueChange={(nextCollection) => {
                 setField("collectionId", nextCollection);
                 const firstModel = products.find(
                   (p) => p.collectionId === nextCollection,
                 );
                 if (firstModel) setField("modelId", firstModel.id);
               }}
-              className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-              aria-label={t("collection")}
-            >
-              {collections.map((collection) => (
-                <option key={collection.id} value={collection.id}>
-                  {getLocalized(collection.name, locale)}
-                </option>
-              ))}
-            </select>
+              placeholder={t("collection")}
+              options={collections.map((collection) => ({
+                value: collection.id,
+                label: getLocalized(collection.name, locale),
+              }))}
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+            />
           </OptionGroup>
 
           <OptionGroup label={t("model")}>
-            <select
+            <AppSelect
               id="config-model"
+              ariaLabel={t("model")}
               value={modelId ?? ""}
-              onChange={(e) => setField("modelId", e.target.value)}
-              className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-              aria-label={t("model")}
-            >
-              {collectionProducts.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {getLocalized(product.name, locale)}
-                </option>
-              ))}
-            </select>
+              onValueChange={(value) => setField("modelId", value)}
+              placeholder={t("model")}
+              options={collectionProducts.map((product) => ({
+                value: product.id,
+                label: getLocalized(product.name, locale),
+              }))}
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+            />
           </OptionGroup>
 
           <OptionGroup label={t("color")}>
@@ -252,52 +250,49 @@ export function ProductConfigurator({ className }: { className?: string }) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <OptionGroup label={t("finish")}>
-              <select
+              <AppSelect
                 id="config-finish"
+                ariaLabel={t("finish")}
                 value={finishId ?? ""}
-                onChange={(e) => setField("finishId", e.target.value)}
-                className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-                aria-label={t("finish")}
-              >
-                {FINISH_OPTIONS.map((finish) => (
-                  <option key={finish.id} value={finish.id}>
-                    {finish.label}
-                  </option>
-                ))}
-              </select>
+                onValueChange={(value) => setField("finishId", value)}
+                placeholder={t("finish")}
+                options={FINISH_OPTIONS.map((finish) => ({
+                  value: finish.id,
+                  label: finish.label,
+                }))}
+                triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              />
             </OptionGroup>
 
             <OptionGroup label={t("material")}>
-              <select
+              <AppSelect
                 id="config-material"
+                ariaLabel={t("material")}
                 value={materialId ?? ""}
-                onChange={(e) => setField("materialId", e.target.value)}
-                className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-                aria-label={t("material")}
-              >
-                {MATERIAL_OPTIONS.map((material) => (
-                  <option key={material.id} value={material.id}>
-                    {material.label}
-                  </option>
-                ))}
-              </select>
+                onValueChange={(value) => setField("materialId", value)}
+                placeholder={t("material")}
+                options={MATERIAL_OPTIONS.map((material) => ({
+                  value: material.id,
+                  label: material.label,
+                }))}
+                triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              />
             </OptionGroup>
           </div>
 
           <OptionGroup label={t("texture")}>
-            <select
+            <AppSelect
               id="config-texture"
+              ariaLabel={t("texture")}
               value={textureId ?? ""}
-              onChange={(e) => setField("textureId", e.target.value)}
-              className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-              aria-label={t("texture")}
-            >
-              {(selectedProduct?.textures ?? []).map((texture) => (
-                <option key={texture.id} value={texture.id}>
-                  {getLocalized(texture.name, locale)}
-                </option>
-              ))}
-            </select>
+              onValueChange={(value) => setField("textureId", value)}
+              placeholder={t("texture")}
+              options={(selectedProduct?.textures ?? []).map((texture) => ({
+                value: texture.id,
+                label: getLocalized(texture.name, locale),
+              }))}
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+            />
           </OptionGroup>
 
           <label className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card/60 px-4 py-3">

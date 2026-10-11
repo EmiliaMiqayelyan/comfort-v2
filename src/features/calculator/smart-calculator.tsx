@@ -7,6 +7,7 @@ import { jsPDF } from "jspdf";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
+import { AppSelect } from "@/components/molecules/app-select";
 import { cn, formatPrice } from "@/lib/utils";
 import { calculateMaterials } from "@/lib/calculator";
 import { useProducts } from "@/hooks/use-catalog";
@@ -138,35 +139,33 @@ export function SmartCalculator({ className }: { className?: string }) {
           </div>
 
           <Field id="calc-profile" label={t("profile")}>
-            <select
+            <AppSelect
               id="calc-profile"
+              ariaLabel={t("profile")}
               value={input.profileType}
-              onChange={(e) => setInput("profileType", e.target.value)}
-              className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-              aria-label={t("profile")}
-            >
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.sku}
-                </option>
-              ))}
-            </select>
+              onValueChange={(value) => setInput("profileType", value)}
+              placeholder={t("profile")}
+              options={products.map((product) => ({
+                value: product.id,
+                label: product.sku,
+              }))}
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+            />
           </Field>
 
           <Field id="calc-corner" label={t("corner")}>
-            <select
+            <AppSelect
               id="calc-corner"
+              ariaLabel={t("corner")}
               value={input.cornerType}
-              onChange={(e) => setInput("cornerType", e.target.value)}
-              className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-              aria-label={t("corner")}
-            >
-              {CORNER_TYPES.map((corner) => (
-                <option key={corner} value={corner}>
-                  {t(`cornerTypes.${corner}`)}
-                </option>
-              ))}
-            </select>
+              onValueChange={(value) => setInput("cornerType", value)}
+              placeholder={t("corner")}
+              options={CORNER_TYPES.map((corner) => ({
+                value: corner,
+                label: t(`cornerTypes.${corner}`),
+              }))}
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+            />
           </Field>
 
           <Field id="calc-waste" label={t("waste")}>

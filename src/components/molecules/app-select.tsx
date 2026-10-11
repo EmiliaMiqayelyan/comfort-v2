@@ -5,23 +5,29 @@ import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function AppSelect({
+  id,
   value,
   onValueChange,
   placeholder,
   options,
   className,
   triggerClassName,
+  ariaLabel,
 }: {
+  id?: string;
   value: string;
   onValueChange: (value: string) => void;
   placeholder: string;
   options: { value: string; label: string }[];
   className?: string;
   triggerClassName?: string;
+  ariaLabel?: string;
 }) {
   return (
     <Select.Root value={value || undefined} onValueChange={onValueChange}>
       <Select.Trigger
+        id={id}
+        aria-label={ariaLabel}
         className={cn(
           "flex h-9 w-full items-center justify-between gap-2 rounded-[5px] border border-border",
           "bg-card/90 px-3 text-sm text-foreground outline-none transition",

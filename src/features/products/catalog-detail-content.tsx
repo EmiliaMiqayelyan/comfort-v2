@@ -18,6 +18,7 @@ import { Badge } from "@/components/atoms/badge";
 import { SwatchRow } from "@/components/molecules/chip-swiper";
 import { ExpandableText } from "@/components/molecules/expandable-text";
 import { ImageLightbox } from "@/components/molecules/image-lightbox";
+import { ProductCutoutImage } from "@/components/molecules/product-cutout-image";
 import { Reveal } from "@/components/molecules/reveal";
 import { ProductOptionSelectors } from "@/features/products/product-option-selectors";
 import { isValidModelUrl } from "@/lib/product-model";
@@ -497,10 +498,11 @@ function CatalogDetailInner({
                     )}
                     aria-hidden={!isSelected}
                   >
-                    <Image
+                    <ProductCutoutImage
                       src={slide.src}
                       alt={displayTitle}
-                      fill
+                      align={slide.isBrandFallback ? "center" : "left"}
+                      shadow={!slide.isBrandFallback}
                       quality={80}
                       unoptimized={slide.unoptimized}
                       priority={index === 0}

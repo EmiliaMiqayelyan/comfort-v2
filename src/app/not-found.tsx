@@ -10,7 +10,8 @@ export default function GlobalNotFound() {
           minHeight: "100vh",
           display: "grid",
           placeItems: "center",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily:
+            '"Bainsley", "Mardoto Regular", "Montserratarm Light", system-ui, sans-serif',
           background: "#E7DFD9",
           color: "#2C333E",
           padding: 24,

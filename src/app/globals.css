@@ -2,10 +2,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* One file per family. A weight range keeps medium, semibold, and bold
+   on that file instead of falling through to a system font that has those weights. */
 @font-face {
   font-family: "Bainsley";
   src: url("/fonts/bainsley-regular.ttf") format("truetype");
-  font-weight: 400;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -13,7 +15,7 @@
 @font-face {
   font-family: "Arm Hmk's Bebas Neue";
   src: url("/fonts/bebas-neue-arm.ttf") format("truetype");
-  font-weight: 400;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -21,7 +23,7 @@
 @font-face {
   font-family: "Comfort Bebas";
   src: url("/fonts/bebas-neue-arm.ttf") format("truetype");
-  font-weight: 400;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -29,7 +31,7 @@
 @font-face {
   font-family: "Ofont Ru Bebas Neue";
   src: url("/fonts/ofont-ru-bebas-neue.ttf") format("truetype");
-  font-weight: 400;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -37,7 +39,7 @@
 @font-face {
   font-family: "Ofont Ru Bebas Neue Light";
   src: url("/fonts/ofont-ru-bebas-neue-light.ttf") format("truetype");
-  font-weight: 300;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -45,7 +47,7 @@
 @font-face {
   font-family: "Mardoto Regular";
   src: url("/fonts/mardoto-regular.ttf") format("truetype");
-  font-weight: 400;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -53,7 +55,7 @@
 @font-face {
   font-family: "Mardoto";
   src: url("/fonts/mardoto-regular.ttf") format("truetype");
-  font-weight: 400;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -61,7 +63,7 @@
 @font-face {
   font-family: "Montserratarm Light";
   src: url("/fonts/montserratarm-light.otf") format("opentype");
-  font-weight: 300;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -69,7 +71,7 @@
 @font-face {
   font-family: "Montserratarm";
   src: url("/fonts/montserratarm-light.otf") format("opentype");
-  font-weight: 300;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -247,6 +249,7 @@
 html {
   scroll-behavior: auto;
   overflow-x: clip;
+  font-family: var(--font-comfort-sans), system-ui, sans-serif;
 }
 
 body {
@@ -255,6 +258,30 @@ body {
   font-family: var(--font-comfort-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+}
+
+button,
+input,
+select,
+textarea,
+option,
+optgroup {
+  font-family: inherit;
+}
+
+/* Portaled menus render on document.body. Pin the storefront font so the
+   open list matches the trigger. Admin portals keep .admin-font. */
+[data-radix-select-content]:not(.admin-font),
+[data-radix-popper-content-wrapper]:not(:has(.admin-font)),
+[role="listbox"]:not(.admin-font, .admin-font *),
+[role="menu"]:not(.admin-font, .admin-font *) {
+  font-family: var(--font-comfort-sans), system-ui, sans-serif;
+}
+
+/* Uppercase labels (nav menus, category lists, card titles) use the display
+   face. The text face's caps read as a different family. */
+.uppercase {
+  font-family: var(--font-comfort-display), var(--font-comfort-sans), sans-serif;
 }
 
 ::selection {
@@ -598,6 +625,88 @@ html.admin-scroll-lock body {
   background: color-mix(in srgb, #203e4b 35%, transparent);
   animation: comfort-map-pulse 1.8s ease-out infinite;
   pointer-events: none;
+}
+
+/* Floor shadow for transparent product PNGs. Blur sits on the parent so the
+   alpha mask does not clip it back into a hard silhouette. */
+.product-cutout-frame {
+  --cutout-position: center;
+}
+
+.product-cutout-frame.is-left {
+  --cutout-position: left center;
+}
+
+.product-cutout-shadow-clip {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 18%,
+    rgba(0, 0, 0, 0.45) 42%,
+    #000 62%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 18%,
+    rgba(0, 0, 0, 0.45) 42%,
+    #000 62%,
+    #000 100%
+  );
+}
+
+.product-cutout-shadow,
+.product-cutout-shadow-shape {
+  position: absolute;
+  inset: 0;
+}
+
+.product-cutout-shadow-shape {
+  background: #1a1f24;
+  -webkit-mask-image: var(--cutout);
+  mask-image: var(--cutout);
+  -webkit-mask-position: var(--cutout-position);
+  mask-position: var(--cutout-position);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+}
+
+.product-cutout-shadow--contact {
+  transform: translate(0.12%, 0.55%);
+  filter: blur(3px);
+  opacity: 0.42;
+}
+
+.product-cutout-shadow--soft {
+  transform: translate(0.22%, 1.35%);
+  filter: blur(11px);
+  opacity: 0.26;
+}
+
+.product-cutout-shadow--ambient {
+  transform: translate(0.35%, 2.4%);
+  filter: blur(28px);
+  opacity: 0.16;
+}
+
+.product-cutout-punch {
+  -webkit-mask-image: var(--cutout);
+  mask-image: var(--cutout);
+  -webkit-mask-position: var(--cutout-position);
+  mask-position: var(--cutout-position);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
 }
 
 @keyframes comfort-map-pulse {

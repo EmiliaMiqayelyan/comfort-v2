@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Label } from "@/components/atoms/label";
+import { AppSelect } from "@/components/molecules/app-select";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
 import { getLocalized, roomPresets } from "@/data/catalog";
@@ -361,41 +362,39 @@ export function RoomVisualizer({ className }: { className?: string }) {
 
           <div className="space-y-2">
             <Label htmlFor="floor-select">{t("floor")}</Label>
-            <select
+            <AppSelect
               id="floor-select"
+              ariaLabel={t("floor")}
               value={floorId ?? ""}
-              onChange={(e) => setField("floorId", e.target.value)}
-              className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-              aria-label={t("floor")}
-            >
-              {FLOOR_OPTIONS.map((floor) => (
-                <option key={floor.id} value={floor.id}>
-                  {floor.label}
-                </option>
-              ))}
-            </select>
+              onValueChange={(value) => setField("floorId", value)}
+              placeholder={t("floor")}
+              options={FLOOR_OPTIONS.map((floor) => ({
+                value: floor.id,
+                label: floor.label,
+              }))}
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="lighting-select">{t("lighting")}</Label>
-            <select
+            <AppSelect
               id="lighting-select"
+              ariaLabel={t("lighting")}
               value={lighting}
-              onChange={(e) =>
+              onValueChange={(value) =>
                 setField(
                   "lighting",
-                  e.target.value as (typeof LIGHTING_OPTIONS)[number]["id"],
+                  value as (typeof LIGHTING_OPTIONS)[number]["id"],
                 )
               }
-              className="h-11 w-full rounded-2xl border border-input bg-card px-4 text-sm focus-ring"
-              aria-label={t("lighting")}
-            >
-              {LIGHTING_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              placeholder={t("lighting")}
+              options={LIGHTING_OPTIONS.map((option) => ({
+                value: option.id,
+                label: option.label,
+              }))}
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+            />
           </div>
 
           <Button type="button" variant="ghost" size="sm" onClick={reset}>
