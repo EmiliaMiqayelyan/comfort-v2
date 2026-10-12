@@ -12,9 +12,11 @@ import {
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Download, Expand, FileText } from "lucide-react";
+import { ArrowUpRight, Download, Expand, FileText } from "lucide-react";
 import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
 import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
+import { Link } from "@/i18n/routing";
 import { SwatchRow } from "@/components/molecules/chip-swiper";
 import { ExpandableText } from "@/components/molecules/expandable-text";
 import { ImageLightbox } from "@/components/molecules/image-lightbox";
@@ -112,7 +114,7 @@ function ProductPageTitle({ title }: { title: string }) {
     <h1
       ref={ref}
       title={title}
-      className="display break-words leading-[1.15] text-[1.875rem] text-foreground max-lg:line-clamp-2 md:text-[2.25rem] lg:h-[calc(3rem*1.15+2px)] lg:overflow-hidden lg:text-[3rem]"
+      className="display break-words leading-[1.15] text-[1.875rem] text-foreground max-lg:line-clamp-2 md:text-[2.25rem] lg:h-[calc(2.75rem*1.15+2px)] lg:overflow-hidden lg:text-[2.75rem]"
     >
       {title}
     </h1>
@@ -386,8 +388,16 @@ function CatalogDetailInner({
   ).filter((row) => Number(row.value) > 0);
   const hasMaterial = Boolean(item.material?.trim());
   const hasFinish = Boolean(item.finish?.trim());
-  const hasSpecs =
-    specs.length > 0 || dimensionRows.length > 0 || hasMaterial || hasFinish;
+  const specRows = [
+    ...specs.map((spec) => ({
+      key: `spec-${spec.key}`,
+      label: getLocalized(spec.label, locale),
+      value: `${spec.value}${spec.unit ? ` ${spec.unit}` : ""}`,
+    })),
+    ...(hasMaterial ? [{ key: "material", label: t("material"), value: item.material }] : []),
+    ...(hasFinish ? [{ key: "finish", label: t("finish"), value: item.finish }] : []),
+  ];
+  const hasSpecs = specRows.length > 0;
   const openImageLabel =
     locale === "am"
       ? `Բացել լրիվ էկրանով - ${displayTitle}`
@@ -471,14 +481,14 @@ function CatalogDetailInner({
 
   return (
     <>
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[520px_minmax(0,1fr)] lg:grid-rows-[auto_auto] lg:gap-x-5 lg:gap-y-6">
-        <div className="min-w-0">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-12 xl:gap-16">
+        <div className="min-w-0 lg:sticky lg:top-28">
           <Reveal>
             <button
               type="button"
               onClick={() => setLightboxOpen(true)}
               className={cn(
-                "group relative aspect-square w-full max-w-[520px] cursor-zoom-in overflow-hidden rounded-[5px] text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40 lg:size-[520px] lg:max-w-none",
+                "catalog-panel group relative mx-auto block aspect-square w-full cursor-zoom-in overflow-hidden rounded-[5px] border text-left outline-none transition focus-visible:ring-2 focus-visible:ring-foreground/40 lg:max-w-[min(100%,calc(100dvh-9rem))]",
                 gallerySlides.some((slide) => slide.isBrandFallback) &&
                   "bg-[#ecece8]",
               )}
@@ -501,17 +511,17 @@ function CatalogDetailInner({
                     <ProductCutoutImage
                       src={slide.src}
                       alt={displayTitle}
-                      align={slide.isBrandFallback ? "center" : "left"}
+                      align="center"
                       shadow={!slide.isBrandFallback}
                       quality={80}
                       unoptimized={slide.unoptimized}
                       priority={index === 0}
                       loading={index === 0 ? undefined : "eager"}
                       className={cn(
-                        "object-contain object-left",
-                        slide.isBrandFallback && "object-center p-[22%]",
+                        "object-contain object-center",
+                        slide.isBrandFallback && "p-[22%]",
                       )}
-                      sizes="(max-width: 1024px) 100vw, 520px"
+                      sizes="(max-width: 1024px) 100vw, 55vw"
                       onLoad={() => handleSlideLoad(slide.id, slide.src)}
                     />
                   </div>
@@ -524,12 +534,12 @@ function CatalogDetailInner({
           </Reveal>
         </div>
 
-        <div className="min-w-0 space-y-6 lg:col-start-2 lg:row-span-2 lg:space-y-8">
-          <Reveal>
-            <div className="space-y-4">
+        <div className="min-w-0 divide-y divide-border/70 [&>*:last-child]:pb-0">
+          <Reveal className="pb-6">
+            <div className="space-y-3">
               <ProductPageTitle title={displayTitle} />
               {hasPrice ? (
-                <p className="display text-2xl text-foreground">
+                <p className="display text-3xl text-accent dark:text-foreground">
                   {formatPrice(Number(activePrice), locale)}
                 </p>
               ) : null}
@@ -537,7 +547,12 @@ function CatalogDetailInner({
           </Reveal>
 
           {!hasMatrix && galleryVariants.length > 0 ? (
-            <Reveal delay={0.05}>
+            <Reveal delay={0.05} className="py-6">
+              <p className="mb-3 text-sm font-medium text-foreground">
+                {selectedVariantName
+                  ? `${t("galleryColors")}: ${selectedVariantName}`
+                  : t("galleryColors")}
+              </p>
               <SwatchRow
                 initialSlide={Math.max(
                   0,
@@ -584,7 +599,7 @@ function CatalogDetailInner({
           ) : null}
 
           {hasMatrix ? (
-            <Reveal delay={0.05}>
+            <Reveal delay={0.05} className="py-6">
               <ProductOptionSelectors
                 options={orderedOptions}
                 variants={matrixVariants}
@@ -599,21 +614,51 @@ function CatalogDetailInner({
             </Reveal>
           ) : null}
 
+          {dimensionRows.length > 0 ? (
+            <Reveal delay={0.1} className="py-6">
+              <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {dimensionRows.map((row) => (
+                  <div
+                    key={row.key}
+                    className="catalog-panel rounded-[5px] border px-3 py-3"
+                  >
+                    <dt className="truncate text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                      {row.label}
+                    </dt>
+                    <dd className="display mt-1 text-xl text-foreground">
+                      {Number(row.value)}
+                      <span className="ml-1 text-sm text-muted-foreground">mm</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </Reveal>
+          ) : null}
+
+          <Reveal delay={0.15} className="py-6">
+            <Button asChild variant="accent" size="lg" className="w-full sm:w-auto">
+              <Link href="/contact">
+                {t("requestQuote")}
+                <ArrowUpRight />
+              </Link>
+            </Button>
+          </Reveal>
+
           {downloads.length > 0 && (
-            <Reveal delay={0.2}>
+            <Reveal delay={0.2} className="py-6">
               <div>
-                <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
+                <h2 className="mb-3 text-sm font-medium text-foreground">
                   {t("downloads")}
                 </h2>
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {downloads.map((file) => (
                     <li key={file.id}>
                       <a
                         href={file.url}
                         download
-                        className="catalog-panel catalog-shadow group flex items-center gap-4 rounded-[5px] border px-5 py-4 transition hover:border-foreground/30"
+                        className="catalog-panel group flex items-center gap-3 rounded-[5px] border px-4 py-3 transition hover:border-foreground/30"
                       >
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted">
                           {file.type === "pdf" ? (
                             <FileText className="h-4 w-4" />
                           ) : (
@@ -637,37 +682,37 @@ function CatalogDetailInner({
             </Reveal>
           )}
         </div>
-
-        {isValidModelUrl(item.modelUrl) ? (
-          <div className="lg:col-start-1 lg:row-start-2">
-            <Reveal delay={0.15}>
-              <div>
-                <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">
-                  {t("viewer3d")}
-                </p>
-                <ProductViewer3D
-                  key={item.id}
-                  modelUrl={item.modelUrl}
-                  colors={viewerColors}
-                  height={activeHeight}
-                  depth={activeDepth}
-                />
-              </div>
-            </Reveal>
-          </div>
-        ) : null}
       </div>
 
+      {isValidModelUrl(item.modelUrl) ? (
+        <section className="mt-16 md:mt-20">
+          <Reveal>
+            <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
+              {t("viewer3d")}
+            </h2>
+            <ProductViewer3D
+              key={item.id}
+              modelUrl={item.modelUrl}
+              colors={viewerColors}
+              height={activeHeight}
+              depth={activeDepth}
+            />
+          </Reveal>
+        </section>
+      ) : null}
+
       {description || hasSpecs ? (
-        <div
+        <section
           className={cn(
-            "mt-8 grid items-start gap-12",
-            description && hasSpecs && "md:grid-cols-2 md:gap-x-10 lg:gap-x-16",
+            "mt-16 grid items-start gap-10 border-t border-border pt-12 md:mt-20 md:pt-16",
+            description &&
+              hasSpecs &&
+              "lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-12 xl:gap-16",
           )}
         >
           {description ? (
             <Reveal>
-              <div>
+              <div className="max-w-2xl">
                 <h2 className="display mb-6 text-xl text-foreground md:text-2xl">
                   {t("description")}
                 </h2>
@@ -689,48 +734,22 @@ function CatalogDetailInner({
                   {t("specs")}
                 </h2>
                 <dl className="catalog-panel divide-y divide-border rounded-[5px] border">
-                  {specs.map((spec) => (
-                    <div
-                      key={spec.key}
-                      className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4"
-                    >
-                      <dt className="min-w-0 text-sm text-muted-foreground">
-                        {getLocalized(spec.label, locale)}
-                      </dt>
-                      <dd className="shrink-0 text-right text-sm font-medium text-foreground">
-                        {spec.value}
-                        {spec.unit ? ` ${spec.unit}` : ""}
-                      </dd>
-                    </div>
-                  ))}
-                  {dimensionRows.map((row) => (
+                  {specRows.map((row) => (
                     <div
                       key={row.key}
                       className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4"
                     >
                       <dt className="min-w-0 text-sm text-muted-foreground">{row.label}</dt>
                       <dd className="shrink-0 text-right text-sm font-medium text-foreground">
-                        {Number(row.value)} mm
+                        {row.value}
                       </dd>
                     </div>
                   ))}
-                  {hasMaterial ? (
-                    <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4">
-                      <dt className="min-w-0 text-sm text-muted-foreground">{t("material")}</dt>
-                      <dd className="shrink-0 text-right text-sm font-medium text-foreground">{item.material}</dd>
-                    </div>
-                  ) : null}
-                  {hasFinish ? (
-                    <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:items-center sm:gap-4 sm:px-6 sm:py-4">
-                      <dt className="min-w-0 text-sm text-muted-foreground">{t("finish")}</dt>
-                      <dd className="shrink-0 text-right text-sm font-medium text-foreground">{item.finish}</dd>
-                    </div>
-                  ) : null}
                 </dl>
               </div>
             </Reveal>
           ) : null}
-        </div>
+        </section>
       ) : null}
 
       {footer}

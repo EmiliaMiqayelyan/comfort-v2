@@ -76,7 +76,7 @@ export function CatalogCard({
             {title}
           </h3>
           {description ? (
-            <p className="mt-1.5 line-clamp-2 text-[13px] leading-[1.45] text-muted-foreground">
+            <p className="mt-1.5 line-clamp-2 font-montserratarm text-[13px] leading-[1.45] text-muted-foreground">
               {description}
             </p>
           ) : null}
