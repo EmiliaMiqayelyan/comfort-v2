@@ -87,7 +87,7 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
             className={cn(
-              "inline-flex items-center gap-1 text-[15px] tracking-wide transition-colors",
+              "inline-flex items-center gap-1 text-[18px] tracking-wide transition-colors",
               solid
                 ? "text-foreground/90 hover:text-accent"
                 : "text-white/90 hover:text-white",

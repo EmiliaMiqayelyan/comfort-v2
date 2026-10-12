@@ -260,6 +260,12 @@ body {
   overflow-x: clip;
 }
 
+/* `html { overflow-x: clip }` keeps the viewport scrollbar visible during Radix
+   scroll locks, so the scrollbar-width margin they add only shifts the page. */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
 button,
 input,
 select,

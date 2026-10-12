@@ -127,7 +127,7 @@ function DesktopDropdown({
       <Link
         href={href}
         className={cn(
-          "inline-flex items-center gap-1 text-[15px] tracking-wide transition-colors",
+          "inline-flex items-center gap-1 text-[18px] tracking-wide transition-colors",
           linkTone(solid, active),
         )}
         aria-expanded={open}
@@ -556,7 +556,7 @@ export function HeaderNav({
               key={key}
               href={href}
               className={cn(
-                "text-[15px] tracking-wide transition-colors",
+                "text-[18px] tracking-wide transition-colors",
                 linkTone(solid, active),
               )}
             >

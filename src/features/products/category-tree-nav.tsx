@@ -201,11 +201,17 @@ export function CategoryTreeNav({
 }: CategoryTreeNavProps) {
   const t = useTranslations("categories");
   const roots = parentCategories(categories);
-  const [collapsed, setCollapsed] = useState(true);
+  // `null` = untouched: collapsed on mobile, expanded from `lg` (sidebar layout) via CSS,
+  // so SSR and the first client render match.
+  const [expanded, setExpanded] = useState<boolean | null>(null);
   const activeId = activeCategoryId ?? "";
   const catalogLabel = t.has("catalog") ? t("catalog") : "Catalog";
 
   if (roots.length === 0) return null;
+
+  const isDefault = expanded === null;
+  const toggle = () =>
+    setExpanded((value) => !(value ?? window.matchMedia("(min-width: 1024px)").matches));
 
   return (
     <nav
@@ -214,11 +220,11 @@ export function CategoryTreeNav({
     >
       <button
         type="button"
-        aria-expanded={!collapsed}
-        onClick={() => setCollapsed((value) => !value)}
+        aria-expanded={expanded ?? undefined}
+        onClick={toggle}
         className={cn(
           "flex w-full items-center justify-between px-4 py-3.5 text-left",
-          !collapsed && "border-b border-border/60",
+          isDefault ? "lg:border-b lg:border-border/60" : expanded && "border-b border-border/60",
         )}
       >
         <span className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
@@ -227,13 +233,13 @@ export function CategoryTreeNav({
         <ChevronDown
           className={cn(
             "h-4 w-4 text-foreground/60 transition-transform",
-            !collapsed && "rotate-180",
+            isDefault ? "lg:rotate-180" : expanded && "rotate-180",
           )}
         />
       </button>
 
-      {!collapsed && (
-        <div>
+      {expanded !== false && (
+        <div className={cn(isDefault && "hidden lg:block")}>
           {roots.map((root, index) => (
             <CategoryBranch
               key={root.id}
