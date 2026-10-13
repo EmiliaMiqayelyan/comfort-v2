@@ -75,7 +75,7 @@ export default async function AboutPage({
       </section>
 
       {partnerList.length > 0 ? (
-        <section className="border-t border-border bg-card py-16 md:py-20">
+        <section className="border-t border-border bg-muted/30 py-16 md:py-20">
           <div className="container-wide px-4 md:px-8">
             <Reveal className="mb-12 text-center">
               <h2 className="display text-3xl text-foreground md:text-4xl">

@@ -14,10 +14,10 @@ export function CatalogCta() {
   const nav = useTranslations("nav");
 
   return (
-    <section className="bg-card py-12 md:py-16">
+    <section className="bg-secondary/50 py-12 md:py-16">
       <div className="container-comfort px-4 md:px-8">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl bg-background shadow-soft">
+          <div className="relative overflow-hidden rounded-3xl bg-card shadow-soft">
             <div className="grid lg:grid-cols-[minmax(0,280px)_1fr]">
               <div className="relative hidden min-h-[220px] lg:block">
                 <Image

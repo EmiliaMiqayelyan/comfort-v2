@@ -149,7 +149,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                 value: product.id,
                 label: product.sku,
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
             />
           </Field>
 
@@ -164,7 +164,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                 value: corner,
                 label: t(`cornerTypes.${corner}`),
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
+              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
             />
           </Field>
 

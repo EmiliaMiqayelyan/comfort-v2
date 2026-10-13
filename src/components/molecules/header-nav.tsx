@@ -132,7 +132,7 @@ function DesktopDropdown({
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "inline-flex cursor-pointer items-center gap-1 text-[18px] tracking-wide transition-colors",
+          "inline-flex cursor-pointer items-center gap-1 text-[20px] tracking-wide transition-colors",
           linkTone(solid, active),
         )}
         aria-expanded={open}
@@ -224,21 +224,21 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
     return (
       <ViewAllProductsLink
         onNavigate={onNavigate}
-        className="block px-4 py-3 text-sm font-normal uppercase tracking-[0.06em] text-popover-foreground transition hover:text-accent"
+        className="display block px-4 py-3 text-sm font-normal uppercase tracking-[0.06em] text-popover-foreground transition hover:text-accent"
       />
     );
   }
 
   return (
     <div
-      className="flex bg-white text-[#2C333E] dark:bg-popover dark:text-popover-foreground"
+      className="display flex bg-white text-[#2C333E] dark:bg-popover dark:text-popover-foreground"
       onWheel={stopPageScroll}
     >
       <ul className="w-72 shrink-0 border-r border-border bg-foreground/[0.03] py-3">
         <li>
           <ViewAllProductsLink
             onNavigate={onNavigate}
-            className="mx-2 block rounded-lg px-3 py-2 text-[13px] font-normal uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
+            className="mx-2 block rounded-lg px-3 py-2 text-[15px] font-normal uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
           />
         </li>
         {roots.map((category) => {
@@ -253,7 +253,7 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
                 onFocus={() => setActiveId(category.id)}
                 onClick={onNavigate}
                 className={cn(
-                  "mx-2 flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[13px] uppercase tracking-[0.06em] transition",
+                  "mx-2 flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[15px] uppercase tracking-[0.06em] transition",
                   isActive
                     ? "bg-accent/10 font-semibold text-accent"
                     : "text-popover-foreground/75 hover:bg-foreground/5 hover:text-popover-foreground",
@@ -289,7 +289,7 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
             ))}
           </div>
         ) : active ? (
-          <div className="px-2 py-1 text-[13px] uppercase tracking-[0.06em] text-popover-foreground/50">
+          <div className="px-2 py-1 text-[15px] uppercase tracking-[0.06em] text-popover-foreground/50">
             {getLocalized(active.name, locale)}
           </div>
         ) : null}
@@ -316,7 +316,7 @@ function CategoryColumn({
         href={`/products/${category.slug}`}
         role="menuitem"
         onClick={onNavigate}
-        className="block rounded-md px-2 py-1.5 text-[13px] font-semibold uppercase leading-snug tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
+        className="block rounded-md px-2 py-1.5 text-[15px] font-semibold uppercase leading-snug tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
       >
         {getLocalized(category.name, locale)}
       </Link>
@@ -362,8 +362,8 @@ function CategoryChildItem({
         className={cn(
           "block rounded-md py-1.5 uppercase leading-snug tracking-[0.05em] transition hover:bg-foreground/5",
           depth <= 1
-            ? "px-2 text-[13px] text-popover-foreground/80 hover:text-accent"
-            : "px-2 pl-4 text-[12px] text-popover-foreground/60 hover:text-popover-foreground",
+            ? "px-2 text-[15px] text-popover-foreground/80 hover:text-accent"
+            : "px-2 pl-4 text-[14px] text-popover-foreground/60 hover:text-popover-foreground",
         )}
       >
         {getLocalized(category.name, locale)}
@@ -444,7 +444,7 @@ function MobileCategoryNode({
           href={`/products/${category.slug}`}
           onClick={onNavigate}
           className={cn(
-            "min-w-0 flex-1 py-1 uppercase leading-snug tracking-[0.05em]",
+            "display min-w-0 flex-1 py-1 uppercase leading-snug tracking-[0.05em]",
             depth === 0
               ? "text-base text-foreground/90"
               : "text-sm text-muted-foreground",
@@ -492,7 +492,7 @@ function MobileProductsLinks({ onNavigate }: { onNavigate?: () => void }) {
     <>
       <Link
         href="/products"
-        className="block py-1 text-base uppercase tracking-[0.05em] text-muted-foreground"
+        className="display block py-1 text-base uppercase tracking-[0.05em] text-muted-foreground"
         onClick={onNavigate}
       >
         {t("viewAll")}
@@ -561,7 +561,7 @@ export function HeaderNav({
               key={key}
               href={href}
               className={cn(
-                "text-[18px] tracking-wide transition-colors",
+                "text-[20px] tracking-wide transition-colors",
                 linkTone(solid, active),
               )}
             >

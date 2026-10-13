@@ -95,7 +95,7 @@ export function HeroSection() {
           <div className="max-w-3xl">
             <Reveal delay={0.1}>
               <h1 className="display text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.45)]">
-                <span className="flex flex-col gap-1.5 text-[2.15rem] leading-none tracking-[0.06em] sm:hidden">
+                <span className="flex flex-col gap-1.5 text-[calc(2.15rem+2px)] leading-none tracking-[0.06em] sm:hidden">
                   {t("title")
                     .split(/\.\s*/)
                     .map((part) => part.trim())
@@ -143,7 +143,7 @@ export function HeroSection() {
 
           {slideCount > 1 ? (
             <Reveal delay={0.4} className="mt-8 flex items-center gap-3 md:mt-12 md:gap-4">
-              <span className="display text-[11px] tabular-nums tracking-widest text-white md:text-sm">{current}</span>
+              <span className="display text-[13px] tabular-nums tracking-widest text-white md:text-sm">{current}</span>
               <div className="flex h-px max-w-[88px] flex-1 items-center gap-1 md:max-w-[120px]">
                 {slides.map((_, i) => (
                   <button
@@ -158,7 +158,7 @@ export function HeroSection() {
                   />
                 ))}
               </div>
-              <span className="display text-[11px] tabular-nums tracking-widest text-white/50 md:text-sm">{total}</span>
+              <span className="display text-[13px] tabular-nums tracking-widest text-white/50 md:text-sm">{total}</span>
             </Reveal>
           ) : null}
         </div>

@@ -77,11 +77,11 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #E7DFD9;
   --foreground: #2C333E;
-  --card: #F7F4F1;
+  --card: #E7DFD9;
   --card-foreground: #2C333E;
-  --popover: #F7F4F1;
+  --popover: #E7DFD9;
   --popover-foreground: #2C333E;
   --primary: #2C333E;
   --primary-foreground: #E7DFD9;
@@ -97,7 +97,7 @@
   --input: #ACB9C0;
   --ring: #203E4B;
   --radius: 5px;
-  --glass: rgba(247, 244, 241, 0.92);
+  --glass: rgba(231, 223, 217, 0.82);
   --glass-border: rgba(44, 51, 62, 0.08);
   --shadow-soft: 0 20px 60px rgba(44, 51, 62, 0.08);
   --hero-overlay: linear-gradient(
@@ -108,7 +108,9 @@
   );
   --font-comfort-body: "Bainsley", "Mardoto Regular", "Montserratarm Light", "Noto Sans Armenian", system-ui, sans-serif;
   --font-comfort-display: "Arm Hmk's Bebas Neue", "Ofont Ru Bebas Neue", "Bainsley", sans-serif;
-  --font-comfort-sans: var(--font-comfort-display);
+  /* Montserratarm has no Cyrillic; Bainsley covers Russian. */
+  --font-comfort-text: "Montserratarm Light", "Bainsley", "Noto Sans Armenian", system-ui, sans-serif;
+  --font-comfort-sans: var(--font-comfort-text);
 }
 
 /* Force light admin tokens by default; dark overrides below */
@@ -232,7 +234,7 @@
   --color-comfort-gold: #203E4B;
   --font-sans: var(--font-comfort-sans);
   --font-display: var(--font-comfort-display);
-  --font-montserratarm: "Montserratarm Light", "Noto Sans Armenian", system-ui, sans-serif;
+  --font-montserratarm: var(--font-comfort-text);
   --radius-sm: 5px;
   --radius-md: 5px;
   --radius-lg: 5px;
@@ -284,10 +286,29 @@ optgroup {
   font-family: var(--font-comfort-sans), system-ui, sans-serif;
 }
 
-/* Uppercase labels (nav menus, category lists, card titles) use the display
-   face. The text face's caps read as a different family. */
-.uppercase {
-  font-family: var(--font-comfort-display), var(--font-comfort-sans), sans-serif;
+@layer base {
+  :where(h1, h2, h3, h4, h5, h6):not(.admin-theme *, .admin-font *) {
+    font-family: var(--font-comfort-display), sans-serif;
+  }
+
+  /* The display face runs small, so it gets the type scale +2px. Values are
+     absolute so nested display elements don't add up. Arbitrary sizes
+     (text-[18px]) are bumped at the call site. */
+  :where(h1, h2, h3, h4, h5, h6, .display):not(.admin-theme *, .admin-font *) {
+    --text-xs: calc(0.75rem + 2px);
+    --text-sm: calc(0.875rem + 2px);
+    --text-base: calc(1rem + 2px);
+    --text-lg: calc(1.125rem + 2px);
+    --text-xl: calc(1.25rem + 2px);
+    --text-2xl: calc(1.5rem + 2px);
+    --text-3xl: calc(1.875rem + 2px);
+    --text-4xl: calc(2.25rem + 2px);
+    --text-5xl: calc(3rem + 2px);
+    --text-6xl: calc(3.75rem + 2px);
+    --text-7xl: calc(4.5rem + 2px);
+    --text-8xl: calc(6rem + 2px);
+    --text-9xl: calc(8rem + 2px);
+  }
 }
 
 ::selection {
@@ -563,7 +584,7 @@ html.admin-scroll-lock body {
 .comfort-brand-map .leaflet-container {
   width: 100%;
   height: 100%;
-  background: var(--card);
+  background: #e7dfd9;
   font: inherit;
 }
 

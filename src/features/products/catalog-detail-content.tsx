@@ -114,7 +114,7 @@ function ProductPageTitle({ title }: { title: string }) {
     <h1
       ref={ref}
       title={title}
-      className="display break-words leading-[1.15] text-[1.875rem] text-foreground max-lg:line-clamp-2 md:text-[2.25rem] lg:h-[calc(2.75rem*1.15+2px)] lg:overflow-hidden lg:text-[2.75rem]"
+      className="display break-words leading-[1.15] text-[calc(1.875rem+2px)] text-foreground max-lg:line-clamp-2 md:text-[calc(2.25rem+2px)] lg:h-[calc((2.75rem+2px)*1.15+2px)] lg:overflow-hidden lg:text-[calc(2.75rem+2px)]"
     >
       {title}
     </h1>

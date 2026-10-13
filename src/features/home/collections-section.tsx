@@ -46,7 +46,7 @@ export function CollectionsSection({
   };
 
   return (
-    <section className="overflow-x-clip bg-card py-20 md:py-28">
+    <section className="overflow-x-clip bg-secondary/50 py-20 md:py-28">
       <div className="container-wide px-4 md:px-8">
         <Reveal className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <h2 className="display text-3xl text-foreground md:text-4xl lg:text-5xl">

@@ -80,14 +80,14 @@ export function SiteHeader() {
           />
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex" aria-label="Main">
+        <nav className="display hidden items-center gap-6 lg:flex" aria-label="Main">
           <HeaderNav solid={solid} />
           <a
             href="https://www.comfort.am"
             target="_blank"
             rel="noreferrer"
             className={cn(
-              "inline-flex items-center gap-1 text-[18px] tracking-wide transition-colors",
+              "inline-flex items-center gap-1 text-[20px] tracking-wide transition-colors",
               solid
                 ? "text-foreground/90 hover:text-accent"
                 : "text-white/90 hover:text-white",
