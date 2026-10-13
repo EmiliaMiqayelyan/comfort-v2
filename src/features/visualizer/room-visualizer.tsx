@@ -372,7 +372,7 @@ export function RoomVisualizer({ className }: { className?: string }) {
                 value: floor.id,
                 label: floor.label,
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
             />
           </div>
 
@@ -393,7 +393,7 @@ export function RoomVisualizer({ className }: { className?: string }) {
                 value: option.id,
                 label: option.label,
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
             />
           </div>
 

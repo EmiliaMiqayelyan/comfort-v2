@@ -208,7 +208,7 @@ export function ProductConfigurator({ className }: { className?: string }) {
                 value: collection.id,
                 label: getLocalized(collection.name, locale),
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
             />
           </OptionGroup>
 
@@ -223,7 +223,7 @@ export function ProductConfigurator({ className }: { className?: string }) {
                 value: product.id,
                 label: getLocalized(product.name, locale),
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
             />
           </OptionGroup>
 
@@ -260,7 +260,7 @@ export function ProductConfigurator({ className }: { className?: string }) {
                   value: finish.id,
                   label: finish.label,
                 }))}
-                triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+                triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
               />
             </OptionGroup>
 
@@ -275,7 +275,7 @@ export function ProductConfigurator({ className }: { className?: string }) {
                   value: material.id,
                   label: material.label,
                 }))}
-                triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+                triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
               />
             </OptionGroup>
           </div>
@@ -291,7 +291,7 @@ export function ProductConfigurator({ className }: { className?: string }) {
                 value: texture.id,
                 label: getLocalized(texture.name, locale),
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              triggerClassName="h-11 rounded-2xl border-input bg-white px-4 dark:bg-card"
             />
           </OptionGroup>
 

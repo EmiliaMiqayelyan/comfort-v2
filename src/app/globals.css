@@ -77,11 +77,11 @@
 }
 
 :root {
-  --background: #E7DFD9;
+  --background: #ffffff;
   --foreground: #2C333E;
-  --card: #E7DFD9;
+  --card: #F7F4F1;
   --card-foreground: #2C333E;
-  --popover: #E7DFD9;
+  --popover: #F7F4F1;
   --popover-foreground: #2C333E;
   --primary: #2C333E;
   --primary-foreground: #E7DFD9;
@@ -97,7 +97,7 @@
   --input: #ACB9C0;
   --ring: #203E4B;
   --radius: 5px;
-  --glass: rgba(231, 223, 217, 0.82);
+  --glass: rgba(247, 244, 241, 0.92);
   --glass-border: rgba(44, 51, 62, 0.08);
   --shadow-soft: 0 20px 60px rgba(44, 51, 62, 0.08);
   --hero-overlay: linear-gradient(
@@ -563,7 +563,7 @@ html.admin-scroll-lock body {
 .comfort-brand-map .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #e7dfd9;
+  background: var(--card);
   font: inherit;
 }
 

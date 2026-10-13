@@ -60,14 +60,12 @@ function linkTone(solid: boolean, active: boolean) {
 function DesktopDropdown({
   solid,
   label,
-  href,
   active,
   wide = false,
   children,
 }: {
   solid: boolean;
   label: string;
-  href: string;
   active: boolean;
   /** Viewport-centered panel, wide enough for subcategory columns. */
   wide?: boolean;
@@ -123,11 +121,18 @@ function DesktopDropdown({
           setOpen(false);
         }
       }}
+      onClickCapture={(event) => {
+        if (!(event.target as HTMLElement).closest("a")) return;
+        setOpen(false);
+        // Otherwise focus stays inside and the hover/focus handlers keep the panel open.
+        (document.activeElement as HTMLElement | null)?.blur();
+      }}
     >
-      <Link
-        href={href}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
         className={cn(
-          "inline-flex items-center gap-1 text-[18px] tracking-wide transition-colors",
+          "inline-flex cursor-pointer items-center gap-1 text-[18px] tracking-wide transition-colors",
           linkTone(solid, active),
         )}
         aria-expanded={open}
@@ -140,7 +145,7 @@ function DesktopDropdown({
             open && "rotate-180",
           )}
         />
-      </Link>
+      </button>
 
       <div
         ref={panelRef}
@@ -570,7 +575,6 @@ export function HeaderNav({
             key={key}
             solid={solid}
             label={t(key)}
-            href={href}
             active={active}
             wide
           >

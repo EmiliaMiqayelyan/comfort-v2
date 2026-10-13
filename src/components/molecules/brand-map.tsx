@@ -169,10 +169,10 @@ export function BrandMap({
     <div
       role="region"
       aria-label={title}
-      className={cn("comfort-brand-map relative overflow-hidden bg-[#E7DFD9]", className)}
+      className={cn("comfort-brand-map relative overflow-hidden bg-card", className)}
     >
       {!coords && (
-        <div className="absolute inset-0 animate-pulse bg-[#DED6CE]" aria-hidden />
+        <div className="absolute inset-0 animate-pulse bg-muted/30" aria-hidden />
       )}
       <div ref={containerRef} className="absolute inset-0 z-0 h-full w-full" />
 
