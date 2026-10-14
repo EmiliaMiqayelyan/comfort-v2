@@ -238,7 +238,7 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
         <li>
           <ViewAllProductsLink
             onNavigate={onNavigate}
-            className="mx-2 block rounded-lg px-3 py-2 text-[15px] font-normal uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
+            className="mx-2 block rounded-lg px-3 py-2 text-[17px] font-normal uppercase tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
           />
         </li>
         {roots.map((category) => {
@@ -253,7 +253,7 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
                 onFocus={() => setActiveId(category.id)}
                 onClick={onNavigate}
                 className={cn(
-                  "mx-2 flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[15px] uppercase tracking-[0.06em] transition",
+                  "mx-2 flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[17px] uppercase tracking-[0.06em] transition",
                   isActive
                     ? "bg-accent/10 font-semibold text-accent"
                     : "text-popover-foreground/75 hover:bg-foreground/5 hover:text-popover-foreground",
@@ -289,7 +289,7 @@ function ProductsMenu({ onNavigate }: { onNavigate?: () => void }) {
             ))}
           </div>
         ) : active ? (
-          <div className="px-2 py-1 text-[15px] uppercase tracking-[0.06em] text-popover-foreground/50">
+          <div className="px-2 py-1 text-[17px] uppercase tracking-[0.06em] text-popover-foreground/50">
             {getLocalized(active.name, locale)}
           </div>
         ) : null}
@@ -316,7 +316,7 @@ function CategoryColumn({
         href={`/products/${category.slug}`}
         role="menuitem"
         onClick={onNavigate}
-        className="block rounded-md px-2 py-1.5 text-[15px] font-semibold uppercase leading-snug tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
+        className="block rounded-md px-2 py-1.5 text-[17px] font-semibold uppercase leading-snug tracking-[0.06em] text-popover-foreground transition hover:bg-foreground/5 hover:text-accent"
       >
         {getLocalized(category.name, locale)}
       </Link>
@@ -362,7 +362,7 @@ function CategoryChildItem({
         className={cn(
           "block rounded-md py-1.5 uppercase leading-snug tracking-[0.05em] transition hover:bg-foreground/5",
           depth <= 1
-            ? "px-2 text-[15px] text-popover-foreground/80 hover:text-accent"
+            ? "px-2 text-[17px] text-popover-foreground/80 hover:text-accent"
             : "px-2 pl-4 text-[14px] text-popover-foreground/60 hover:text-popover-foreground",
         )}
       >

@@ -102,21 +102,21 @@ export default async function AboutPage({
                     href={cert.fileUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-3xl border border-border bg-card px-6 py-8 text-center shadow-soft transition hover:border-accent/40"
+                    className="block bg-transparent text-center"
                   >
                     {cert.image ? (
-                      <span className="relative mx-auto mb-4 block h-20 w-20 overflow-hidden rounded-xl bg-muted">
+                      <span className="relative block aspect-[4/3] w-full">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={cert.image}
                           alt=""
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-contain"
                         />
                       </span>
                     ) : (
-                      <FileText className="mx-auto mb-4 h-6 w-6 text-accent" />
+                      <FileText className="mx-auto mt-8 h-6 w-6 text-accent" />
                     )}
-                    <p className="display text-sm text-foreground md:text-base">
+                    <p className="display px-6 py-6 text-sm text-foreground md:text-base">
                       {getLocalized(cert.title, locale)}
                     </p>
                     {cert.issuer && (

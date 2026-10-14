@@ -216,7 +216,7 @@ export function CategoryTreeNav({
   return (
     <nav
       aria-label={catalogLabel}
-      className="catalog-panel overflow-hidden rounded-[5px] border border-border"
+      className="catalog-panel display overflow-hidden rounded-[5px] border border-border"
     >
       <button
         type="button"
