@@ -88,7 +88,7 @@ export default async function AboutPage({
       ) : null}
 
       {certificateList.length > 0 ? (
-        <section className="py-20 md:py-28">
+        <section className="bg-white py-20 md:py-28">
           <div className="container-wide px-4 md:px-8">
             <Reveal className="mb-12">
               <h2 className="display text-3xl text-foreground md:text-4xl">
@@ -102,15 +102,15 @@ export default async function AboutPage({
                     href={cert.fileUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="block bg-transparent text-center"
+                    className="block max-w-[260px] bg-transparent text-center"
                   >
                     {cert.image ? (
-                      <span className="relative block aspect-[4/3] w-full">
+                      <span className="relative block aspect-square w-full">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={cert.image}
                           alt=""
-                          className="h-full w-full object-contain"
+                          className="h-full w-full object-contain object-left"
                         />
                       </span>
                     ) : (

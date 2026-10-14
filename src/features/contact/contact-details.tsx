@@ -66,7 +66,7 @@ export function ContactDetails() {
           {(settings.showrooms ?? []).map((room) => {
             const roomQuery = locationQuery(room.mapEmbedUrl, room.address);
             return (
-              <li key={room.id} className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+              <li key={room.id} className="rounded-3xl border border-border bg-white p-6 shadow-soft">
                 <h3 className="font-medium text-foreground">{room.name}</h3>
                 <p className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
@@ -100,7 +100,7 @@ export function ContactDetails() {
         </ul>
       </div>
 
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+      <div className="rounded-3xl border border-border bg-white p-6 shadow-soft">
         <p className="flex items-start gap-2 text-sm text-muted-foreground">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
           {getLocalized(settings.address, locale)}
@@ -175,7 +175,7 @@ export function ContactMap() {
         )}
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+      <div className="overflow-hidden rounded-3xl border border-border bg-white shadow-soft">
         <BrandMap
           title={t("warehouseMap")}
           address={address}

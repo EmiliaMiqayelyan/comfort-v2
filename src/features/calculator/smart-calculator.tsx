@@ -67,7 +67,7 @@ export function SmartCalculator({ className }: { className?: string }) {
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,480px)_1fr] xl:gap-12">
         <form
-          className="glass space-y-5 rounded-3xl p-6 shadow-soft"
+          className="space-y-5 rounded-3xl border border-border bg-white p-6 shadow-soft"
           onSubmit={(e) => {
             e.preventDefault();
             handleCalculate();
@@ -88,6 +88,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                 setInput("perimeter", Number(e.target.value) || 0)
               }
               aria-label={t("perimeter")}
+              className="bg-white"
             />
           </Field>
 
@@ -106,6 +107,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                 setInput("wallHeight", Number(e.target.value) || 0)
               }
               aria-label={t("wallHeight")}
+              className="bg-white"
             />
           </Field>
 
@@ -121,6 +123,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                   setInput("doorCount", Number(e.target.value) || 0)
                 }
                 aria-label={t("doors")}
+                className="bg-white"
               />
             </Field>
             <Field id="calc-windows" label={t("windows")}>
@@ -134,6 +137,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                   setInput("windowCount", Number(e.target.value) || 0)
                 }
                 aria-label={t("windows")}
+                className="bg-white"
               />
             </Field>
           </div>
@@ -149,7 +153,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                 value: product.id,
                 label: product.sku,
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              triggerClassName="h-11 rounded-2xl border-input bg-white px-4"
             />
           </Field>
 
@@ -164,7 +168,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                 value: corner,
                 label: t(`cornerTypes.${corner}`),
               }))}
-              triggerClassName="h-11 rounded-2xl border-input bg-card px-4"
+              triggerClassName="h-11 rounded-2xl border-input bg-white px-4"
             />
           </Field>
 
@@ -180,12 +184,13 @@ export function SmartCalculator({ className }: { className?: string }) {
                 setInput("wastePercent", Number(e.target.value) || 0)
               }
               aria-label={t("waste")}
+              className="bg-white"
             />
           </Field>
 
           <div
             role="presentation"
-            className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-border bg-card/60 px-4 py-3"
+            className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-border bg-white px-4 py-3"
             onClick={() => setInput("includeAdhesive", !input.includeAdhesive)}
           >
             <span id="calc-adhesive-label" className="text-sm font-medium">
@@ -221,7 +226,7 @@ export function SmartCalculator({ className }: { className?: string }) {
           </Button>
         </form>
 
-        <aside className="glass flex flex-col rounded-3xl p-6 shadow-soft">
+        <aside className="flex flex-col rounded-3xl border border-border bg-white p-6 shadow-soft">
           <h2 className="display mb-6 text-2xl">{t("results")}</h2>
 
           {result ? (
@@ -259,7 +264,7 @@ export function SmartCalculator({ className }: { className?: string }) {
               </div>
             </>
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-card/40 px-6 py-16 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-white px-6 py-16 text-center">
               <Calculator
                 className="mb-4 size-10 text-muted-foreground/50"
                 aria-hidden
@@ -316,7 +321,7 @@ function ResultItem({
         "rounded-2xl border px-4 py-4",
         highlight
           ? "border-accent/40 bg-accent/10"
-          : "border-border/70 bg-card/50",
+          : "border-border/70 bg-white",
       )}
     >
       <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">

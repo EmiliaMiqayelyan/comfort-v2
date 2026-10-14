@@ -29,7 +29,7 @@ export default async function CalculatorPage({
   const t = await getTranslations({ locale, namespace: "calculator" });
 
   return (
-    <section className="bg-background py-20 md:py-28">
+    <section className="bg-white py-20 md:py-28">
       <div className="container-wide px-4 md:px-8">
         <Reveal className="mb-16 max-w-3xl">
           <h1 className="display text-4xl text-foreground md:text-5xl lg:text-6xl">

@@ -28,9 +28,6 @@ export function SiteFooter() {
           <div className="mb-5">
             <BrandLogo heightClassName="h-14" inverted />
           </div>
-          <p className="max-w-sm text-sm leading-relaxed text-comfort-sand/80">
-            {t("mission")}
-          </p>
           {settings && (
             <div className="mt-6 space-y-2 text-sm text-comfort-sand/80">
               {(settings.phones ?? []).filter(Boolean).map((phone) => (
