@@ -59,7 +59,7 @@ export function ContactForm({ className }: { className?: string }) {
     return (
       <div
         className={cn(
-          "rounded-3xl border border-border bg-white p-8 text-center shadow-soft md:p-12",
+          "rounded-3xl border border-border bg-card p-8 text-center shadow-soft md:p-12",
           className,
         )}
       >
@@ -82,7 +82,7 @@ export function ContactForm({ className }: { className?: string }) {
     <form
       onSubmit={handleSubmit(onSubmit)}
       className={cn(
-        "space-y-6 rounded-3xl border border-border bg-white p-6 shadow-soft md:p-10",
+        "space-y-6 rounded-3xl border border-border bg-card p-6 shadow-soft md:p-10",
         className,
       )}
       noValidate
@@ -100,7 +100,6 @@ export function ContactForm({ className }: { className?: string }) {
             id="name"
             autoComplete="name"
             aria-invalid={!!errors.name}
-            className="bg-white"
             {...register("name")}
           />
           {errors.name && (
@@ -117,7 +116,6 @@ export function ContactForm({ className }: { className?: string }) {
             type="email"
             autoComplete="email"
             aria-invalid={!!errors.email}
-            className="bg-white"
             {...register("email")}
           />
           {errors.email && (
@@ -131,14 +129,13 @@ export function ContactForm({ className }: { className?: string }) {
             id="phone"
             type="tel"
             autoComplete="tel"
-            className="bg-white"
             {...register("phone")}
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="company">{t("company")}</Label>
-          <Input id="company" autoComplete="organization" className="bg-white" {...register("company")} />
+          <Input id="company" autoComplete="organization" {...register("company")} />
         </div>
       </div>
 
@@ -150,7 +147,6 @@ export function ContactForm({ className }: { className?: string }) {
           id="message"
           rows={5}
           aria-invalid={!!errors.message}
-          className="bg-white"
           {...register("message")}
         />
         {errors.message && (

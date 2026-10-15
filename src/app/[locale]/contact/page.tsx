@@ -32,7 +32,7 @@ export default async function ContactPage({
   setRequestLocale(locale);
 
   return (
-    <section className="bg-white py-20 md:py-28">
+    <section className="bg-background py-20 md:py-28">
       <div className="container-wide px-4 md:px-8">
         <Reveal className="mb-16 max-w-3xl">
           <ContactIntro />

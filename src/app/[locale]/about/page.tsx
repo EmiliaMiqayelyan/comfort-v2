@@ -88,7 +88,7 @@ export default async function AboutPage({
       ) : null}
 
       {certificateList.length > 0 ? (
-        <section className="bg-white py-20 md:py-28">
+        <section className="py-20 md:py-28">
           <div className="container-wide px-4 md:px-8">
             <Reveal className="mb-12">
               <h2 className="display text-3xl text-foreground md:text-4xl">
